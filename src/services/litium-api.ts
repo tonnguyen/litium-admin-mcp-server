@@ -1,10 +1,10 @@
-import { type LitiumConfig } from '../types/config.js';
-import { BlocksService } from './blocks/blocks-service.js';
-import { ProductsService } from './products/products-service.js';
-import { CustomersService } from './customers/customers-service.js';
-import { MediaService } from './media/media-service.js';
-import { WebsitesService } from './websites/websites-service.js';
-import { OrdersService } from './orders/orders-service.js';
+import { type LitiumConfig } from '../types/config';
+import { BlocksService } from './blocks/blocks-service';
+import { ProductsService } from './products/products-service';
+import { CustomersService } from './customers/customers-service';
+import { MediaService } from './media/media-service';
+import { WebsitesService } from './websites/websites-service';
+import { OrdersService } from './orders/orders-service';
 
 export class LitiumApiService {
   public readonly blocks: BlocksService;

@@ -1,26 +1,25 @@
 {
-  "version": 2,
-  "builds": [
+  "buildCommand": "next build",
+  "devCommand": "next dev",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "headers": [
     {
-      "src": "dist/index.js",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 30
-      }
+      "source": "/api/mcp",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization, X-Litium-Base-Url, X-Litium-Client-Id, X-Litium-Client-Secret"
+        }
+      ]
     }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "dist/index.js"
-    }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  },
-  "functions": {
-    "dist/index.js": {
-      "maxDuration": 30
-    }
-  }
+  ]
 }

@@ -1,1 +1,1 @@
-export { MediaService } from './media-service.js';
+export { MediaService } from './media-service';

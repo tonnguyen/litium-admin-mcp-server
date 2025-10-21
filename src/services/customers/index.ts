@@ -1,1 +1,1 @@
-export { CustomersService } from './customers-service.js';
+export { CustomersService } from './customers-service';

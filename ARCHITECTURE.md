@@ -5,6 +5,13 @@ This document describes the architecture and organization of the Litium Admin MC
 ## 🏗️ Project Structure
 
 ```
+app/                         # Next.js App Router
+├── api/
+│   └── [transport]/        # MCP server endpoint (supports SSE)
+│       └── route.ts        # Main MCP server implementation
+├── layout.tsx              # Root layout
+└── page.tsx                # Homepage
+
 src/
 ├── auth/                    # Authentication layer
 │   └── token-manager.ts    # OAuth2 token management
@@ -32,11 +39,10 @@ src/
 ├── types/                  # TypeScript type definitions
 │   ├── auth.ts            # Authentication types
 │   └── config.ts          # Configuration types
-├── utils/                  # Utility functions
-│   ├── config.ts          # Configuration management
-│   ├── error-handler.ts   # Error handling utilities
-│   └── logger.ts          # Logging utilities
-└── index.ts               # Main MCP server implementation
+└── utils/                  # Utility functions
+    ├── config.ts          # Configuration management
+    ├── error-handler.ts   # Error handling utilities
+    └── logger.ts          # Logging utilities
 ```
 
 ## 🔧 Design Patterns

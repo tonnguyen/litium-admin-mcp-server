@@ -1,5 +1,5 @@
-import { BaseApiService } from '../base-api.js';
-import { type LitiumConfig } from '../../types/config.js';
+import { BaseApiService } from '../base-api';
+import { type LitiumConfig } from '../../types/config';
 
 export class CustomersService extends BaseApiService {
   constructor(config: LitiumConfig) {

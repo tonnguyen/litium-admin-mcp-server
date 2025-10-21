@@ -1,4 +1,4 @@
-import { LitiumConfigSchema, type LitiumConfig, type MCPConfig, ConfigError } from '../types/config.js';
+import { LitiumConfigSchema, type LitiumConfig, type MCPConfig, ConfigError } from '../types/config';
 
 export function createLitiumConfig(config: LitiumConfig): LitiumConfig {
   try {

@@ -1,6 +1,6 @@
-import { logger } from './logger.js';
-import { AuthenticationError, TokenExpiredError } from '../types/auth.js';
-import { ConfigError } from '../types/config.js';
+import { logger } from './logger';
+import { AuthenticationError, TokenExpiredError } from '../types/auth';
+import { ConfigError } from '../types/config';
 
 export class ApiError extends Error {
   constructor(

@@ -1,18 +1,18 @@
 #!/usr/bin/env node
 
-import { Server } from '@modelcontextprotocol/sdk/server/index.js';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { Server } from '@modelcontextprotocol/sdk/server/index';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio';
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
   type CallToolResult,
   type ListToolsResult,
   type Tool,
-} from '@modelcontextprotocol/sdk/types.js';
-import { createLitiumConfig, createMCPConfig } from './utils/config.js';
-import { LitiumApiService } from './services/litium-api.js';
-import { logger } from './utils/logger.js';
-import { handleError, formatErrorForMCP } from './utils/error-handler.js';
+} from '@modelcontextprotocol/sdk/types';
+import { createLitiumConfig, createMCPConfig } from './utils/config';
+import { LitiumApiService } from './services/litium-api';
+import { logger } from './utils/logger';
+import { handleError, formatErrorForMCP } from './utils/error-handler';
 import { z } from 'zod';
 
 // MCP server configuration

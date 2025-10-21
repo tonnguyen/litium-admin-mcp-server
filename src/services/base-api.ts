@@ -1,5 +1,5 @@
-import { TokenManager } from '../auth/token-manager.js';
-import { type LitiumConfig } from '../types/config.js';
+import { TokenManager } from '../auth/token-manager';
+import { type LitiumConfig } from '../types/config';
 
 export abstract class BaseApiService {
   protected tokenManager: TokenManager;

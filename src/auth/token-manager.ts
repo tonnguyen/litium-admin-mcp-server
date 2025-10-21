@@ -1,6 +1,6 @@
 import axios, { type AxiosResponse } from 'axios';
-import { type TokenResponse, type AuthError, AuthenticationError, TokenExpiredError } from '../types/auth.js';
-import { type LitiumConfig } from '../types/config.js';
+import { type TokenResponse, type AuthError, AuthenticationError } from '../types/auth';
+import { type LitiumConfig } from '../types/config';
 
 export class TokenManager {
   private accessToken: string | null = null;
@@ -33,15 +33,14 @@ export class TokenManager {
 
   private async refreshToken(): Promise<string> {
     try {
-      const tokenUrl = `${this.config.baseUrl}/Litium/api/oauth/token`;
+      const tokenUrl = `${this.config.baseUrl}/Litium/OAuth/token`;
       
       const response: AxiosResponse<TokenResponse> = await axios.post(
         tokenUrl,
         new URLSearchParams({
           grant_type: 'client_credentials',
           client_id: this.config.clientId,
-          client_secret: this.config.clientSecret,
-          scope: 'admin'
+          client_secret: this.config.clientSecret
         }),
         {
           headers: {
@@ -80,10 +79,12 @@ export class TokenManager {
       ...additionalHeaders
     };
 
+    const fullUrl = url.startsWith('http') ? url : `${this.config.baseUrl}${url}`;
+
     try {
       const response = await axios({
         method,
-        url: url.startsWith('http') ? url : `${this.config.baseUrl}${url}`,
+        url: fullUrl,
         data,
         headers
       });
@@ -99,7 +100,7 @@ export class TokenManager {
           const newToken = await this.getValidToken();
           const retryResponse = await axios({
             method,
-            url: url.startsWith('http') ? url : `${this.config.baseUrl}${url}`,
+            url: fullUrl,
             data,
             headers: {
               ...headers,

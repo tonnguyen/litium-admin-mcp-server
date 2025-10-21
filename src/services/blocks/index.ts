@@ -1,1 +1,1 @@
-export { BlocksService } from './blocks-service.js';
+export { BlocksService } from './blocks-service';

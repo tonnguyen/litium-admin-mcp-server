@@ -1,1 +1,1 @@
-export { WebsitesService } from './websites-service.js';
+export { WebsitesService } from './websites-service';
