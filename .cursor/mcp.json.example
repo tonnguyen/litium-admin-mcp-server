@@ -1,0 +1,31 @@
+{
+  "mcpServers": {
+    "litium-admin": {
+      "url": "https://your-deployment.vercel.app/mcp",
+      "headers": {
+        "X-Litium-Base-Url": "${input:litium_base_url}",
+        "X-Litium-Client-Id": "${input:litium_client_id}",
+        "X-Litium-Client-Secret": "${input:litium_client_secret}"
+      }
+    }
+  },
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "litium_base_url",
+      "description": "Litium instance base URL (e.g., https://demoadmin.litium.com)"
+    },
+    {
+      "type": "promptString",
+      "id": "litium_client_id",
+      "description": "Litium OAuth2 Client ID"
+    },
+    {
+      "type": "promptString",
+      "id": "litium_client_secret",
+      "description": "Litium OAuth2 Client Secret",
+      "password": true
+    }
+  ]
+}
+
