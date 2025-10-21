@@ -10,7 +10,11 @@
     "dev": "tsx src/index.ts",
     "generate-types": "openapi-typescript openapi.json -o src/types/api.ts",
     "lint": "eslint src/**/*.ts",
-    "lint:fix": "eslint src/**/*.ts --fix"
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "deploy:vercel": "./scripts/deploy-vercel.sh",
+    "vercel:dev": "vercel dev",
+    "vercel:deploy": "vercel --prod",
+    "example": "tsx examples/usage-examples.ts"
   },
   "keywords": [
     "mcp",

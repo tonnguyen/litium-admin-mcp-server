@@ -8,7 +8,7 @@ yarn-error.log*
 dist/
 build/
 
-# Environment variables
+# Environment variables (not used in this project)
 .env
 .env.local
 .env.development.local

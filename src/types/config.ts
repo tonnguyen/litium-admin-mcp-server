@@ -1,19 +1,14 @@
 import { z } from 'zod';
 
-export const ConfigSchema = z.object({
+export const LitiumConfigSchema = z.object({
   baseUrl: z.string().url('Base URL must be a valid URL'),
   clientId: z.string().min(1, 'Client ID is required'),
   clientSecret: z.string().min(1, 'Client Secret is required'),
-  serverName: z.string().default('litium-admin-mcp-server'),
-  serverVersion: z.string().default('1.0.0'),
 });
 
-export type Config = z.infer<typeof ConfigSchema>;
+export type LitiumConfig = z.infer<typeof LitiumConfigSchema>;
 
-export interface LitiumConfig {
-  baseUrl: string;
-  clientId: string;
-  clientSecret: string;
+export interface MCPConfig {
   serverName: string;
   serverVersion: string;
 }
