@@ -196,7 +196,7 @@ export class OrdersService extends BaseApiService {
     sort?: string;
   }) {
     const endpoint = '/Litium/api/admin/sales/campaigns/search';
-    return this.search<any>(endpoint, params);
+    return this.searchPost<any>(endpoint, params);
   }
 
   /**
@@ -217,7 +217,7 @@ export class OrdersService extends BaseApiService {
     sort?: string;
   }) {
     const endpoint = '/Litium/api/admin/sales/discounts/search';
-    return this.search<any>(endpoint, params);
+    return this.searchPost<any>(endpoint, params);
   }
 
   /**

@@ -198,15 +198,39 @@ export class ApiDiscoveryService extends BaseApiService {
 
       // Customers endpoints
       {
-        method: 'GET',
-        path: '/Litium/api/admin/customers/people',
+        method: 'POST',
+        path: '/Litium/api/admin/customers/people/search',
         description: 'Search for customers (people)',
         parameters: [
           { name: 'search', type: 'string', required: false, description: 'Search term' },
           { name: 'skip', type: 'number', required: false, description: 'Pagination offset' },
           { name: 'take', type: 'number', required: false, description: 'Number of items to return' }
         ],
-        example: 'GET /Litium/api/admin/customers/people?search=john&take=20',
+        example: 'POST /Litium/api/admin/customers/people/search with body: {"search":"john","take":20}',
+        category: 'Customers'
+      },
+      {
+        method: 'POST',
+        path: '/Litium/api/admin/customers/groups/search',
+        description: 'Search for customer groups',
+        parameters: [
+          { name: 'search', type: 'string', required: false, description: 'Search term' },
+          { name: 'skip', type: 'number', required: false, description: 'Pagination offset' },
+          { name: 'take', type: 'number', required: false, description: 'Number of items to return' }
+        ],
+        example: 'POST /Litium/api/admin/customers/groups/search with body: {"search":"vip","take":20}',
+        category: 'Customers'
+      },
+      {
+        method: 'POST',
+        path: '/Litium/api/admin/customers/organizations/search',
+        description: 'Search for organizations',
+        parameters: [
+          { name: 'search', type: 'string', required: false, description: 'Search term' },
+          { name: 'skip', type: 'number', required: false, description: 'Pagination offset' },
+          { name: 'take', type: 'number', required: false, description: 'Number of items to return' }
+        ],
+        example: 'POST /Litium/api/admin/customers/organizations/search with body: {"search":"acme","take":20}',
         category: 'Customers'
       },
       {
@@ -253,15 +277,15 @@ export class ApiDiscoveryService extends BaseApiService {
 
       // Media endpoints
       {
-        method: 'GET',
-        path: '/Litium/api/admin/media/files',
+        method: 'POST',
+        path: '/Litium/api/admin/media/files/search',
         description: 'Search for media files',
         parameters: [
           { name: 'search', type: 'string', required: false, description: 'Search term' },
           { name: 'skip', type: 'number', required: false, description: 'Pagination offset' },
           { name: 'take', type: 'number', required: false, description: 'Number of items to return' }
         ],
-        example: 'GET /Litium/api/admin/media/files?search=image&take=20',
+        example: 'POST /Litium/api/admin/media/files/search with body: {"search":"image","take":20}',
         category: 'Media'
       },
       {
@@ -297,25 +321,49 @@ export class ApiDiscoveryService extends BaseApiService {
 
       // Orders endpoints
       {
-        method: 'GET',
-        path: '/Litium/api/admin/orders/salesOrders',
+        method: 'POST',
+        path: '/Litium/api/admin/sales/salesOrders/search',
         description: 'Search for sales orders',
         parameters: [
           { name: 'search', type: 'string', required: false, description: 'Search term' },
           { name: 'skip', type: 'number', required: false, description: 'Pagination offset' },
           { name: 'take', type: 'number', required: false, description: 'Number of items to return' }
         ],
-        example: 'GET /Litium/api/admin/orders/salesOrders?search=order123&take=20',
+        example: 'POST /Litium/api/admin/sales/salesOrders/search with body: {"search":"order123","take":20}',
+        category: 'Orders'
+      },
+      {
+        method: 'POST',
+        path: '/Litium/api/admin/sales/campaigns/search',
+        description: 'Search for campaigns',
+        parameters: [
+          { name: 'search', type: 'string', required: false, description: 'Search term' },
+          { name: 'skip', type: 'number', required: false, description: 'Pagination offset' },
+          { name: 'take', type: 'number', required: false, description: 'Number of items to return' }
+        ],
+        example: 'POST /Litium/api/admin/sales/campaigns/search with body: {"search":"summer","take":20}',
+        category: 'Orders'
+      },
+      {
+        method: 'POST',
+        path: '/Litium/api/admin/sales/discounts/search',
+        description: 'Search for discounts',
+        parameters: [
+          { name: 'search', type: 'string', required: false, description: 'Search term' },
+          { name: 'skip', type: 'number', required: false, description: 'Pagination offset' },
+          { name: 'take', type: 'number', required: false, description: 'Number of items to return' }
+        ],
+        example: 'POST /Litium/api/admin/sales/discounts/search with body: {"search":"10off","take":20}',
         category: 'Orders'
       },
       {
         method: 'GET',
-        path: '/Litium/api/admin/orders/salesOrders/{systemId}',
+        path: '/Litium/api/admin/sales/salesOrders/{systemId}',
         description: 'Get a specific sales order by system ID',
         parameters: [
           { name: 'systemId', type: 'string', required: true, description: 'Order system ID' }
         ],
-        example: 'GET /Litium/api/admin/orders/salesOrders/12345',
+        example: 'GET /Litium/api/admin/sales/salesOrders/12345',
         category: 'Orders'
       }
     ];
