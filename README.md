@@ -44,7 +44,7 @@ Or click the "Deploy with Vercel" button above.
 
 ## 📋 Features
 
-### Available Tools (21 Total)
+### Available Tools (28 Total)
 
 #### Content Blocks (5 tools)
 - `search_blocks` - Search for content blocks
@@ -78,6 +78,15 @@ Or click the "Deploy with Vercel" button above.
 #### Orders (2 tools)
 - `search_orders` - Search for sales orders
 - `get_order` - Get a specific order by ID
+
+#### API Discovery & Documentation (7 tools)
+- `get_all_api_endpoints` - Get comprehensive list of all Litium API endpoints
+- `get_api_endpoints_by_category` - Get endpoints filtered by category
+- `search_api_endpoints` - Search endpoints by description or path
+- `get_oauth_info` - Get detailed OAuth2 authentication information
+- `get_api_info` - Get general API information
+- `get_full_api_documentation` - Get comprehensive API documentation
+- `get_api_quick_reference` - Get quick reference guide
 
 ## 🔧 Configuration
 

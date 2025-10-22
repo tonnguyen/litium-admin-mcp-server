@@ -5,6 +5,8 @@ import { CustomersService } from './customers/customers-service';
 import { MediaService } from './media/media-service';
 import { WebsitesService } from './websites/websites-service';
 import { OrdersService } from './orders/orders-service';
+import { ApiDiscoveryService } from './api-discovery/api-discovery-service';
+import { ApiDocumentationService } from './api-documentation/api-documentation-service';
 
 export class LitiumApiService {
   public readonly blocks: BlocksService;
@@ -13,6 +15,8 @@ export class LitiumApiService {
   public readonly media: MediaService;
   public readonly websites: WebsitesService;
   public readonly orders: OrdersService;
+  public readonly discovery: ApiDiscoveryService;
+  public readonly documentation: ApiDocumentationService;
 
   constructor(config: LitiumConfig) {
     this.blocks = new BlocksService(config);
@@ -21,5 +25,7 @@ export class LitiumApiService {
     this.media = new MediaService(config);
     this.websites = new WebsitesService(config);
     this.orders = new OrdersService(config);
+    this.discovery = new ApiDiscoveryService(config);
+    this.documentation = new ApiDocumentationService(config);
   }
 }
