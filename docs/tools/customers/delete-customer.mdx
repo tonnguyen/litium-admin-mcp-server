@@ -1,0 +1,84 @@
+---
+title: delete_customer
+description: 'Delete a customer from Litium'
+---
+
+## Overview
+
+Permanently delete a customer account from your Litium instance.
+
+<Warning>
+  This tool **permanently deletes data** from Litium. This action cannot be undone. Always verify the system ID before deleting.
+</Warning>
+
+## Parameters
+
+<ParamField path="systemId" type="string" required>
+  The unique system ID of the customer to delete
+</ParamField>
+
+## Response
+
+Returns a success confirmation message.
+
+## Examples
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://your-server.vercel.app/api/mcp \
+  -H "Content-Type: application/json" \
+  -H "X-Litium-Base-Url: https://demoadmin.litium.com" \
+  -H "X-Litium-Client-Id: your-client-id" \
+  -H "X-Litium-Client-Secret: your-client-secret" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "name": "delete_customer",
+      "arguments": {
+        "systemId": "customer-123-456"
+      }
+    },
+    "id": 1
+  }'
+```
+
+```text Natural Language (AI)
+"Delete customer account customer-123-456"
+```
+</CodeGroup>
+
+## Safety Checklist
+
+Before deleting a customer, verify:
+
+<Check>**Correct ID**: Double-check the system ID</Check>
+<Check>**Legal compliance**: Ensure deletion complies with data protection regulations</Check>
+<Check>**No active orders**: Check for pending orders</Check>
+<Check>**Backup created**: Save customer data if required by policy</Check>
+
+## Use Cases
+
+- **Account Closure**: Remove customer accounts upon request
+- **GDPR Compliance**: Process "right to be forgotten" requests
+- **Data Cleanup**: Remove test or duplicate accounts
+
+## Related Tools
+
+<CardGroup cols={2}>
+  <Card title="get_customer" href="/tools/customers/get-customer">Verify customer before deleting</Card>
+  <Card title="search_customers" href="/tools/customers/search-customers">Find customers</Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Cannot delete - has orders">
+    **Solution**: Customers with order history may need to be deactivated instead of deleted
+  </Accordion>
+
+  <Accordion title="Permission denied">
+    **Solution**: Verify your OAuth2 credentials have delete permissions
+  </Accordion>
+</AccordionGroup>
+

@@ -1,0 +1,341 @@
+---
+title: Tools Overview
+description: 'Complete reference of all 28 MCP tools available in the Litium Admin MCP Server'
+---
+
+## Available Tools
+
+The Litium Admin MCP Server provides **28 powerful tools** across **8 categories** to interact with your Litium e-commerce platform.
+
+<CardGroup cols={2}>
+  <Card title="Blocks Tools" icon="cube" href="/tools/blocks/search-blocks">
+    5 tools for content block management
+  </Card>
+  <Card title="Products Tools" icon="box" href="/tools/products/search-products">
+    5 tools for product catalog management
+  </Card>
+  <Card title="Customers Tools" icon="users" href="/tools/customers/search-customers">
+    5 tools for customer management
+  </Card>
+  <Card title="Media Tools" icon="image" href="/tools/media/search-media">
+    2 tools for media file management
+  </Card>
+  <Card title="Websites Tools" icon="globe" href="/tools/websites/get-websites">
+    2 tools for website configuration
+  </Card>
+  <Card title="Orders Tools" icon="cart-shopping" href="/tools/orders/search-orders">
+    2 tools for order management
+  </Card>
+  <Card title="API Discovery" icon="compass" href="/tools/api-discovery/get-all-api-endpoints">
+    5 tools for API exploration
+  </Card>
+  <Card title="API Documentation" icon="book" href="/tools/api-documentation/get-full-api-documentation">
+    2 tools for API documentation
+  </Card>
+</CardGroup>
+
+## Tools by Category
+
+### Blocks Tools (5)
+
+Manage content blocks across your Litium websites.
+
+| Tool | Description | Use Case |
+|------|-------------|----------|
+| [search_blocks](/tools/blocks/search-blocks) | Search for content blocks | Find blocks by keyword |
+| [get_block](/tools/blocks/get-block) | Get block by system ID | Retrieve specific block details |
+| [create_block](/tools/blocks/create-block) | Create new content block | Add new content to your site |
+| [update_block](/tools/blocks/update-block) | Update existing block | Modify block content |
+| [delete_block](/tools/blocks/delete-block) | Delete a content block | Remove outdated content |
+
+### Products Tools (5)
+
+Manage your product catalog and inventory.
+
+| Tool | Description | Use Case |
+|------|-------------|----------|
+| [search_products](/tools/products/search-products) | Search for products | Find products by name/SKU |
+| [get_product](/tools/products/get-product) | Get product by system ID | View product details |
+| [create_product](/tools/products/create-product) | Create new product | Add items to catalog |
+| [update_product](/tools/products/update-product) | Update existing product | Modify prices, descriptions |
+| [delete_product](/tools/products/delete-product) | Delete a product | Remove discontinued items |
+
+### Customers Tools (5)
+
+Access and manage customer information.
+
+| Tool | Description | Use Case |
+|------|-------------|----------|
+| [search_customers](/tools/customers/search-customers) | Search for customers | Find customer by email/name |
+| [get_customer](/tools/customers/get-customer) | Get customer by system ID | View customer profile |
+| [create_customer](/tools/customers/create-customer) | Create new customer | Add new customer account |
+| [update_customer](/tools/customers/update-customer) | Update customer info | Modify customer details |
+| [delete_customer](/tools/customers/delete-customer) | Delete a customer | Remove customer account |
+
+### Media Tools (2)
+
+Manage media files and assets.
+
+| Tool | Description | Use Case |
+|------|-------------|----------|
+| [search_media](/tools/media/search-media) | Search for media files | Find images, documents |
+| [get_media](/tools/media/get-media) | Get media file by system ID | Retrieve media details |
+
+### Websites Tools (2)
+
+Access website configuration and settings.
+
+| Tool | Description | Use Case |
+|------|-------------|----------|
+| [get_websites](/tools/websites/get-websites) | Get all websites | List all configured sites |
+| [get_website](/tools/websites/get-website) | Get website by system ID | View site configuration |
+
+### Orders Tools (2)
+
+Search and retrieve order information.
+
+| Tool | Description | Use Case |
+|------|-------------|----------|
+| [search_orders](/tools/orders/search-orders) | Search for orders | Find orders by criteria |
+| [get_order](/tools/orders/get-order) | Get order by system ID | View order details |
+
+### API Discovery Tools (5)
+
+Explore available Litium API endpoints.
+
+| Tool | Description | Use Case |
+|------|-------------|----------|
+| [get_all_api_endpoints](/tools/api-discovery/get-all-api-endpoints) | List all API endpoints | Discover available APIs |
+| [get_api_endpoints_by_category](/tools/api-discovery/get-api-endpoints-by-category) | Filter endpoints by category | Find category-specific APIs |
+| [search_api_endpoints](/tools/api-discovery/search-api-endpoints) | Search API endpoints | Find endpoints by keyword |
+| [get_oauth_info](/tools/api-discovery/get-oauth-info) | Get OAuth2 information | Learn about authentication |
+| [get_api_info](/tools/api-discovery/get-api-info) | Get general API info | View API configuration |
+
+### API Documentation Tools (2)
+
+Access comprehensive API documentation.
+
+| Tool | Description | Use Case |
+|------|-------------|----------|
+| [get_full_api_documentation](/tools/api-documentation/get-full-api-documentation) | Get complete API docs | Full API reference |
+| [get_api_quick_reference](/tools/api-documentation/get-api-quick-reference) | Get API quick reference | Quick lookup guide |
+
+## Common Patterns
+
+All tools follow consistent patterns for easy use:
+
+### Search Tools
+
+Search tools accept optional parameters for filtering and pagination:
+
+```json
+{
+  "search": "keyword",     // Search term (optional)
+  "skip": 0,              // Pagination offset (default: 0)
+  "take": 20,             // Results per page (default: 20)
+  "sort": "name"          // Sort field (optional)
+}
+```
+
+### Get Tools
+
+Get tools retrieve a single resource by its system ID:
+
+```json
+{
+  "systemId": "abc-123-def-456"  // Unique identifier
+}
+```
+
+### Create Tools
+
+Create tools accept a resource object:
+
+```json
+{
+  "product": {              // Resource type varies
+    "name": "Product Name",
+    "price": 99.99,
+    // ... other fields
+  }
+}
+```
+
+### Update Tools
+
+Update tools require both the system ID and updated data:
+
+```json
+{
+  "systemId": "abc-123-def-456",
+  "product": {
+    "price": 89.99        // Updated fields
+  }
+}
+```
+
+### Delete Tools
+
+Delete tools only need the system ID:
+
+```json
+{
+  "systemId": "abc-123-def-456"
+}
+```
+
+## Response Format
+
+All tools return responses in JSON-RPC format:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{...}"    // JSON string with actual data
+      }
+    ]
+  }
+}
+```
+
+<Info>
+  When using AI assistants like Cursor or Claude, they automatically parse and format these responses for you.
+</Info>
+
+## Tool Categories by Use Case
+
+<Tabs>
+  <Tab title="Content Management">
+    **Primary Tools:**
+    - [search_blocks](/tools/blocks/search-blocks)
+    - [get_block](/tools/blocks/get-block)
+    - [update_block](/tools/blocks/update-block)
+    
+    **Common Workflow:**
+    1. Search for content blocks
+    2. Get specific block details
+    3. Update block content
+    4. Verify changes
+  </Tab>
+
+  <Tab title="E-commerce Operations">
+    **Primary Tools:**
+    - [search_products](/tools/products/search-products)
+    - [update_product](/tools/products/update-product)
+    - [search_orders](/tools/orders/search-orders)
+    - [get_order](/tools/orders/get-order)
+    
+    **Common Workflow:**
+    1. Search for products or orders
+    2. Get detailed information
+    3. Update product details if needed
+    4. Track order status
+  </Tab>
+
+  <Tab title="Customer Support">
+    **Primary Tools:**
+    - [search_customers](/tools/customers/search-customers)
+    - [get_customer](/tools/customers/get-customer)
+    - [search_orders](/tools/orders/search-orders)
+    - [get_order](/tools/orders/get-order)
+    
+    **Common Workflow:**
+    1. Find customer by email/name
+    2. View customer details
+    3. Search customer's orders
+    4. Review order information
+  </Tab>
+
+  <Tab title="API Development">
+    **Primary Tools:**
+    - [get_all_api_endpoints](/tools/api-discovery/get-all-api-endpoints)
+    - [search_api_endpoints](/tools/api-discovery/search-api-endpoints)
+    - [get_full_api_documentation](/tools/api-documentation/get-full-api-documentation)
+    
+    **Common Workflow:**
+    1. Discover available endpoints
+    2. Search for specific APIs
+    3. Read full documentation
+    4. Test with appropriate tools
+  </Tab>
+</Tabs>
+
+## Quick Reference
+
+### Most Used Tools
+
+<CardGroup cols={2}>
+  <Card title="search_products" icon="magnifying-glass">
+    Most common product lookup tool
+  </Card>
+  <Card title="search_customers" icon="user-magnifying-glass">
+    Primary customer search tool
+  </Card>
+  <Card title="get_order" icon="receipt">
+    Essential for order details
+  </Card>
+  <Card title="search_blocks" icon="cube">
+    Key content management tool
+  </Card>
+</CardGroup>
+
+### Read-Only vs. Modify Tools
+
+<Tabs>
+  <Tab title="Read-Only Tools (Safe)">
+    These tools only retrieve data and don't modify anything:
+    - All `search_*` tools
+    - All `get_*` tools
+    - All API discovery/documentation tools
+  </Tab>
+
+  <Tab title="Modify Tools (Use with Care)">
+    These tools change data in Litium:
+    - All `create_*` tools
+    - All `update_*` tools
+    - All `delete_*` tools
+    
+    <Warning>
+      Always verify IDs before using modify tools in production!
+    </Warning>
+  </Tab>
+</Tabs>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Explore Blocks Tools"
+    icon="cube"
+    href="/tools/blocks/search-blocks"
+  >
+    Start with content management
+  </Card>
+  <Card
+    title="Explore Products Tools"
+    icon="box"
+    href="/tools/products/search-products"
+  >
+    Manage your product catalog
+  </Card>
+  <Card
+    title="Testing Guide"
+    icon="flask"
+    href="/guides/testing"
+  >
+    Learn how to test tools
+  </Card>
+  <Card
+    title="Quick Start"
+    icon="rocket"
+    href="/getting-started/quickstart"
+  >
+    Try your first tool call
+  </Card>
+</CardGroup>
+

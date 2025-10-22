@@ -1,0 +1,129 @@
+---
+title: create_product
+description: 'Create a new product in Litium'
+---
+
+## Overview
+
+Create a new product in your Litium e-commerce catalog. This tool allows you to add new products with all necessary details.
+
+<Warning>
+  This tool **modifies data** in Litium. Always verify product data before creating.
+</Warning>
+
+## Parameters
+
+<ParamField path="product" type="object" required>
+  Complete product data object to create
+  
+  <Expandable title="Product Object Properties">
+    <ParamField path="id" type="string" required>
+      Product ID/SKU (must be unique)
+    </ParamField>
+    
+    <ParamField path="name" type="string" required>
+      Product name
+    </ParamField>
+    
+    <ParamField path="fieldTemplateSystemId" type="string" required>
+      System ID of the field template for this product type
+    </ParamField>
+    
+    <ParamField path="description" type="string" optional>
+      Product description
+    </ParamField>
+    
+    <ParamField path="price" type="number" optional>
+      Base price
+    </ParamField>
+    
+    <ParamField path="fields" type="object" optional>
+      Custom field values for the product
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+## Response
+
+Returns the newly created product with its system ID.
+
+<ResponseField name="systemId" type="string">
+  Unique identifier assigned to the new product
+</ResponseField>
+
+<ResponseField name="id" type="string">
+  Product ID/SKU
+</ResponseField>
+
+<ResponseField name="name" type="string">
+  Product name
+</ResponseField>
+
+<ResponseField name="created" type="string">
+  Creation timestamp
+</ResponseField>
+
+## Examples
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://your-server.vercel.app/api/mcp \
+  -H "Content-Type: application/json" \
+  -H "X-Litium-Base-Url: https://demoadmin.litium.com" \
+  -H "X-Litium-Client-Id: your-client-id" \
+  -H "X-Litium-Client-Secret: your-client-secret" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "name": "create_product",
+      "arguments": {
+        "product": {
+          "id": "LAPTOP-001",
+          "name": "Professional Laptop",
+          "fieldTemplateSystemId": "product-template-123",
+          "description": "High-performance laptop for professionals",
+          "price": 1299.99,
+          "fields": {
+            "brand": "TechBrand",
+            "weight": "1.5kg"
+          }
+        }
+      }
+    },
+    "id": 1
+  }'
+```
+
+```text Natural Language (AI)
+"Create a new laptop product named 'Professional Laptop' with SKU LAPTOP-001 and price $1299.99"
+```
+</CodeGroup>
+
+## Use Cases
+
+<AccordionGroup>
+  <Accordion title="Add New Products" icon="plus">
+    Add new items to your product catalog
+  </Accordion>
+
+  <Accordion title="Bulk Import" icon="file-import">
+    Create multiple products programmatically
+  </Accordion>
+
+  <Accordion title="Product Variants" icon="grid">
+    Create product variations (size, color, etc.)
+  </Accordion>
+</AccordionGroup>
+
+## Related Tools
+
+<CardGroup cols={2}>
+  <Card title="get_product" icon="box" href="/tools/products/get-product">
+    Verify the created product
+  </Card>
+  <Card title="update_product" icon="pen-to-square" href="/tools/products/update-product">
+    Update product after creation
+  </Card>
+</CardGroup>
+

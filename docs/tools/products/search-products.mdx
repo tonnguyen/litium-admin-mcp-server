@@ -1,0 +1,136 @@
+---
+title: search_products
+description: 'Search for products in Litium'
+---
+
+## Overview
+
+Search for products in your Litium e-commerce catalog using flexible search and pagination parameters. This tool uses the Litium Admin API endpoint `POST /Litium/api/admin/products/baseProducts/search`.
+
+<Info>
+  This is a **read-only** tool that does not modify any data.
+</Info>
+
+## Parameters
+
+<ParamField path="search" type="string" optional>
+  Search term for filtering products by name, SKU, or description
+  
+  **Example**: `"laptop"`, `"SKU-12345"`, `"wireless mouse"`
+</ParamField>
+
+<ParamField path="skip" type="number" optional default="0">
+  Number of items to skip for pagination
+  
+  **Example**: `0`, `20`, `40`
+</ParamField>
+
+<ParamField path="take" type="number" optional default="20">
+  Number of items to return per page (max: 100)
+  
+  **Example**: `10`, `20`, `50`
+</ParamField>
+
+<ParamField path="sort" type="string" optional>
+  Field to sort results by
+  
+  **Example**: `"name"`, `"price"`, `"created"`
+</ParamField>
+
+## Response
+
+Returns a paginated list of products matching the search criteria.
+
+<ResponseField name="results" type="array">
+  Array of product objects
+  
+  <Expandable title="Product Object">
+    <ResponseField name="systemId" type="string">
+      Unique identifier for the product
+    </ResponseField>
+    
+    <ResponseField name="id" type="string">
+      Product ID/SKU
+    </ResponseField>
+    
+    <ResponseField name="name" type="string">
+      Product name
+    </ResponseField>
+    
+    <ResponseField name="description" type="string">
+      Product description
+    </ResponseField>
+    
+    <ResponseField name="price" type="number">
+      Product price
+    </ResponseField>
+    
+    <ResponseField name="stock" type="object">
+      Inventory information
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="total" type="number">
+  Total number of products matching the search
+</ResponseField>
+
+## Examples
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://your-server.vercel.app/api/mcp \
+  -H "Content-Type: application/json" \
+  -H "X-Litium-Base-Url: https://demoadmin.litium.com" \
+  -H "X-Litium-Client-Id: your-client-id" \
+  -H "X-Litium-Client-Secret: your-client-secret" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "name": "search_products",
+      "arguments": {
+        "search": "laptop",
+        "take": 10
+      }
+    },
+    "id": 1
+  }'
+```
+
+```text Natural Language (AI)
+"Search for laptops in my product catalog and show me the top 10 results"
+```
+</CodeGroup>
+
+## Use Cases
+
+<AccordionGroup>
+  <Accordion title="Find Products by Name" icon="magnifying-glass">
+    Search for products matching a specific keyword
+  </Accordion>
+
+  <Accordion title="Look Up by SKU" icon="barcode">
+    Find a product using its SKU or product ID
+  </Accordion>
+
+  <Accordion title="Browse Catalog" icon="boxes-stacked">
+    List all products with pagination
+  </Accordion>
+
+  <Accordion title="Inventory Check" icon="warehouse">
+    Search for products to check stock levels
+  </Accordion>
+</AccordionGroup>
+
+## Related Tools
+
+<CardGroup cols={2}>
+  <Card title="get_product" icon="box" href="/tools/products/get-product">
+    Get detailed product information
+  </Card>
+  <Card title="update_product" icon="pen-to-square" href="/tools/products/update-product">
+    Update product details
+  </Card>
+</CardGroup>
+

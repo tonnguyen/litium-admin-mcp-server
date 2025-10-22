@@ -1,0 +1,149 @@
+{
+  "name": "Litium Admin MCP Server",
+  "logo": {
+    "light": "/logo/logo-black.svg",
+    "dark": "/logo/logo-white.svg"
+  },
+  "favicon": "/favicon.png",
+  "colors": {
+    "primary": "#0D9373",
+    "light": "#07C983",
+    "dark": "#0D9373",
+    "anchors": {
+      "from": "#0D9373",
+      "to": "#07C983"
+    }
+  },
+  "topbarLinks": [
+    {
+      "name": "GitHub",
+      "url": "https://github.com/tonnguyen/litium-admin-mcp-server"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Deploy to Vercel",
+    "url": "https://vercel.com/new/clone?repository-url=https://github.com/tonnguyen/litium-admin-mcp-server"
+  },
+  "tabs": [
+    {
+      "name": "API Reference",
+      "url": "tools"
+    }
+  ],
+  "anchors": [
+    {
+      "name": "Community",
+      "icon": "discord",
+      "url": "https://discord.gg/litium"
+    },
+    {
+      "name": "Litium Docs",
+      "icon": "book",
+      "url": "https://docs.litium.com"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Get Started",
+      "pages": [
+        "introduction",
+        "getting-started/installation",
+        "getting-started/configuration",
+        "getting-started/authentication",
+        "getting-started/quickstart"
+      ]
+    },
+    {
+      "group": "Tools Overview",
+      "pages": [
+        "tools/overview"
+      ]
+    },
+    {
+      "group": "Blocks Tools",
+      "pages": [
+        "tools/blocks/search-blocks",
+        "tools/blocks/get-block",
+        "tools/blocks/create-block",
+        "tools/blocks/update-block",
+        "tools/blocks/delete-block"
+      ]
+    },
+    {
+      "group": "Products Tools",
+      "pages": [
+        "tools/products/search-products",
+        "tools/products/get-product",
+        "tools/products/create-product",
+        "tools/products/update-product",
+        "tools/products/delete-product"
+      ]
+    },
+    {
+      "group": "Customers Tools",
+      "pages": [
+        "tools/customers/search-customers",
+        "tools/customers/get-customer",
+        "tools/customers/create-customer",
+        "tools/customers/update-customer",
+        "tools/customers/delete-customer"
+      ]
+    },
+    {
+      "group": "Media Tools",
+      "pages": [
+        "tools/media/search-media",
+        "tools/media/get-media"
+      ]
+    },
+    {
+      "group": "Websites Tools",
+      "pages": [
+        "tools/websites/get-websites",
+        "tools/websites/get-website"
+      ]
+    },
+    {
+      "group": "Orders Tools",
+      "pages": [
+        "tools/orders/search-orders",
+        "tools/orders/get-order"
+      ]
+    },
+    {
+      "group": "API Discovery Tools",
+      "pages": [
+        "tools/api-discovery/get-all-api-endpoints",
+        "tools/api-discovery/get-api-endpoints-by-category",
+        "tools/api-discovery/search-api-endpoints",
+        "tools/api-discovery/get-oauth-info",
+        "tools/api-discovery/get-api-info"
+      ]
+    },
+    {
+      "group": "API Documentation Tools",
+      "pages": [
+        "tools/api-documentation/get-full-api-documentation",
+        "tools/api-documentation/get-api-quick-reference"
+      ]
+    },
+    {
+      "group": "Guides",
+      "pages": [
+        "guides/deployment",
+        "guides/testing",
+        "guides/troubleshooting"
+      ]
+    }
+  ],
+  "footerSocials": {
+    "github": "https://github.com/tonnguyen/litium-admin-mcp-server",
+    "twitter": "https://twitter.com/litium"
+  },
+  "analytics": {
+    "ga4": {
+      "measurementId": "G-XXXXXXXXXX"
+    }
+  }
+}
+

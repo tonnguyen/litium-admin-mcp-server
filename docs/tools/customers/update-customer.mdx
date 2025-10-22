@@ -1,0 +1,67 @@
+---
+title: update_customer
+description: 'Update an existing customer in Litium'
+---
+
+## Overview
+
+Update an existing customer account in your Litium instance. Modify contact information, addresses, and other customer details.
+
+<Warning>
+  This tool **modifies data** in Litium. Verify the system ID and changes before updating.
+</Warning>
+
+## Parameters
+
+<ParamField path="systemId" type="string" required>
+  The unique system ID of the customer to update
+</ParamField>
+
+<ParamField path="customer" type="object" required>
+  Updated customer data (only include fields to change)
+</ParamField>
+
+## Examples
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://your-server.vercel.app/api/mcp \
+  -H "Content-Type: application/json" \
+  -H "X-Litium-Base-Url: https://demoadmin.litium.com" \
+  -H "X-Litium-Client-Id: your-client-id" \
+  -H "X-Litium-Client-Secret: your-client-secret" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "name": "update_customer",
+      "arguments": {
+        "systemId": "customer-123",
+        "customer": {
+          "phone": "+1-555-9999",
+          "email": "newemail@example.com"
+        }
+      }
+    },
+    "id": 1
+  }'
+```
+
+```text Natural Language (AI)
+"Update customer customer-123's email to newemail@example.com"
+```
+</CodeGroup>
+
+## Use Cases
+
+- **Profile Updates**: Update customer contact information
+- **Address Changes**: Modify shipping and billing addresses
+- **Data Corrections**: Fix incorrect customer information
+
+## Related Tools
+
+<CardGroup cols={2}>
+  <Card title="get_customer" href="/tools/customers/get-customer">Get current customer data</Card>
+  <Card title="search_customers" href="/tools/customers/search-customers">Find customers to update</Card>
+</CardGroup>
+

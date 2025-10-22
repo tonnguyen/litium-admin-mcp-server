@@ -1,0 +1,125 @@
+---
+title: delete_product
+description: 'Delete a product from Litium'
+---
+
+## Overview
+
+Permanently delete a product from your Litium e-commerce catalog. This tool removes the product and all associated data.
+
+<Warning>
+  This tool **permanently deletes data** from Litium. This action cannot be undone. Always verify the system ID before deleting.
+</Warning>
+
+## Parameters
+
+<ParamField path="systemId" type="string" required>
+  The unique system ID of the product to delete
+  
+  **Example**: `"abc-123-def-456"`
+</ParamField>
+
+## Response
+
+Returns a success confirmation message.
+
+<ResponseField name="message" type="string">
+  Confirmation message: "Product deleted successfully"
+</ResponseField>
+
+## Examples
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://your-server.vercel.app/api/mcp \
+  -H "Content-Type: application/json" \
+  -H "X-Litium-Base-Url: https://demoadmin.litium.com" \
+  -H "X-Litium-Client-Id: your-client-id" \
+  -H "X-Litium-Client-Secret: your-client-secret" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "name": "delete_product",
+      "arguments": {
+        "systemId": "abc-123-def-456"
+      }
+    },
+    "id": 1
+  }'
+```
+
+```text Natural Language (AI)
+"Delete the product with ID abc-123-def-456"
+```
+</CodeGroup>
+
+## Use Cases
+
+<AccordionGroup>
+  <Accordion title="Remove Discontinued Items" icon="ban">
+    Delete products that are no longer available
+  </Accordion>
+
+  <Accordion title="Clean Up Test Data" icon="broom">
+    Remove test products from production
+  </Accordion>
+
+  <Accordion title="Catalog Cleanup" icon="trash">
+    Remove obsolete products during catalog reorganization
+  </Accordion>
+</AccordionGroup>
+
+## Safety Checklist
+
+Before deleting a product, verify:
+
+<Check>
+  **Correct ID**: Double-check the system ID
+</Check>
+
+<Check>
+  **No active orders**: Ensure no pending orders contain this product
+</Check>
+
+<Check>
+  **Backup created**: Save product data if needed
+</Check>
+
+<Check>
+  **Right environment**: Verify you're in the correct environment
+</Check>
+
+## Related Tools
+
+<CardGroup cols={2}>
+  <Card title="get_product" icon="box" href="/tools/products/get-product">
+    Verify the product before deleting
+  </Card>
+  <Card title="search_products" icon="magnifying-glass" href="/tools/products/search-products">
+    Find products to identify deletion candidates
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Product not found">
+    **Cause**: The system ID doesn't exist
+    
+    **Solution**: Verify the systemId using search_products
+  </Accordion>
+
+  <Accordion title="Cannot delete - in use">
+    **Cause**: Product is referenced by orders or other entities
+    
+    **Solution**: Archive the product instead of deleting it
+  </Accordion>
+
+  <Accordion title="Permission denied">
+    **Cause**: Insufficient permissions
+    
+    **Solution**: Verify your OAuth2 credentials have delete permissions
+  </Accordion>
+</AccordionGroup>
+

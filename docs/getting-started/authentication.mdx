@@ -1,0 +1,248 @@
+---
+title: Authentication
+description: 'Understanding OAuth2 authentication with Litium Admin API'
+---
+
+## Overview
+
+The Litium Admin MCP Server uses **OAuth2 Client Credentials Grant** flow to authenticate with the Litium Admin Web API. This is a secure, industry-standard authentication method designed for server-to-server communication.
+
+## How It Works
+
+```mermaid
+sequenceDiagram
+    participant Client as MCP Client
+    participant Server as MCP Server
+    participant Litium as Litium API
+    
+    Client->>Server: Request with headers
+    Note over Client,Server: Headers contain credentials
+    Server->>Litium: Request OAuth2 token
+    Litium->>Server: Access token
+    Server->>Litium: API request with Bearer token
+    Litium->>Server: API response
+    Server->>Client: JSON-RPC response
+```
+
+<Info>
+  **Stateless Architecture**: The server never stores your credentials. Each request creates a new, isolated API service instance.
+</Info>
+
+## Getting OAuth2 Credentials
+
+To use the MCP server, you need OAuth2 credentials from your Litium instance:
+
+<Steps>
+  <Step title="Access Litium Admin">
+    Log in to your Litium administration panel
+  </Step>
+
+  <Step title="Navigate to API Settings">
+    Go to **Settings** → **API** → **OAuth2 Applications**
+  </Step>
+
+  <Step title="Create New Application">
+    Click "Create New Application" and provide:
+    - **Application Name**: e.g., "MCP Server"
+    - **Grant Type**: Client Credentials
+    - **Scopes**: Select required permissions (typically "admin" scope)
+  </Step>
+
+  <Step title="Save Credentials">
+    Copy and securely store:
+    - **Client ID**: A unique identifier for your application
+    - **Client Secret**: A secret key (shown only once)
+  </Step>
+</Steps>
+
+<Warning>
+  **Important**: The Client Secret is shown only once. Store it securely. If lost, you'll need to generate new credentials.
+</Warning>
+
+## Required Information
+
+You need three pieces of information to authenticate:
+
+<ParamField path="baseUrl" type="string" required>
+  Your Litium instance base URL
+  
+  **Example**: `https://demoadmin.litium.com`
+  
+  <Note>Do not include trailing slashes or API paths</Note>
+</ParamField>
+
+<ParamField path="clientId" type="string" required>
+  OAuth2 Client ID from your Litium OAuth2 application
+  
+  **Example**: `mcp-server-client`
+</ParamField>
+
+<ParamField path="clientSecret" type="string" required>
+  OAuth2 Client Secret from your Litium OAuth2 application
+  
+  **Example**: `s3cr3t-k3y-v4lu3`
+  
+  <Warning>Keep this secret! Never commit it to version control.</Warning>
+</ParamField>
+
+## Token Management
+
+The MCP server handles OAuth2 token management automatically:
+
+<AccordionGroup>
+  <Accordion title="Automatic Token Acquisition" icon="key">
+    The server automatically requests an access token from Litium using your Client ID and Secret when needed.
+  </Accordion>
+
+  <Accordion title="Token Caching" icon="clock">
+    Tokens are cached for their lifetime (typically 1 hour) to minimize API calls.
+  </Accordion>
+
+  <Accordion title="Automatic Refresh" icon="rotate">
+    When a token expires, the server automatically requests a new one.
+  </Accordion>
+
+  <Accordion title="Error Handling" icon="triangle-exclamation">
+    If authentication fails, you'll receive a clear error message explaining the issue.
+  </Accordion>
+</AccordionGroup>
+
+## Security Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Use Environment Variables" icon="terminal">
+    Store credentials in environment variables, not in code
+  </Card>
+  <Card title="Rotate Credentials" icon="arrows-rotate">
+    Periodically rotate your OAuth2 credentials
+  </Card>
+  <Card title="Limit Scopes" icon="shield">
+    Request only the permissions you need
+  </Card>
+  <Card title="Monitor Access" icon="eye">
+    Regularly review API access logs in Litium
+  </Card>
+</CardGroup>
+
+### For Production Deployments
+
+When deploying to production:
+
+1. **Never hardcode credentials** in configuration files
+2. **Use MCP client's credential prompts** (for Cursor)
+3. **Restrict access** to configuration files (for Claude Desktop)
+4. **Use HTTPS** for all communications
+5. **Monitor failed authentication attempts**
+
+### For Development
+
+During development:
+
+1. Use a **separate OAuth2 application** for development
+2. Use a **test/demo Litium instance** if available
+3. **Never commit** credentials to version control
+4. Use `.gitignore` to exclude configuration files with credentials
+
+## Authentication Flow Details
+
+### OAuth2 Token Request
+
+The server sends a POST request to the Litium token endpoint:
+
+```http
+POST /Litium/OAuth/token HTTP/1.1
+Host: your-litium-instance.com
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials
+&client_id=your-client-id
+&client_secret=your-client-secret
+&scope=admin
+```
+
+### OAuth2 Token Response
+
+Litium responds with an access token:
+
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "token_type": "Bearer",
+  "expires_in": 3600
+}
+```
+
+### API Requests with Token
+
+The server includes the token in subsequent API requests:
+
+```http
+GET /Litium/api/admin/blocks/blocks HTTP/1.1
+Host: your-litium-instance.com
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Content-Type: application/json
+```
+
+## Troubleshooting Authentication
+
+<AccordionGroup>
+  <Accordion title="Invalid credentials error">
+    **Cause**: Wrong Client ID or Client Secret
+    
+    **Solution**: Verify your credentials in the Litium admin panel. Ensure there are no extra spaces or characters.
+  </Accordion>
+
+  <Accordion title="Unauthorized (401) error">
+    **Cause**: Token expired or invalid scopes
+    
+    **Solution**: The server should auto-refresh tokens. If the issue persists, check that your OAuth2 application has the required scopes.
+  </Accordion>
+
+  <Accordion title="Forbidden (403) error">
+    **Cause**: Insufficient permissions
+    
+    **Solution**: Ensure your OAuth2 application has the "admin" scope or the specific permissions needed for the API endpoint.
+  </Accordion>
+
+  <Accordion title="Connection refused">
+    **Cause**: Wrong base URL or network issues
+    
+    **Solution**: Verify your Litium instance URL is correct and accessible. Check firewall settings.
+  </Accordion>
+</AccordionGroup>
+
+## Testing Authentication
+
+Test your credentials using cURL:
+
+```bash
+# Request a token directly
+curl -X POST https://your-instance.com/Litium/OAuth/token \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=client_credentials" \
+  -d "client_id=your-client-id" \
+  -d "client_secret=your-client-secret" \
+  -d "scope=admin"
+```
+
+If successful, you'll receive a JSON response with an `access_token`.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Quick Start Guide"
+    icon="rocket"
+    href="/getting-started/quickstart"
+  >
+    Make your first API call
+  </Card>
+  <Card
+    title="Tools Overview"
+    icon="wrench"
+    href="/tools/overview"
+  >
+    Explore available tools
+  </Card>
+</CardGroup>
+
