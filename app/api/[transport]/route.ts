@@ -43,7 +43,7 @@ const handler = async (req: Request) => {
       // Block tools
       server.tool(
         'search_blocks',
-        'Search for content blocks in Litium',
+        'Search for content blocks in Litium using GET /Litium/api/admin/blocks/blocks/search endpoint',
         {
           search: z.string().optional().describe('Search term for filtering blocks'),
           skip: z.number().optional().default(0).describe('Number of items to skip (for pagination)'),
@@ -68,7 +68,7 @@ const handler = async (req: Request) => {
 
     server.tool(
       'get_block',
-      'Get a specific block by system ID',
+      'Get a specific block by system ID using GET /Litium/api/admin/blocks/blocks/{systemId} endpoint',
       {
         systemId: z.string().describe('The system ID of the block to retrieve'),
       },
@@ -152,15 +152,15 @@ const handler = async (req: Request) => {
     );
 
     // Product tools
-    server.tool(
-      'search_products',
-      'Search for products in Litium',
-      {
-        search: z.string().optional().describe('Search term for filtering products'),
-        skip: z.number().optional().default(0).describe('Number of items to skip (for pagination)'),
-        take: z.number().optional().default(20).describe('Number of items to return (for pagination)'),
-        sort: z.string().optional().describe('Sort order for results'),
-      },
+      server.tool(
+        'search_products',
+        'Search for products in Litium using POST /Litium/api/admin/products/baseProducts/search endpoint. This is the correct endpoint for product search in Litium API.',
+        {
+          search: z.string().optional().describe('Search term for filtering products'),
+          skip: z.number().optional().default(0).describe('Number of items to skip (for pagination)'),
+          take: z.number().optional().default(20).describe('Number of items to return (for pagination)'),
+          sort: z.string().optional().describe('Sort order for results'),
+        },
       async (params) => {
         try {
           const apiService = getApiService(req);
@@ -178,7 +178,7 @@ const handler = async (req: Request) => {
 
     server.tool(
       'get_product',
-      'Get a specific product by system ID',
+      'Get a specific product by system ID using GET /Litium/api/admin/products/baseProducts/{systemId} endpoint',
       {
         systemId: z.string().describe('The system ID of the product to retrieve'),
       },
@@ -499,6 +499,145 @@ const handler = async (req: Request) => {
         } catch (error) {
           const apiError = handleError(error);
           logger.error('Get order failed:', apiError);
+          throw new Error(formatErrorForMCP(apiError));
+        }
+      }
+    );
+
+    // API Discovery tools
+    server.tool(
+      'get_all_api_endpoints',
+      'Get comprehensive list of all Litium API endpoints with detailed information including URLs, methods, parameters, and examples',
+      {},
+      async () => {
+        try {
+          const apiService = getApiService(req);
+          const endpoints = await apiService.discovery.getAllEndpoints();
+          return {
+            content: [{ type: 'text', text: JSON.stringify(endpoints, null, 2) }],
+          };
+        } catch (error) {
+          const apiError = handleError(error);
+          logger.error('Get all API endpoints failed:', apiError);
+          throw new Error(formatErrorForMCP(apiError));
+        }
+      }
+    );
+
+    server.tool(
+      'get_api_endpoints_by_category',
+      'Get API endpoints filtered by category (Products, Blocks, Customers, Media, Websites, Orders, Authentication)',
+      {
+        category: z.string().describe('Category to filter by: Products, Blocks, Customers, Media, Websites, Orders, or Authentication'),
+      },
+      async ({ category }) => {
+        try {
+          const apiService = getApiService(req);
+          const endpoints = await apiService.discovery.getEndpointsByCategory(category);
+          return {
+            content: [{ type: 'text', text: JSON.stringify(endpoints, null, 2) }],
+          };
+        } catch (error) {
+          const apiError = handleError(error);
+          logger.error('Get API endpoints by category failed:', apiError);
+          throw new Error(formatErrorForMCP(apiError));
+        }
+      }
+    );
+
+    server.tool(
+      'search_api_endpoints',
+      'Search API endpoints by description, path, or category',
+      {
+        query: z.string().describe('Search query to find relevant endpoints'),
+      },
+      async ({ query }) => {
+        try {
+          const apiService = getApiService(req);
+          const endpoints = await apiService.discovery.searchEndpoints(query);
+          return {
+            content: [{ type: 'text', text: JSON.stringify(endpoints, null, 2) }],
+          };
+        } catch (error) {
+          const apiError = handleError(error);
+          logger.error('Search API endpoints failed:', apiError);
+          throw new Error(formatErrorForMCP(apiError));
+        }
+      }
+    );
+
+    server.tool(
+      'get_oauth_info',
+      'Get detailed OAuth2 authentication information including token endpoint, required parameters, and examples',
+      {},
+      async () => {
+        try {
+          const apiService = getApiService(req);
+          const oauthInfo = await apiService.discovery.getOAuthInfo();
+          return {
+            content: [{ type: 'text', text: JSON.stringify(oauthInfo, null, 2) }],
+          };
+        } catch (error) {
+          const apiError = handleError(error);
+          logger.error('Get OAuth info failed:', apiError);
+          throw new Error(formatErrorForMCP(apiError));
+        }
+      }
+    );
+
+    server.tool(
+      'get_api_info',
+      'Get general API information including base URL, authentication method, content type, and common headers',
+      {},
+      async () => {
+        try {
+          const apiService = getApiService(req);
+          const apiInfo = await apiService.discovery.getApiInfo();
+          return {
+            content: [{ type: 'text', text: JSON.stringify(apiInfo, null, 2) }],
+          };
+        } catch (error) {
+          const apiError = handleError(error);
+          logger.error('Get API info failed:', apiError);
+          throw new Error(formatErrorForMCP(apiError));
+        }
+      }
+    );
+
+    // API Documentation tools
+    server.tool(
+      'get_full_api_documentation',
+      'Get comprehensive API documentation including all endpoints, authentication details, examples, and usage patterns for the Litium REST API',
+      {},
+      async () => {
+        try {
+          const apiService = getApiService(req);
+          const documentation = await apiService.documentation.getFullDocumentation();
+          return {
+            content: [{ type: 'text', text: JSON.stringify(documentation, null, 2) }],
+          };
+        } catch (error) {
+          const apiError = handleError(error);
+          logger.error('Get full API documentation failed:', apiError);
+          throw new Error(formatErrorForMCP(apiError));
+        }
+      }
+    );
+
+    server.tool(
+      'get_api_quick_reference',
+      'Get quick reference guide with common endpoints, authentication info, and base URL for the Litium API',
+      {},
+      async () => {
+        try {
+          const apiService = getApiService(req);
+          const quickRef = await apiService.documentation.getQuickReference();
+          return {
+            content: [{ type: 'text', text: JSON.stringify(quickRef, null, 2) }],
+          };
+        } catch (error) {
+          const apiError = handleError(error);
+          logger.error('Get API quick reference failed:', apiError);
           throw new Error(formatErrorForMCP(apiError));
         }
       }
