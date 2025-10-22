@@ -16,7 +16,7 @@ export class MediaService extends BaseApiService {
     sort?: string;
   }) {
     const endpoint = '/Litium/api/admin/media/files/search';
-    return this.search<any>(endpoint, params);
+    return this.searchPost<any>(endpoint, params);
   }
 
   /**
