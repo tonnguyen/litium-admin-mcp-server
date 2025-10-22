@@ -1,0 +1,297 @@
+---
+title: Quick Start
+description: 'Get started with your first MCP tool call in minutes'
+---
+
+## Prerequisites
+
+Before you begin, make sure you have:
+
+- ✅ [Installed](/getting-started/installation) the MCP server
+- ✅ [Configured](/getting-started/configuration) your MCP client
+- ✅ [Set up](/getting-started/authentication) OAuth2 credentials
+
+## Your First Tool Call
+
+Let's make your first tool call to list all websites in your Litium instance.
+
+<Tabs>
+  <Tab title="Using Cursor">
+    <Steps>
+      <Step title="Open Cursor">
+        Launch Cursor and open any project or create a new one
+      </Step>
+
+      <Step title="Start AI Chat">
+        Open the AI chat panel (Cmd/Ctrl+L)
+      </Step>
+
+      <Step title="Ask for Websites">
+        Type: "Can you list all websites in my Litium instance?"
+      </Step>
+
+      <Step title="Review Response">
+        Cursor will use the `get_websites` tool and show you the results:
+        
+        ```json
+        {
+          "websites": [
+            {
+              "systemId": "abc-123",
+              "name": "Main Store",
+              "url": "https://store.example.com"
+            }
+          ]
+        }
+        ```
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Using Claude Desktop">
+    <Steps>
+      <Step title="Open Claude Desktop">
+        Launch Claude Desktop application
+      </Step>
+
+      <Step title="Start Conversation">
+        Start a new conversation
+      </Step>
+
+      <Step title="Ask for Websites">
+        Type: "Can you list all websites in my Litium instance?"
+      </Step>
+
+      <Step title="Review Response">
+        Claude will use the `get_websites` tool and format the response for you
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Using cURL">
+    <Steps>
+      <Step title="List Available Tools">
+        First, verify your connection:
+        
+        ```bash
+        curl -X POST http://localhost:3000/api/mcp \
+          -H "Content-Type: application/json" \
+          -H "Accept: application/json" \
+          -H "X-Litium-Base-Url: https://demoadmin.litium.com" \
+          -H "X-Litium-Client-Id: your-client-id" \
+          -H "X-Litium-Client-Secret: your-client-secret" \
+          -d '{
+            "jsonrpc": "2.0",
+            "method": "tools/list",
+            "id": 1
+          }'
+        ```
+      </Step>
+
+      <Step title="Call Get Websites Tool">
+        Make your first tool call:
+        
+        ```bash
+        curl -X POST http://localhost:3000/api/mcp \
+          -H "Content-Type: application/json" \
+          -H "Accept: application/json" \
+          -H "X-Litium-Base-Url: https://demoadmin.litium.com" \
+          -H "X-Litium-Client-Id: your-client-id" \
+          -H "X-Litium-Client-Secret: your-client-secret" \
+          -d '{
+            "jsonrpc": "2.0",
+            "method": "tools/call",
+            "params": {
+              "name": "get_websites",
+              "arguments": {}
+            },
+            "id": 2
+          }'
+        ```
+      </Step>
+
+      <Step title="Review Response">
+        You'll receive a JSON-RPC response with your websites
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+## More Examples
+
+### Search for Products
+
+<CodeGroup>
+```bash cURL
+curl -X POST http://localhost:3000/api/mcp \
+  -H "Content-Type: application/json" \
+  -H "X-Litium-Base-Url: https://demoadmin.litium.com" \
+  -H "X-Litium-Client-Id: your-client-id" \
+  -H "X-Litium-Client-Secret: your-client-secret" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "name": "search_products",
+      "arguments": {
+        "search": "laptop",
+        "take": 10
+      }
+    },
+    "id": 3
+  }'
+```
+
+```text Natural Language (Cursor/Claude)
+"Can you search for laptops in my product catalog and show me the top 10 results?"
+```
+</CodeGroup>
+
+### Get Block Details
+
+<CodeGroup>
+```bash cURL
+curl -X POST http://localhost:3000/api/mcp \
+  -H "Content-Type: application/json" \
+  -H "X-Litium-Base-Url: https://demoadmin.litium.com" \
+  -H "X-Litium-Client-Id: your-client-id" \
+  -H "X-Litium-Client-Secret: your-client-secret" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "name": "get_block",
+      "arguments": {
+        "systemId": "abc-123-def-456"
+      }
+    },
+    "id": 4
+  }'
+```
+
+```text Natural Language (Cursor/Claude)
+"Show me the details of the content block with ID abc-123-def-456"
+```
+</CodeGroup>
+
+### Search for Customers
+
+<CodeGroup>
+```bash cURL
+curl -X POST http://localhost:3000/api/mcp \
+  -H "Content-Type: application/json" \
+  -H "X-Litium-Base-Url: https://demoadmin.litium.com" \
+  -H "X-Litium-Client-Id: your-client-id" \
+  -H "X-Litium-Client-Secret: your-client-secret" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "name": "search_customers",
+      "arguments": {
+        "search": "john@example.com"
+      }
+    },
+    "id": 5
+  }'
+```
+
+```text Natural Language (Cursor/Claude)
+"Find the customer with email john@example.com"
+```
+</CodeGroup>
+
+## Common Workflows
+
+<AccordionGroup>
+  <Accordion title="Product Management Workflow" icon="box">
+    1. **Search for products**: `search_products` with search term
+    2. **Get product details**: `get_product` with systemId
+    3. **Update product**: `update_product` with changes
+    4. **Verify update**: `get_product` again to confirm
+  </Accordion>
+
+  <Accordion title="Content Management Workflow" icon="file-lines">
+    1. **List blocks**: `search_blocks` to find content
+    2. **Get specific block**: `get_block` with systemId
+    3. **Update content**: `update_block` with new content
+    4. **Publish changes**: Verify with `get_block`
+  </Accordion>
+
+  <Accordion title="Customer Support Workflow" icon="headset">
+    1. **Find customer**: `search_customers` by email/name
+    2. **Get customer details**: `get_customer` with systemId
+    3. **Find their orders**: `search_orders` filtered by customer
+    4. **Get order details**: `get_order` for specific order
+  </Accordion>
+</AccordionGroup>
+
+## Understanding Tool Responses
+
+All tools return data in JSON format. Here's what a typical response looks like:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"websites\":[{\"systemId\":\"abc-123\",\"name\":\"Main Store\"}]}"
+      }
+    ]
+  }
+}
+```
+
+<Info>
+  When using AI assistants like Cursor or Claude, they automatically parse and format these responses for you in a readable way.
+</Info>
+
+## Next Steps
+
+Now that you've made your first tool call, explore more:
+
+<CardGroup cols={2}>
+  <Card
+    title="Browse All Tools"
+    icon="toolbox"
+    href="/tools/overview"
+  >
+    See all 28 available tools
+  </Card>
+  <Card
+    title="Blocks Tools"
+    icon="cube"
+    href="/tools/blocks/search-blocks"
+  >
+    Manage content blocks
+  </Card>
+  <Card
+    title="Products Tools"
+    icon="box"
+    href="/tools/products/search-products"
+  >
+    Manage your product catalog
+  </Card>
+  <Card
+    title="Testing Guide"
+    icon="flask"
+    href="/guides/testing"
+  >
+    Advanced testing techniques
+  </Card>
+</CardGroup>
+
+## Need Help?
+
+<CardGroup cols={2}>
+  <Card title="Troubleshooting" icon="wrench" href="/guides/troubleshooting">
+    Common issues and solutions
+  </Card>
+  <Card title="GitHub Issues" icon="github" href="https://github.com/tonnguyen/litium-admin-mcp-server/issues">
+    Report bugs or request features
+  </Card>
+</CardGroup>
+

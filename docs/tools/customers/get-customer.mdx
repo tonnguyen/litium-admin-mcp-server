@@ -1,0 +1,63 @@
+---
+title: get_customer
+description: 'Get a specific customer by system ID'
+---
+
+## Overview
+
+Retrieve detailed information about a specific customer using their system ID.
+
+<Info>
+  This is a **read-only** tool that does not modify any data.
+</Info>
+
+## Parameters
+
+<ParamField path="systemId" type="string" required>
+  The unique system ID of the customer to retrieve
+</ParamField>
+
+## Response
+
+Returns complete customer details including contact information, addresses, and account status.
+
+## Examples
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://your-server.vercel.app/api/mcp \
+  -H "Content-Type: application/json" \
+  -H "X-Litium-Base-Url: https://demoadmin.litium.com" \
+  -H "X-Litium-Client-Id: your-client-id" \
+  -H "X-Litium-Client-Secret: your-client-secret" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "name": "get_customer",
+      "arguments": {
+        "systemId": "customer-123-456"
+      }
+    },
+    "id": 1
+  }'
+```
+
+```text Natural Language (AI)
+"Show me the details for customer customer-123-456"
+```
+</CodeGroup>
+
+## Use Cases
+
+- **Customer Support**: View complete customer profile during support calls
+- **Order Processing**: Get customer details when processing orders
+- **Account Verification**: Confirm customer information
+
+## Related Tools
+
+<CardGroup cols={2}>
+  <Card title="search_customers" href="/tools/customers/search-customers">Search for customers</Card>
+  <Card title="update_customer" href="/tools/customers/update-customer">Update customer information</Card>
+</CardGroup>
+

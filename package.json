@@ -12,7 +12,9 @@
     "generate-types": "openapi-typescript openapi.json -o src/types/api.ts",
     "lint": "eslint src/**/*.ts app/**/*.ts",
     "lint:fix": "eslint src/**/*.ts app/**/*.ts --fix",
-    "deploy": "vercel --prod"
+    "deploy": "vercel --prod",
+    "docs:dev": "cd docs && mintlify dev",
+    "docs:deploy": "cd docs && mintlify deploy"
   },
   "keywords": [
     "mcp",

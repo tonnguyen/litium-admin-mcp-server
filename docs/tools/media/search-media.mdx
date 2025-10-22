@@ -1,0 +1,55 @@
+---
+title: search_media
+description: 'Search for media files in Litium'
+---
+
+## Overview
+
+Search for media files (images, documents, videos) in your Litium instance.
+
+<Info>
+  This is a **read-only** tool that does not modify any data.
+</Info>
+
+## Parameters
+
+<ParamField path="search" type="string" optional>Search term for filtering media files</ParamField>
+<ParamField path="skip" type="number" optional default="0">Pagination offset</ParamField>
+<ParamField path="take" type="number" optional default="20">Results per page</ParamField>
+<ParamField path="sort" type="string" optional>Sort field</ParamField>
+
+## Examples
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://your-server.vercel.app/api/mcp \
+  -H "Content-Type: application/json" \
+  -H "X-Litium-Base-Url: https://demoadmin.litium.com" \
+  -H "X-Litium-Client-Id: your-client-id" \
+  -H "X-Litium-Client-Secret: your-client-secret" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "name": "search_media",
+      "arguments": {"search": "logo"}
+    },
+    "id": 1
+  }'
+```
+
+```text Natural Language
+"Search for all logo images in the media library"
+```
+</CodeGroup>
+
+## Use Cases
+
+- **Find Images**: Locate product images or banners
+- **Document Lookup**: Search for PDF files or documentation
+- **Media Management**: Browse and organize media files
+
+## Related Tools
+
+<Card title="get_media" href="/tools/media/get-media">Get detailed media file information</Card>
+

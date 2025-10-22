@@ -1,0 +1,342 @@
+---
+title: create_block
+description: 'Create a new content block in Litium'
+---
+
+## Overview
+
+Create a new content block in your Litium instance. This tool allows you to add new content blocks that can be used across your websites.
+
+<Warning>
+  This tool **modifies data** in Litium. Always verify the block data before creating.
+</Warning>
+
+## Parameters
+
+<ParamField path="block" type="object" required>
+  Complete block data object to create
+  
+  <Expandable title="Block Object Properties">
+    <ParamField path="name" type="string" required>
+      Display name for the block
+    </ParamField>
+    
+    <ParamField path="fieldTemplateSystemId" type="string" required>
+      System ID of the field template to use for this block
+    </ParamField>
+    
+    <ParamField path="content" type="object" optional>
+      Block content data (HTML, text, etc.)
+    </ParamField>
+    
+    <ParamField path="fields" type="object" optional>
+      Custom field values for the block
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+## Response
+
+Returns the newly created block with its system ID.
+
+<ResponseField name="systemId" type="string">
+  Unique identifier assigned to the new block
+</ResponseField>
+
+<ResponseField name="name" type="string">
+  Display name of the created block
+</ResponseField>
+
+<ResponseField name="created" type="string">
+  Creation timestamp (ISO 8601 format)
+</ResponseField>
+
+<ResponseField name="createdBy" type="string">
+  Username of the creator
+</ResponseField>
+
+## Examples
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://your-server.vercel.app/api/mcp \
+  -H "Content-Type: application/json" \
+  -H "X-Litium-Base-Url: https://demoadmin.litium.com" \
+  -H "X-Litium-Client-Id: your-client-id" \
+  -H "X-Litium-Client-Secret: your-client-secret" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "name": "create_block",
+      "arguments": {
+        "block": {
+          "name": "New Hero Banner",
+          "fieldTemplateSystemId": "template-123",
+          "content": {
+            "html": "<div class=\"hero\"><h1>Welcome to Our Store</h1></div>"
+          },
+          "fields": {
+            "backgroundColor": "#0066cc",
+            "textColor": "#ffffff"
+          }
+        }
+      }
+    },
+    "id": 1
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://your-server.vercel.app/api/mcp', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-Litium-Base-Url': 'https://demoadmin.litium.com',
+    'X-Litium-Client-Id': 'your-client-id',
+    'X-Litium-Client-Secret': 'your-client-secret'
+  },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    method: 'tools/call',
+    params: {
+      name: 'create_block',
+      arguments: {
+        block: {
+          name: 'New Hero Banner',
+          fieldTemplateSystemId: 'template-123',
+          content: {
+            html: '<div class="hero"><h1>Welcome to Our Store</h1></div>'
+          },
+          fields: {
+            backgroundColor: '#0066cc',
+            textColor: '#ffffff'
+          }
+        }
+      }
+    },
+    id: 1
+  })
+});
+
+const data = await response.json();
+console.log(data.result);
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://your-server.vercel.app/api/mcp',
+    headers={
+        'Content-Type': 'application/json',
+        'X-Litium-Base-Url': 'https://demoadmin.litium.com',
+        'X-Litium-Client-Id': 'your-client-id',
+        'X-Litium-Client-Secret': 'your-client-secret'
+    },
+    json={
+        'jsonrpc': '2.0',
+        'method': 'tools/call',
+        'params': {
+            'name': 'create_block',
+            'arguments': {
+                'block': {
+                    'name': 'New Hero Banner',
+                    'fieldTemplateSystemId': 'template-123',
+                    'content': {
+                        'html': '<div class="hero"><h1>Welcome to Our Store</h1></div>'
+                    },
+                    'fields': {
+                        'backgroundColor': '#0066cc',
+                        'textColor': '#ffffff'
+                    }
+                }
+            }
+        },
+        'id': 1
+    }
+)
+
+data = response.json()
+print(data['result'])
+```
+
+```text Natural Language (AI)
+"Create a new hero banner block with the title 'Welcome to Our Store' and a blue background"
+```
+</CodeGroup>
+
+### Example Response
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"systemId\":\"new-block-789\",\"name\":\"New Hero Banner\",\"created\":\"2024-01-20T14:30:00Z\",\"createdBy\":\"admin\"}"
+      }
+    ]
+  }
+}
+```
+
+## Use Cases
+
+<AccordionGroup>
+  <Accordion title="Create Promotional Banner" icon="rectangle-ad">
+    Create a new banner block for a seasonal promotion:
+    ```json
+    {
+      "block": {
+        "name": "Summer Sale Banner",
+        "fieldTemplateSystemId": "banner-template",
+        "content": {
+          "html": "<div class='sale-banner'><h2>Summer Sale - 50% Off!</h2></div>"
+        },
+        "fields": {
+          "startDate": "2024-06-01",
+          "endDate": "2024-08-31"
+        }
+      }
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Add Footer Content" icon="window-minimize">
+    Create a new footer block with contact information:
+    ```json
+    {
+      "block": {
+        "name": "Footer Contact Info",
+        "fieldTemplateSystemId": "footer-template",
+        "content": {
+          "html": "<footer><p>Contact: info@example.com</p></footer>"
+        }
+      }
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Create Text Block" icon="align-left">
+    Add a simple text content block:
+    ```json
+    {
+      "block": {
+        "name": "About Us Text",
+        "fieldTemplateSystemId": "text-template",
+        "content": {
+          "text": "Welcome to our store. We've been serving customers since 2020."
+        }
+      }
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Common Workflows
+
+<Steps>
+  <Step title="Plan Block Content">
+    Determine what content and fields your new block needs
+  </Step>
+  <Step title="Get Template ID">
+    Identify the appropriate field template system ID for your block type
+  </Step>
+  <Step title="Create Block">
+    Use `create_block` with complete block data
+  </Step>
+  <Step title="Verify Creation">
+    Use [get_block](/tools/blocks/get-block) to verify the block was created correctly
+  </Step>
+  <Step title="Use in Website">
+    Add the new block to your website pages using Litium admin panel
+  </Step>
+</Steps>
+
+## Field Template IDs
+
+<Note>
+  You'll need to obtain valid field template system IDs from your Litium instance. These templates define the structure and available fields for blocks.
+</Note>
+
+Common field template types:
+- **Banner Template**: For hero banners and promotional content
+- **Text Template**: For text-based content blocks
+- **Image Template**: For image galleries and media blocks
+- **Custom Templates**: Your organization's custom templates
+
+## Related Tools
+
+<CardGroup cols={2}>
+  <Card
+    title="get_block"
+    icon="cube"
+    href="/tools/blocks/get-block"
+  >
+    Verify the created block
+  </Card>
+  <Card
+    title="update_block"
+    icon="pen-to-square"
+    href="/tools/blocks/update-block"
+  >
+    Update the block after creation
+  </Card>
+  <Card
+    title="search_blocks"
+    icon="magnifying-glass"
+    href="/tools/blocks/search-blocks"
+  >
+    Find the new block in listings
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Invalid field template">
+    **Cause**: The fieldTemplateSystemId doesn't exist or is incorrect
+    
+    **Solution**: Verify the template ID exists in your Litium instance. Check with your Litium administrator for valid template IDs.
+  </Accordion>
+
+  <Accordion title="Required field missing">
+    **Cause**: The template requires fields that weren't provided
+    
+    **Solution**: Check the field template requirements and ensure all required fields are included in the `fields` object.
+  </Accordion>
+
+  <Accordion title="Validation error">
+    **Cause**: Block data doesn't meet validation requirements
+    
+    **Solution**: Ensure the `name` field is unique and all content follows the template's validation rules.
+  </Accordion>
+
+  <Accordion title="Permission denied">
+    **Cause**: Insufficient permissions to create blocks
+    
+    **Solution**: Verify your OAuth2 credentials have write permissions for blocks.
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+<Check>
+  **Use descriptive names**: Give blocks clear, descriptive names that indicate their purpose and location
+</Check>
+
+<Check>
+  **Validate content**: Ensure HTML content is well-formed and follows your site's standards
+</Check>
+
+<Check>
+  **Test in staging**: Create blocks in a test environment first before production
+</Check>
+
+<Check>
+  **Document custom fields**: Keep track of what custom fields are used for each block type
+</Check>
+

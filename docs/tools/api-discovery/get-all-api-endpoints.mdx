@@ -1,0 +1,64 @@
+---
+title: get_all_api_endpoints
+description: 'Get comprehensive list of all Litium API endpoints'
+---
+
+## Overview
+
+Get a comprehensive list of all available Litium API endpoints with detailed information including URLs, methods, parameters, and examples.
+
+<Info>
+  This is a **read-only** discovery tool that helps you explore the Litium API.
+</Info>
+
+## Parameters
+
+No parameters required.
+
+## Response
+
+Returns a complete list of all Litium Admin API endpoints with:
+- Endpoint URLs
+- HTTP methods
+- Required/optional parameters
+- Response formats
+- Usage examples
+
+## Examples
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://your-server.vercel.app/api/mcp \
+  -H "Content-Type: application/json" \
+  -H "X-Litium-Base-Url: https://demoadmin.litium.com" \
+  -H "X-Litium-Client-Id: your-client-id" \
+  -H "X-Litium-Client-Secret: your-client-secret" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "name": "get_all_api_endpoints",
+      "arguments": {}
+    },
+    "id": 1
+  }'
+```
+
+```text Natural Language
+"Show me all available Litium API endpoints"
+```
+</CodeGroup>
+
+## Use Cases
+
+- **API Discovery**: Explore available endpoints
+- **Integration Planning**: Understand what APIs are available
+- **Development Reference**: Quick lookup of endpoint details
+
+## Related Tools
+
+<CardGroup cols={2}>
+  <Card title="get_api_endpoints_by_category" href="/tools/api-discovery/get-api-endpoints-by-category">Filter by category</Card>
+  <Card title="search_api_endpoints" href="/tools/api-discovery/search-api-endpoints">Search endpoints</Card>
+</CardGroup>
+

@@ -1,0 +1,64 @@
+---
+title: get_oauth_info
+description: 'Get detailed OAuth2 authentication information'
+---
+
+## Overview
+
+Get detailed OAuth2 authentication information including token endpoint, required parameters, and examples for authenticating with the Litium Admin API.
+
+<Info>
+  This is a **read-only** discovery tool that provides authentication guidance.
+</Info>
+
+## Parameters
+
+No parameters required.
+
+## Response
+
+Returns comprehensive OAuth2 information including:
+- Token endpoint URL
+- Grant type details
+- Required credentials (client ID, secret)
+- Scope information
+- Example authentication requests
+
+## Examples
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://your-server.vercel.app/api/mcp \
+  -H "Content-Type: application/json" \
+  -H "X-Litium-Base-Url: https://demoadmin.litium.com" \
+  -H "X-Litium-Client-Id: your-client-id" \
+  -H "X-Litium-Client-Secret: your-client-secret" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "name": "get_oauth_info",
+      "arguments": {}
+    },
+    "id": 1
+  }'
+```
+
+```text Natural Language
+"Show me OAuth2 authentication information"
+```
+</CodeGroup>
+
+## Use Cases
+
+- **Authentication Setup**: Learn how to authenticate with Litium API
+- **Integration Development**: Understand OAuth2 requirements
+- **Troubleshooting**: Debug authentication issues
+
+## Related Tools
+
+<CardGroup cols={2}>
+  <Card title="get_api_info" href="/tools/api-discovery/get-api-info">Get general API info</Card>
+  <Card title="Authentication Guide" href="/getting-started/authentication">Full authentication guide</Card>
+</CardGroup>
+

@@ -1,0 +1,67 @@
+---
+title: get_websites
+description: 'Get all websites in Litium'
+---
+
+## Overview
+
+Retrieve a list of all websites configured in your Litium instance.
+
+<Info>
+  This is a **read-only** tool that does not modify any data.
+</Info>
+
+## Parameters
+
+No parameters required.
+
+## Response
+
+Returns an array of all websites with their configuration details.
+
+<ResponseField name="websites" type="array">
+  List of all websites
+  
+  <Expandable title="Website Object">
+    <ResponseField name="systemId" type="string">Unique identifier</ResponseField>
+    <ResponseField name="name" type="string">Website name</ResponseField>
+    <ResponseField name="url" type="string">Website URL</ResponseField>
+    <ResponseField name="culture" type="string">Default culture/language</ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Examples
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://your-server.vercel.app/api/mcp \
+  -H "Content-Type: application/json" \
+  -H "X-Litium-Base-Url: https://demoadmin.litium.com" \
+  -H "X-Litium-Client-Id: your-client-id" \
+  -H "X-Litium-Client-Secret: your-client-secret" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "name": "get_websites",
+      "arguments": {}
+    },
+    "id": 1
+  }'
+```
+
+```text Natural Language
+"List all websites in my Litium instance"
+```
+</CodeGroup>
+
+## Use Cases
+
+- **Site Overview**: Get a list of all configured websites
+- **Multi-site Management**: View all sites in a multi-site setup
+- **Configuration Check**: Verify website settings
+
+## Related Tools
+
+<Card title="get_website" href="/tools/websites/get-website">Get details of a specific website</Card>
+
