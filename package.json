@@ -13,8 +13,7 @@
     "lint": "eslint src/**/*.ts app/**/*.ts",
     "lint:fix": "eslint src/**/*.ts app/**/*.ts --fix",
     "deploy": "vercel --prod",
-    "docs:dev": "cd docs && mintlify dev",
-    "docs:deploy": "cd docs && mintlify deploy"
+    "docs:dev": "cd docs && mint dev"
   },
   "keywords": [
     "mcp",
