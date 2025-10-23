@@ -31,7 +31,7 @@ Let's make your first tool call to list all websites in your Litium instance.
       </Step>
 
       <Step title="Review Response">
-        Cursor will use the `get_websites` tool and show you the results:
+        Cursor will use the `manage_website` tool and show you the results:
         
         ```json
         {
@@ -63,7 +63,7 @@ Let's make your first tool call to list all websites in your Litium instance.
       </Step>
 
       <Step title="Review Response">
-        Claude will use the `get_websites` tool and format the response for you
+        Claude will use the `manage_website` tool and format the response for you
       </Step>
     </Steps>
   </Tab>
@@ -88,7 +88,7 @@ Let's make your first tool call to list all websites in your Litium instance.
         ```
       </Step>
 
-      <Step title="Call Get Websites Tool">
+      <Step title="Call Manage Website Tool">
         Make your first tool call:
         
         ```bash
@@ -102,8 +102,10 @@ Let's make your first tool call to list all websites in your Litium instance.
             "jsonrpc": "2.0",
             "method": "tools/call",
             "params": {
-              "name": "get_websites",
-              "arguments": {}
+              "name": "manage_website",
+              "arguments": {
+                "operation": "list"
+              }
             },
             "id": 2
           }'
@@ -132,10 +134,13 @@ curl -X POST http://localhost:3000/api/mcp \
     "jsonrpc": "2.0",
     "method": "tools/call",
     "params": {
-      "name": "search_products",
+      "name": "manage_product",
       "arguments": {
-        "search": "laptop",
-        "take": 10
+        "operation": "search",
+        "params": {
+          "search": "laptop",
+          "take": 10
+        }
       }
     },
     "id": 3
@@ -160,8 +165,9 @@ curl -X POST http://localhost:3000/api/mcp \
     "jsonrpc": "2.0",
     "method": "tools/call",
     "params": {
-      "name": "get_block",
+      "name": "manage_block",
       "arguments": {
+        "operation": "get",
         "systemId": "abc-123-def-456"
       }
     },
@@ -187,9 +193,12 @@ curl -X POST http://localhost:3000/api/mcp \
     "jsonrpc": "2.0",
     "method": "tools/call",
     "params": {
-      "name": "search_customers",
+      "name": "manage_customer",
       "arguments": {
-        "search": "john@example.com"
+        "operation": "search",
+        "params": {
+          "search": "john@example.com"
+        }
       }
     },
     "id": 5
@@ -205,24 +214,24 @@ curl -X POST http://localhost:3000/api/mcp \
 
 <AccordionGroup>
   <Accordion title="Product Management Workflow" icon="box">
-    1. **Search for products**: `search_products` with search term
-    2. **Get product details**: `get_product` with systemId
-    3. **Update product**: `update_product` with changes
-    4. **Verify update**: `get_product` again to confirm
+    1. **Search for products**: `manage_product` with operation `search`
+    2. **Get product details**: `manage_product` with operation `get`
+    3. **Update product**: `manage_product` with operation `update`
+    4. **Verify update**: `manage_product` with operation `get` again
   </Accordion>
 
   <Accordion title="Content Management Workflow" icon="file-lines">
-    1. **List blocks**: `search_blocks` to find content
-    2. **Get specific block**: `get_block` with systemId
-    3. **Update content**: `update_block` with new content
-    4. **Publish changes**: Verify with `get_block`
+    1. **List blocks**: `manage_block` with operation `search`
+    2. **Get specific block**: `manage_block` with operation `get`
+    3. **Update content**: `manage_block` with operation `update`
+    4. **Publish changes**: Verify with `manage_block` operation `get`
   </Accordion>
 
   <Accordion title="Customer Support Workflow" icon="headset">
-    1. **Find customer**: `search_customers` by email/name
-    2. **Get customer details**: `get_customer` with systemId
-    3. **Find their orders**: `search_orders` filtered by customer
-    4. **Get order details**: `get_order` for specific order
+    1. **Find customer**: `manage_customer` with operation `search`
+    2. **Get customer details**: `manage_customer` with operation `get`
+    3. **Find their orders**: `manage_order` with operation `search`
+    4. **Get order details**: `manage_order` with operation `get`
   </Accordion>
 </AccordionGroup>
 
@@ -259,19 +268,19 @@ Now that you've made your first tool call, explore more:
     icon="toolbox"
     href="/tools/overview"
   >
-    See all 28 available tools
+    See all 18 available tools
   </Card>
   <Card
-    title="Blocks Tools"
+    title="Content Tools"
     icon="cube"
-    href="/tools/blocks/search-blocks"
+    href="/tools/content/manage-block"
   >
     Manage content blocks
   </Card>
   <Card
     title="Products Tools"
     icon="box"
-    href="/tools/products/search-products"
+    href="/tools/products/manage-product"
   >
     Manage your product catalog
   </Card>

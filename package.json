@@ -1,8 +1,7 @@
 {
   "name": "litium-admin-mcp-server",
-  "version": "1.0.0",
-  "description": "MCP Server for Litium Admin Web API - provides tools for AI models to interact with Litium e-commerce platform",
-  "main": "dist/index.js",
+  "version": "2.0.0",
+  "description": "HTTP-based MCP Server for Litium Admin Web API - provides tools for AI models to interact with Litium e-commerce platform via HTTP transport",
   "type": "module",
   "scripts": {
     "dev": "next dev",
@@ -10,8 +9,8 @@
     "start": "next start",
     "serve": "next dev",
     "generate-types": "openapi-typescript openapi.json -o src/types/api.ts",
-    "lint": "eslint src/**/*.ts app/**/*.ts",
-    "lint:fix": "eslint src/**/*.ts app/**/*.ts --fix",
+    "lint": "eslint app/**/*.ts src/**/*.ts",
+    "lint:fix": "eslint app/**/*.ts src/**/*.ts --fix",
     "deploy": "vercel --prod",
     "docs:dev": "cd docs && mint dev"
   },
@@ -26,7 +25,6 @@
   "author": "Ton Nguyen",
   "license": "MIT",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.20.1",
     "@vercel/node": "^5.4.1",
     "axios": "^1.12.2",
     "dotenv": "^17.2.3",

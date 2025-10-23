@@ -60,8 +60,8 @@ export class MediaService extends BaseApiService {
     take?: number;
     sort?: string;
   }) {
-    const endpoint = '/Litium/api/admin/media/folders';
-    return this.search<any>(endpoint, params);
+    const endpoint = '/Litium/api/admin/media/folders/search';
+    return this.searchPost<any>(endpoint, params);
   }
 
   /**
@@ -141,5 +141,101 @@ export class MediaService extends BaseApiService {
   }) {
     const endpoint = '/Litium/api/admin/media/fieldTemplates';
     return this.search<any>(endpoint, params);
+  }
+
+  /**
+   * Create a new field definition
+   */
+  async createFieldDefinition(fieldDefinition: any) {
+    const endpoint = '/Litium/api/admin/media/fieldDefinitions';
+    return this.create<any>(endpoint, fieldDefinition);
+  }
+
+  /**
+   * Update an existing field definition
+   */
+  async updateFieldDefinition(systemId: string, fieldDefinition: any) {
+    const endpoint = `/Litium/api/admin/media/fieldDefinitions/${systemId}`;
+    return this.update<any>(endpoint, fieldDefinition);
+  }
+
+  /**
+   * Delete a field definition
+   */
+  async deleteFieldDefinition(systemId: string) {
+    const endpoint = `/Litium/api/admin/media/fieldDefinitions/${systemId}`;
+    return this.delete(endpoint);
+  }
+
+  /**
+   * Get a specific field definition by system ID
+   */
+  async getFieldDefinition(systemId: string) {
+    const endpoint = `/Litium/api/admin/media/fieldDefinitions/${systemId}`;
+    return this.get<any>(endpoint);
+  }
+
+  /**
+   * Create a new field template
+   */
+  async createFieldTemplate(fieldTemplate: any) {
+    const endpoint = '/Litium/api/admin/media/fieldTemplates';
+    return this.create<any>(endpoint, fieldTemplate);
+  }
+
+  /**
+   * Update an existing field template
+   */
+  async updateFieldTemplate(systemId: string, fieldTemplate: any) {
+    const endpoint = `/Litium/api/admin/media/fieldTemplates/${systemId}`;
+    return this.update<any>(endpoint, fieldTemplate);
+  }
+
+  /**
+   * Delete a field template
+   */
+  async deleteFieldTemplate(systemId: string) {
+    const endpoint = `/Litium/api/admin/media/fieldTemplates/${systemId}`;
+    return this.delete(endpoint);
+  }
+
+  /**
+   * Get a specific field template by system ID
+   */
+  async getFieldTemplate(systemId: string) {
+    const endpoint = `/Litium/api/admin/media/fieldTemplates/${systemId}`;
+    return this.get<any>(endpoint);
+  }
+
+  /**
+   * Upload a file to a media file
+   */
+  async uploadFile(systemId: string, fileData: any) {
+    const endpoint = `/Litium/api/admin/media/files/${systemId}/upload`;
+    return this.tokenManager.makeAuthenticatedRequest<any>('POST', endpoint, fileData);
+  }
+
+  /**
+   * Download a media file
+   */
+  async downloadFile(systemId: string) {
+    const endpoint = `/Litium/api/admin/media/files/${systemId}/download`;
+    return this.get<any>(endpoint);
+  }
+
+  /**
+   * Get files in a folder
+   */
+  async getFilesInFolder(systemId: string) {
+    const endpoint = `/Litium/api/admin/media/folders/${systemId}/files`;
+    return this.get<any>(endpoint);
+  }
+
+  /**
+   * Get subfolders in a folder
+   */
+  async getSubfolders(systemId: string) {
+    const endpoint = `/Litium/api/admin/media/folders/${systemId}/folders`;
+    return this.get<any>(endpoint);
   }
 }

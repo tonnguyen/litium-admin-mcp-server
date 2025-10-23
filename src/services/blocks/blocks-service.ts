@@ -16,7 +16,7 @@ export class BlocksService extends BaseApiService {
     sort?: string;
   }) {
     const endpoint = '/Litium/api/admin/blocks/blocks/search';
-    return this.search<any>(endpoint, params);
+    return this.searchPost<any>(endpoint, params);
   }
 
   /**

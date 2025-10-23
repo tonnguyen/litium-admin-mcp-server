@@ -1,0 +1,29 @@
+---
+title: manage_order
+description: 'View orders in Litium (read-only)'
+---
+
+## Overview
+
+View order information. Operations: search, get (read-only).
+
+## Operations
+
+- `search` - Search for orders
+- `get` - Get order by ID
+
+## Example
+
+```json
+{
+  "name": "manage_order",
+  "arguments": {
+    "operation": "get",
+    "systemId": "order-123"
+  }
+}
+```
+
+## Natural Language
+
+"Show me order order-123"

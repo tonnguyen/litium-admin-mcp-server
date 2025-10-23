@@ -1,0 +1,153 @@
+---
+title: manage_block
+description: 'Manage content blocks in Litium'
+---
+
+## Overview
+
+The `manage_block` tool provides full management of content blocks in your Litium websites. Content blocks are reusable pieces of content that can be used across pages.
+
+## Operations
+
+<ParamField path="operation" type="string" required>
+  The operation to perform:
+  - `search` - Search for blocks
+  - `get` - Get a specific block by ID
+  - `create` - Create a new block
+  - `update` - Update an existing block
+  - `delete` - Delete a block
+</ParamField>
+
+## Parameters
+
+### For `search` operation
+
+<ParamField path="params" type="object">
+  Search parameters (all optional):
+  
+  <Expandable title="properties">
+    <ParamField path="search" type="string">
+      Search term
+    </ParamField>
+    <ParamField path="skip" type="number" default="0">
+      Pagination offset
+    </ParamField>
+    <ParamField path="take" type="number" default="20">
+      Results per page
+    </ParamField>
+    <ParamField path="sort" type="string">
+      Sort field
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### For `get`, `update`, `delete` operations
+
+<ParamField path="systemId" type="string" required>
+  The unique system ID of the block
+</ParamField>
+
+### For `create` and `update` operations
+
+<ParamField path="data" type="object" required>
+  Block data object
+</ParamField>
+
+## Examples
+
+### Search Blocks
+
+<CodeGroup>
+```json JSON-RPC
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "manage_block",
+    "arguments": {
+      "operation": "search",
+      "params": {
+        "search": "hero",
+        "take": 5
+      }
+    }
+  },
+  "id": 1
+}
+```
+
+```text Natural Language
+"Find all content blocks with 'hero' in the name"
+```
+</CodeGroup>
+
+### Get Block Details
+
+<CodeGroup>
+```json JSON-RPC
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "manage_block",
+    "arguments": {
+      "operation": "get",
+      "systemId": "block-abc-123"
+    }
+  },
+  "id": 2
+}
+```
+
+```text Natural Language
+"Show me the content block with ID block-abc-123"
+```
+</CodeGroup>
+
+### Update Block Content
+
+<CodeGroup>
+```json JSON-RPC
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "manage_block",
+    "arguments": {
+      "operation": "update",
+      "systemId": "block-abc-123",
+      "data": {
+        "content": "<h1>Updated Hero Banner</h1>"
+      }
+    }
+  },
+  "id": 3
+}
+```
+
+```text Natural Language
+"Update the content of block block-abc-123 with new HTML"
+```
+</CodeGroup>
+
+## Common Use Cases
+
+<AccordionGroup>
+  <Accordion title="Content Updates">
+    Search for a block by name, get its details, update the content, and verify the changes.
+  </Accordion>
+  
+  <Accordion title="Block Management">
+    Create reusable content blocks for headers, footers, and promotional banners across your sites.
+  </Accordion>
+</AccordionGroup>
+
+## Related Tools
+
+- [manage_page](/tools/content/manage-page) - Manage website pages
+- [manage_media](/tools/media/manage-media) - Manage images and files
+
+<Info>
+  Blocks are powerful for maintaining consistent content across multiple pages.
+</Info>
+
