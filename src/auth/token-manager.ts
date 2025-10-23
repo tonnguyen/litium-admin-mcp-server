@@ -9,6 +9,10 @@ export class TokenManager {
 
   constructor(private config: LitiumConfig) {}
 
+  getBaseUrl(): string {
+    return this.config.baseUrl;
+  }
+
   async getValidToken(): Promise<string> {
     // If we have a valid token, return it
     if (this.accessToken && this.tokenExpiry && Date.now() < this.tokenExpiry) {

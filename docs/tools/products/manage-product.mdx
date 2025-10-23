@@ -7,6 +7,10 @@ description: 'Manage Litium products (base products)'
 
 The `manage_product` tool provides comprehensive management of base products in your Litium catalog. Use this tool to search, retrieve, create, update, and delete products, as well as get product variants.
 
+<Note>
+  **Enhanced Search:** Product search now searches across multiple fields (ID, Name, ArticleNumber) to find products more effectively.
+</Note>
+
 ## Operations
 
 <ParamField path="operation" type="string" required>
@@ -68,7 +72,7 @@ The `manage_product` tool provides comprehensive management of base products in 
     "arguments": {
       "operation": "search",
       "params": {
-        "search": "laptop",
+        "search": "dress",
         "take": 10
       }
     }
@@ -78,9 +82,13 @@ The `manage_product` tool provides comprehensive management of base products in 
 ```
 
 ```text Natural Language
-"Search for laptops in the product catalog and show the top 10 results"
+"Search for dress products in the catalog"
 ```
 </CodeGroup>
+
+**Tested Examples**:
+- ✅ "dress" - Returns products with "dress" in ID (e.g., "courtdress", "w-woven-dress")
+- ✅ "Court Dress" - Returns "Court Dress" product
 
 ### Get Product Details
 
@@ -192,7 +200,7 @@ The `manage_product` tool provides comprehensive management of base products in 
     "name": "manage_product",
     "arguments": {
       "operation": "get_variants",
-      "systemId": "abc-123-def-456"
+      "systemId": "14ad979b-95dc-41ee-b653-0823361fac20"
     }
   },
   "id": 6
@@ -200,9 +208,16 @@ The `manage_product` tool provides comprehensive management of base products in 
 ```
 
 ```text Natural Language
-"Show me all variants of product abc-123-def-456"
+"Show me all variants of the M Windtherm Hood product"
 ```
 </CodeGroup>
+
+**Result**: Returns array of variant system IDs:
+```json
+["09c36fcf-55d0-49cd-8c4b-aba1f8cac6bd"]
+```
+**Tested Example**:
+- ✅ Product `14ad979b-95dc-41ee-b653-0823361fac20` (M Windtherm Hood) has 1 variant (Size S, Black)
 
 ## Response Format
 

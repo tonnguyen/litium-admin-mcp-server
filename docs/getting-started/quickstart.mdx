@@ -138,7 +138,7 @@ curl -X POST http://localhost:3000/api/mcp \
       "arguments": {
         "operation": "search",
         "params": {
-          "search": "laptop",
+          "search": "dress",
           "take": 10
         }
       }
@@ -148,9 +148,11 @@ curl -X POST http://localhost:3000/api/mcp \
 ```
 
 ```text Natural Language (Cursor/Claude)
-"Can you search for laptops in my product catalog and show me the top 10 results?"
+"Can you search for dress products in my catalog?"
 ```
 </CodeGroup>
+
+**Tested**: Returns products like "Court Dress", "W Woven Dress" ✅
 
 ### Get Block Details
 
@@ -180,7 +182,7 @@ curl -X POST http://localhost:3000/api/mcp \
 ```
 </CodeGroup>
 
-### Search for Customers
+### Search for Orders
 
 <CodeGroup>
 ```bash cURL
@@ -193,11 +195,11 @@ curl -X POST http://localhost:3000/api/mcp \
     "jsonrpc": "2.0",
     "method": "tools/call",
     "params": {
-      "name": "manage_customer",
+      "name": "manage_order",
       "arguments": {
         "operation": "search",
         "params": {
-          "search": "john@example.com"
+          "search": "LS10070"
         }
       }
     },
@@ -206,9 +208,11 @@ curl -X POST http://localhost:3000/api/mcp \
 ```
 
 ```text Natural Language (Cursor/Claude)
-"Find the customer with email john@example.com"
+"Find order LS10070"
 ```
 </CodeGroup>
+
+**Tested**: Returns exactly 1 order ✅
 
 ## Common Workflows
 
@@ -228,10 +232,12 @@ curl -X POST http://localhost:3000/api/mcp \
   </Accordion>
 
   <Accordion title="Customer Support Workflow" icon="headset">
-    1. **Find customer**: `manage_customer` with operation `search`
-    2. **Get customer details**: `manage_customer` with operation `get`
-    3. **Find their orders**: `manage_order` with operation `search`
-    4. **Get order details**: `manage_order` with operation `get`
+    1. **Find order**: `manage_order` with operation `search` (e.g., "LS10070")
+    2. **Get order details**: `manage_order` with operation `get`
+    3. **Find customer**: `manage_customer` with operation `search`
+    4. **Get customer details**: `manage_customer` with operation `get`
+    
+    **Tested Example**: Search for "LS10070" → Returns exact order ✅
   </Accordion>
 </AccordionGroup>
 

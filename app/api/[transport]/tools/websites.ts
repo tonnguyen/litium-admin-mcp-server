@@ -6,7 +6,18 @@ import { logger } from '../../../../src/utils/logger';
 export function registerWebsiteTools(server: any, getApiService: (req: Request) => LitiumApiService, req: Request) {
   server.tool(
     'manage_website',
-    `Manage websites and URL redirects. Supported operations: list, get, search_redirects, get_redirect, create_redirect, update_redirect, delete_redirect`,
+    `Manage websites and URL redirects. Supported operations: list, get, search_redirects, get_redirect, create_redirect, update_redirect, delete_redirect
+
+API Endpoints (Websites):
+- list: GET /Litium/api/admin/websites/websites
+- get: GET /Litium/api/admin/websites/websites/{systemId}
+
+API Endpoints (URL Redirects):
+- search_redirects: POST /Litium/api/admin/websites/urlRedirects/search
+- get_redirect: GET /Litium/api/admin/websites/urlRedirects/{systemId}
+- create_redirect: POST /Litium/api/admin/websites/urlRedirects
+- update_redirect: PUT /Litium/api/admin/websites/urlRedirects/{systemId}
+- delete_redirect: DELETE /Litium/api/admin/websites/urlRedirects/{systemId}`,
     {
       operation: z.enum(['list', 'get', 'search_redirects', 'get_redirect', 'create_redirect', 'update_redirect', 'delete_redirect']),
       systemId: z.string().optional(),

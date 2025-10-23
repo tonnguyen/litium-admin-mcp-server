@@ -7,7 +7,15 @@ export function registerProductTools(server: any, getApiService: (req: Request) 
   // Product management
   server.tool(
     'manage_product',
-    `Manage Litium products (base products). Supported operations: search, get, create, update, delete, get_variants`,
+    `Manage Litium products (base products). Supported operations: search, get, create, update, delete, get_variants
+
+API Endpoints:
+- search: POST /Litium/api/admin/products/baseProducts/search
+- get: GET /Litium/api/admin/products/baseProducts/{systemId}
+- create: POST /Litium/api/admin/products/baseProducts
+- update: PUT /Litium/api/admin/products/baseProducts/{systemId}
+- delete: DELETE /Litium/api/admin/products/baseProducts/{systemId}
+- get_variants: GET /Litium/api/admin/products/baseProducts/{systemId}/variants`,
     {
       operation: z.enum(['search', 'get', 'create', 'update', 'delete', 'get_variants']),
       systemId: z.string().optional(),
@@ -50,7 +58,14 @@ export function registerProductTools(server: any, getApiService: (req: Request) 
   // Product variant management
   server.tool(
     'manage_product_variant',
-    `Manage product variants. Supported operations: search, get, create, update, delete`,
+    `Manage product variants. Supported operations: search, get, create, update, delete
+
+API Endpoints:
+- search: POST /Litium/api/admin/products/variants/search
+- get: GET /Litium/api/admin/products/variants/{systemId}
+- create: POST /Litium/api/admin/products/variants
+- update: PUT /Litium/api/admin/products/variants/{systemId}
+- delete: DELETE /Litium/api/admin/products/variants/{systemId}`,
     {
       operation: z.enum(['search', 'get', 'create', 'update', 'delete']),
       systemId: z.string().optional(),
@@ -91,7 +106,17 @@ export function registerProductTools(server: any, getApiService: (req: Request) 
   // Product category management
   server.tool(
     'manage_product_category',
-    `Manage product categories. Supported operations: search, get, create, update, delete, get_subcategories`,
+    `Manage product categories. Supported operations: search, get, create, update, delete, get_subcategories
+
+API Endpoints:
+- search: POST /Litium/api/admin/products/categories/search
+- get: GET /Litium/api/admin/products/categories/{systemId}
+- create: POST /Litium/api/admin/products/categories
+- update: PUT /Litium/api/admin/products/categories/{systemId}
+- delete: DELETE /Litium/api/admin/products/categories/{systemId}
+- get_subcategories: GET /Litium/api/admin/products/categories/{systemId}/categories
+
+IMPORTANT: The subcategories endpoint is /categories/{systemId}/categories, NOT /categories/{systemId}/subcategories`,
     {
       operation: z.enum(['search', 'get', 'create', 'update', 'delete', 'get_subcategories']),
       systemId: z.string().optional(),
@@ -134,7 +159,15 @@ export function registerProductTools(server: any, getApiService: (req: Request) 
   // Product assortment management
   server.tool(
     'manage_product_assortment',
-    `Manage product assortments. Supported operations: search, get, create, update, delete, get_categories`,
+    `Manage product assortments. Supported operations: search, get, create, update, delete, get_categories
+
+API Endpoints:
+- search: GET /Litium/api/admin/products/assortments (no search endpoint, use GET with filtering)
+- get: GET /Litium/api/admin/products/assortments/{systemId}
+- create: POST /Litium/api/admin/products/assortments
+- update: PUT /Litium/api/admin/products/assortments/{systemId}
+- delete: DELETE /Litium/api/admin/products/assortments/{systemId}
+- get_categories: GET /Litium/api/admin/products/assortments/{systemId}/categories`,
     {
       operation: z.enum(['search', 'get', 'create', 'update', 'delete', 'get_categories']),
       systemId: z.string().optional(),
@@ -177,7 +210,15 @@ export function registerProductTools(server: any, getApiService: (req: Request) 
   // Price list management
   server.tool(
     'manage_price_list',
-    `Manage price lists. Supported operations: search, get, create, update, delete, get_items`,
+    `Manage price lists. Supported operations: search, get, create, update, delete, get_items
+
+API Endpoints:
+- search: POST /Litium/api/admin/products/priceLists/search
+- get: GET /Litium/api/admin/products/priceLists/{systemId}
+- create: POST /Litium/api/admin/products/priceLists
+- update: PUT /Litium/api/admin/products/priceLists/{systemId}
+- delete: DELETE /Litium/api/admin/products/priceLists/{systemId}
+- get_items: GET /Litium/api/admin/products/productPriceLists/{systemId}/items`,
     {
       operation: z.enum(['search', 'get', 'create', 'update', 'delete', 'get_items']),
       systemId: z.string().optional(),
@@ -220,7 +261,14 @@ export function registerProductTools(server: any, getApiService: (req: Request) 
   // Relationship type management
   server.tool(
     'manage_relationship_type',
-    `Manage product relationship types. Supported operations: list, get, create, update, delete`,
+    `Manage product relationship types. Supported operations: list, get, create, update, delete
+
+API Endpoints:
+- list: GET /Litium/api/admin/products/relationshipTypes
+- get: GET /Litium/api/admin/products/relationshipTypes/{systemId}
+- create: POST /Litium/api/admin/products/relationshipTypes
+- update: PUT /Litium/api/admin/products/relationshipTypes/{systemId}
+- delete: DELETE /Litium/api/admin/products/relationshipTypes/{systemId}`,
     {
       operation: z.enum(['list', 'get', 'create', 'update', 'delete']),
       systemId: z.string().optional(),

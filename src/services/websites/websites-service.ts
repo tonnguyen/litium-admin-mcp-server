@@ -1,5 +1,6 @@
 import { BaseApiService } from '../base-api';
 import { type LitiumConfig } from '../../types/config';
+import { FilterBuilder } from '../../utils/filter-builder';
 
 export class WebsitesService extends BaseApiService {
   constructor(config: LitiumConfig) {
@@ -185,6 +186,7 @@ export class WebsitesService extends BaseApiService {
 
   /**
    * Search for pages
+   * Supports searching by page ID or title
    */
   async searchPages(params?: {
     search?: string;
@@ -193,7 +195,12 @@ export class WebsitesService extends BaseApiService {
     sort?: string;
   }) {
     const endpoint = '/Litium/api/admin/websites/pages/search';
-    return this.searchPost<any>(endpoint, params);
+    const searchModel = FilterBuilder.buildPageSearch(
+      params?.search || '',
+      params?.skip || 0,
+      params?.take || 20
+    );
+    return this.searchPost<any>(endpoint, searchModel);
   }
 
   /**
@@ -327,6 +334,7 @@ export class WebsitesService extends BaseApiService {
 
   /**
    * Search for URL redirects
+   * Supports searching by redirect ID or URL
    */
   async searchUrlRedirects(params?: {
     search?: string;
@@ -335,7 +343,12 @@ export class WebsitesService extends BaseApiService {
     sort?: string;
   }) {
     const endpoint = '/Litium/api/admin/websites/urlRedirects/search';
-    return this.searchPost<any>(endpoint, params);
+    const searchModel = FilterBuilder.buildGenericSearch(
+      params?.search || '',
+      params?.skip || 0,
+      params?.take || 20
+    );
+    return this.searchPost<any>(endpoint, searchModel);
   }
 
   /**

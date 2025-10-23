@@ -1,5 +1,7 @@
+import axios from 'axios';
 import { TokenManager } from '../auth/token-manager';
 import { type LitiumConfig } from '../types/config';
+import { type SearchModel } from '../utils/filter-builder';
 
 export abstract class BaseApiService {
   protected tokenManager: TokenManager;
@@ -9,7 +11,7 @@ export abstract class BaseApiService {
   }
 
   /**
-   * Generic search method for any endpoint
+   * Generic search method for any endpoint (GET)
    */
   protected async search<T>(endpoint: string, params?: {
     search?: string;
@@ -28,22 +30,11 @@ export abstract class BaseApiService {
   }
 
   /**
-   * Generic POST search method for endpoints that use POST for search
+   * Generic POST search method using Litium's SearchModel
+   * Accepts a pre-built SearchModel with filter conditions
    */
-  protected async searchPost<T>(endpoint: string, params?: {
-    search?: string;
-    skip?: number;
-    take?: number;
-    sort?: string;
-  }): Promise<T> {
-    const searchData = {
-      search: params?.search || '',
-      skip: params?.skip || 0,
-      take: params?.take || 20,
-      sort: params?.sort || ''
-    };
-
-    return this.tokenManager.makeAuthenticatedRequest<T>('POST', endpoint, searchData);
+  protected async searchPost<T>(endpoint: string, searchModel: SearchModel): Promise<T> {
+    return this.tokenManager.makeAuthenticatedRequest<T>('POST', endpoint, searchModel);
   }
 
   /**
@@ -72,5 +63,40 @@ export abstract class BaseApiService {
    */
   protected async delete(endpoint: string): Promise<void> {
     return this.tokenManager.makeAuthenticatedRequest<void>('DELETE', endpoint);
+  }
+
+  /**
+   * Get redirect URL from an endpoint that returns a 302/301 redirect
+   * Useful for download endpoints that redirect to actual file locations
+   */
+  protected async getRedirectUrl(endpoint: string): Promise<string> {
+    const token = await this.tokenManager.getValidToken();
+    const fullUrl = endpoint.startsWith('http') 
+      ? endpoint 
+      : `${this.tokenManager.getBaseUrl()}${endpoint}`;
+
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: fullUrl,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        maxRedirects: 0,
+        validateStatus: (status: number) => status === 302 || status === 301 || status === 307 || status === 308
+      });
+
+      return response.headers.location || response.headers.Location;
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        throw new Error(`Resource not found at ${endpoint}`);
+      }
+      if (error.response?.status === 401) {
+        throw new Error('Unauthorized access');
+      }
+      throw error;
+    }
   }
 }

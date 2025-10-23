@@ -7,7 +7,14 @@ export function registerCustomerTools(server: any, getApiService: (req: Request)
   // Customer management
   server.tool(
     'manage_customer',
-    `Manage customers. Supported operations: search, get, create, update, delete`,
+    `Manage customers. Supported operations: search, get, create, update, delete
+
+API Endpoints:
+- search: POST /Litium/api/admin/customers/people/search
+- get: GET /Litium/api/admin/customers/people/{systemId}
+- create: POST /Litium/api/admin/customers/people
+- update: PUT /Litium/api/admin/customers/people/{systemId}
+- delete: DELETE /Litium/api/admin/customers/people/{systemId}`,
     {
       operation: z.enum(['search', 'get', 'create', 'update', 'delete']),
       systemId: z.string().optional(),

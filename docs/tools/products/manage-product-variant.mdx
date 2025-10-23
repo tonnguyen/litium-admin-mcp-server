@@ -7,14 +7,83 @@ description: 'Manage product variants'
 
 Manage product variants (size, color variations). Operations: search, get, create, update, delete.
 
-## Example
+## Operations
 
-```json
+- `search` - Search for variants
+- `get` - Get variant by ID
+- `create` - Create a new variant
+- `update` - Update an existing variant
+- `delete` - Delete a variant
+
+## Examples
+
+### Search Variants
+
+<CodeGroup>
+```json JSON-RPC
 {
-  "name": "manage_product_variant",
-  "arguments": {
-    "operation": "search",
-    "params": {"search": "blue"}
-  }
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "manage_product_variant",
+    "arguments": {
+      "operation": "search",
+      "params": {
+        "search": "windtherm",
+        "take": 10
+      }
+    }
+  },
+  "id": 1
 }
+```
+
+```text Natural Language
+"Search for windtherm product variants"
+```
+</CodeGroup>
+
+**Tested Example**:
+- ✅ Search "windtherm" returns 4 variants (1 Hood variant, 3 Tights variants in different sizes)
+
+### Get Variant Details
+
+<CodeGroup>
+```json JSON-RPC
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "manage_product_variant",
+    "arguments": {
+      "operation": "get",
+      "systemId": "09c36fcf-55d0-49cd-8c4b-aba1f8cac6bd"
+    }
+  },
+  "id": 2
+}
+```
+
+```text Natural Language
+"Show me variant 09c36fcf-55d0-49cd-8c4b-aba1f8cac6bd"
+```
+</CodeGroup>
+
+**Result**: Returns variant details including:
+- Base product ID: `14ad979b-95dc-41ee-b653-0823361fac20` (M Windtherm Hood)
+- Size: S
+- Color: Black
+- Article number: `mwindthermhood-s-001`
+
+## Working with Variants
+
+To find all variants of a specific product:
+
+1. Use `manage_product` with `get_variants` operation to get variant IDs
+2. Use `manage_product_variant` with `get` operation for each variant ID
+
+**Example Flow**:
+```
+Product: 14ad979b-95dc-41ee-b653-0823361fac20 (M Windtherm Hood)
+  └─ Variant: 09c36fcf-55d0-49cd-8c4b-aba1f8cac6bd (Size S, Black)
 ```

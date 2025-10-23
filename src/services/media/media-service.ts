@@ -1,5 +1,6 @@
 import { BaseApiService } from '../base-api';
 import { type LitiumConfig } from '../../types/config';
+import { FilterBuilder } from '../../utils/filter-builder';
 
 export class MediaService extends BaseApiService {
   constructor(config: LitiumConfig) {
@@ -8,6 +9,7 @@ export class MediaService extends BaseApiService {
 
   /**
    * Search for media files
+   * Supports searching by file name or ID
    */
   async searchMediaFiles(params?: {
     search?: string;
@@ -16,7 +18,12 @@ export class MediaService extends BaseApiService {
     sort?: string;
   }) {
     const endpoint = '/Litium/api/admin/media/files/search';
-    return this.searchPost<any>(endpoint, params);
+    const searchModel = FilterBuilder.buildMediaSearch(
+      params?.search || '',
+      params?.skip || 0,
+      params?.take || 20
+    );
+    return this.searchPost<any>(endpoint, searchModel);
   }
 
   /**
@@ -53,6 +60,7 @@ export class MediaService extends BaseApiService {
 
   /**
    * Search for media folders
+   * Supports searching by folder name or ID
    */
   async searchMediaFolders(params?: {
     search?: string;
@@ -61,7 +69,12 @@ export class MediaService extends BaseApiService {
     sort?: string;
   }) {
     const endpoint = '/Litium/api/admin/media/folders/search';
-    return this.searchPost<any>(endpoint, params);
+    const searchModel = FilterBuilder.buildMediaSearch(
+      params?.search || '',
+      params?.skip || 0,
+      params?.take || 20
+    );
+    return this.searchPost<any>(endpoint, searchModel);
   }
 
   /**
@@ -217,10 +230,23 @@ export class MediaService extends BaseApiService {
 
   /**
    * Download a media file
+   * Returns the redirect URL (Location header) from the download endpoint
+   * The endpoint returns a 302 redirect to the actual file location
+   * 
+   * Based on adminapi-products-images-and-prices.md guide:
+   * - The endpoint returns a 302 Found redirect
+   * - The Location header contains the actual image URL
+   * - This can be a local path or CDN URL
    */
   async downloadFile(systemId: string) {
     const endpoint = `/Litium/api/admin/media/files/${systemId}/download`;
-    return this.get<any>(endpoint);
+    const url = await this.getRedirectUrl(endpoint);
+    
+    return {
+      url,
+      systemId,
+      message: 'File download URL retrieved successfully'
+    };
   }
 
   /**

@@ -7,7 +7,14 @@ export function registerContentTools(server: any, getApiService: (req: Request) 
   // Block management
   server.tool(
     'manage_block',
-    `Manage content blocks. Supported operations: search, get, create, update, delete`,
+    `Manage content blocks. Supported operations: search, get, create, update, delete
+
+API Endpoints:
+- search: POST /Litium/api/admin/blocks/blocks/search
+- get: GET /Litium/api/admin/blocks/blocks/{systemId}
+- create: POST /Litium/api/admin/blocks/blocks
+- update: PUT /Litium/api/admin/blocks/blocks/{systemId}
+- delete: DELETE /Litium/api/admin/blocks/blocks/{systemId}`,
     {
       operation: z.enum(['search', 'get', 'create', 'update', 'delete']),
       systemId: z.string().optional(),
@@ -48,7 +55,23 @@ export function registerContentTools(server: any, getApiService: (req: Request) 
   // Page management
   server.tool(
     'manage_page',
-    `Manage website pages. Supported operations: search, get, create, update, delete, unpublish, search_drafts, get_draft, create_draft, update_draft, delete_draft, publish_draft`,
+    `Manage website pages. Supported operations: search, get, create, update, delete, unpublish, search_drafts, get_draft, create_draft, update_draft, delete_draft, publish_draft
+
+API Endpoints (Published Pages):
+- search: POST /Litium/api/admin/websites/pages/search
+- get: GET /Litium/api/admin/websites/pages/{systemId}
+- create: POST /Litium/api/admin/websites/pages
+- update: PUT /Litium/api/admin/websites/pages/{systemId}
+- delete: DELETE /Litium/api/admin/websites/pages/{systemId}
+- unpublish: POST /Litium/api/admin/websites/pages/{systemId}/unpublish
+
+API Endpoints (Draft Pages):
+- search_drafts: GET /Litium/api/admin/websites/draftPages
+- get_draft: GET /Litium/api/admin/websites/draftPages/{systemId}
+- create_draft: POST /Litium/api/admin/websites/draftPages
+- update_draft: PUT /Litium/api/admin/websites/draftPages/{systemId}
+- delete_draft: DELETE /Litium/api/admin/websites/draftPages/{systemId}
+- publish_draft: POST /Litium/api/admin/websites/draftPages/{systemId}/publish`,
     {
       operation: z.enum(['search', 'get', 'create', 'update', 'delete', 'unpublish', 
                          'search_drafts', 'get_draft', 'create_draft', 'update_draft', 'delete_draft', 'publish_draft']),

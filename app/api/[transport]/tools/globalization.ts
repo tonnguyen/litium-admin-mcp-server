@@ -7,7 +7,14 @@ export function registerGlobalizationTools(server: any, getApiService: (req: Req
   // Channel management
   server.tool(
     'manage_channel',
-    `Manage globalization channels. Supported operations: search, get, create, update, delete`,
+    `Manage globalization channels. Supported operations: search, get, create, update, delete
+
+API Endpoints:
+- search: GET /Litium/api/admin/globalization/channels
+- get: GET /Litium/api/admin/globalization/channels/{systemId}
+- create: POST /Litium/api/admin/globalization/channels
+- update: PUT /Litium/api/admin/globalization/channels/{systemId}
+- delete: DELETE /Litium/api/admin/globalization/channels/{systemId}`,
     {
       operation: z.enum(['search', 'get', 'create', 'update', 'delete']),
       systemId: z.string().optional(),
@@ -47,7 +54,14 @@ export function registerGlobalizationTools(server: any, getApiService: (req: Req
   // Country management
   server.tool(
     'manage_country',
-    `Manage countries. Supported operations: search, get, create, update, delete`,
+    `Manage countries. Supported operations: search, get, create, update, delete
+
+API Endpoints:
+- search: GET /Litium/api/admin/globalization/countries
+- get: GET /Litium/api/admin/globalization/countries/{systemId}
+- create: POST /Litium/api/admin/globalization/countries
+- update: PUT /Litium/api/admin/globalization/countries/{systemId}
+- delete: DELETE /Litium/api/admin/globalization/countries/{systemId}`,
     {
       operation: z.enum(['search', 'get', 'create', 'update', 'delete']),
       systemId: z.string().optional(),
@@ -87,7 +101,14 @@ export function registerGlobalizationTools(server: any, getApiService: (req: Req
   // Currency management
   server.tool(
     'manage_currency',
-    `Manage currencies. Supported operations: search, get, create, update, delete`,
+    `Manage currencies. Supported operations: search, get, create, update, delete
+
+API Endpoints:
+- search: GET /Litium/api/admin/globalization/currencies
+- get: GET /Litium/api/admin/globalization/currencies/{systemId}
+- create: POST /Litium/api/admin/globalization/currencies
+- update: PUT /Litium/api/admin/globalization/currencies/{systemId}
+- delete: DELETE /Litium/api/admin/globalization/currencies/{systemId}`,
     {
       operation: z.enum(['search', 'get', 'create', 'update', 'delete']),
       systemId: z.string().optional(),
@@ -127,7 +148,14 @@ export function registerGlobalizationTools(server: any, getApiService: (req: Req
   // Language management
   server.tool(
     'manage_language',
-    `Manage languages. Supported operations: search, get, create, update, delete`,
+    `Manage languages. Supported operations: search, get, create, update, delete
+
+API Endpoints:
+- search: GET /Litium/api/admin/globalization/languages
+- get: GET /Litium/api/admin/globalization/languages/{systemId}
+- create: POST /Litium/api/admin/globalization/languages
+- update: PUT /Litium/api/admin/globalization/languages/{systemId}
+- delete: DELETE /Litium/api/admin/globalization/languages/{systemId}`,
     {
       operation: z.enum(['search', 'get', 'create', 'update', 'delete']),
       systemId: z.string().optional(),
@@ -167,7 +195,14 @@ export function registerGlobalizationTools(server: any, getApiService: (req: Req
   // Market management
   server.tool(
     'manage_market',
-    `Manage markets. Supported operations: search, get, create, update, delete`,
+    `Manage markets. Supported operations: search, get, create, update, delete
+
+API Endpoints:
+- search: GET /Litium/api/admin/globalization/markets
+- get: GET /Litium/api/admin/globalization/markets/{systemId}
+- create: POST /Litium/api/admin/globalization/markets
+- update: PUT /Litium/api/admin/globalization/markets/{systemId}
+- delete: DELETE /Litium/api/admin/globalization/markets/{systemId}`,
     {
       operation: z.enum(['search', 'get', 'create', 'update', 'delete']),
       systemId: z.string().optional(),

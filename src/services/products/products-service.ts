@@ -1,5 +1,6 @@
 import { BaseApiService } from '../base-api';
 import { type LitiumConfig } from '../../types/config';
+import { FilterBuilder } from '../../utils/filter-builder';
 
 export class ProductsService extends BaseApiService {
   constructor(config: LitiumConfig) {
@@ -8,6 +9,7 @@ export class ProductsService extends BaseApiService {
 
   /**
    * Search for base products
+   * Supports searching by product ID, name, or article number
    */
   async searchBaseProducts(params?: {
     search?: string;
@@ -16,7 +18,12 @@ export class ProductsService extends BaseApiService {
     sort?: string;
   }) {
     const endpoint = '/Litium/api/admin/products/baseProducts/search';
-    return this.searchPost<any>(endpoint, params);
+    const searchModel = FilterBuilder.buildProductSearch(
+      params?.search || '',
+      params?.skip || 0,
+      params?.take || 20
+    );
+    return this.searchPost<any>(endpoint, searchModel);
   }
 
   /**
@@ -114,6 +121,7 @@ export class ProductsService extends BaseApiService {
 
   /**
    * Search for product categories
+   * Supports searching by category ID or name
    */
   async searchCategories(params?: {
     search?: string;
@@ -122,7 +130,12 @@ export class ProductsService extends BaseApiService {
     sort?: string;
   }) {
     const endpoint = '/Litium/api/admin/products/categories/search';
-    return this.searchPost<any>(endpoint, params);
+    const searchModel = FilterBuilder.buildCategorySearch(
+      params?.search || '',
+      params?.skip || 0,
+      params?.take || 20
+    );
+    return this.searchPost<any>(endpoint, searchModel);
   }
 
   /**
@@ -169,6 +182,7 @@ export class ProductsService extends BaseApiService {
 
   /**
    * Search for product variants
+   * Supports searching by variant ID, name, or article number
    */
   async searchVariants(params?: {
     search?: string;
@@ -177,7 +191,12 @@ export class ProductsService extends BaseApiService {
     sort?: string;
   }) {
     const endpoint = '/Litium/api/admin/products/variants/search';
-    return this.searchPost<any>(endpoint, params);
+    const searchModel = FilterBuilder.buildProductSearch(
+      params?.search || '',
+      params?.skip || 0,
+      params?.take || 20
+    );
+    return this.searchPost<any>(endpoint, searchModel);
   }
 
   /**
@@ -216,6 +235,7 @@ export class ProductsService extends BaseApiService {
 
   /**
    * Search for price lists
+   * Supports searching by price list ID or name
    */
   async searchPriceLists(params?: {
     search?: string;
@@ -224,7 +244,12 @@ export class ProductsService extends BaseApiService {
     sort?: string;
   }) {
     const endpoint = '/Litium/api/admin/products/priceLists/search';
-    return this.searchPost<any>(endpoint, params);
+    const searchModel = FilterBuilder.buildGenericSearch(
+      params?.search || '',
+      params?.skip || 0,
+      params?.take || 20
+    );
+    return this.searchPost<any>(endpoint, searchModel);
   }
 
   /**

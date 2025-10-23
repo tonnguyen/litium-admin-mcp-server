@@ -6,7 +6,15 @@ import { logger } from '../../../../src/utils/logger';
 export function registerMediaTools(server: any, getApiService: (req: Request) => LitiumApiService, req: Request) {
   server.tool(
     'manage_media',
-    `Manage media files. Supported operations: search, get, upload, download, get_folder_files, get_subfolders`,
+    `Manage media files. Supported operations: search, get, upload, download, get_folder_files, get_subfolders
+
+API Endpoints:
+- search: POST /Litium/api/admin/media/files/search
+- get: GET /Litium/api/admin/media/files/{systemId}
+- upload: POST /Litium/api/admin/media/files/{systemId}/upload
+- download: GET /Litium/api/admin/media/files/{systemId}/download
+- get_folder_files: GET /Litium/api/admin/media/folders/{systemId}/files
+- get_subfolders: GET /Litium/api/admin/media/folders/{systemId}/folders`,
     {
       operation: z.enum(['search', 'get', 'upload', 'download', 'get_folder_files', 'get_subfolders']),
       systemId: z.string().optional(),

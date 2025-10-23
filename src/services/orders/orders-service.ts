@@ -1,5 +1,6 @@
 import { BaseApiService } from '../base-api';
 import { type LitiumConfig } from '../../types/config';
+import { FilterBuilder } from '../../utils/filter-builder';
 
 export class OrdersService extends BaseApiService {
   constructor(config: LitiumConfig) {
@@ -8,6 +9,10 @@ export class OrdersService extends BaseApiService {
 
   /**
    * Search for sales orders
+   * NOTE: Order search in AdminAPI has LIMITED support.
+   * Only supports searching by order ID (not by customer email or other fields).
+   * For full order search capabilities, use the Administration Application API instead.
+   * Based on adminapi-search-sales.md guide
    */
   async searchSalesOrders(params?: {
     search?: string;
@@ -16,7 +21,12 @@ export class OrdersService extends BaseApiService {
     sort?: string;
   }) {
     const endpoint = '/Litium/api/admin/sales/salesOrders/search';
-    return this.searchPost<any>(endpoint, params);
+    const searchModel = FilterBuilder.buildOrderSearch(
+      params?.search || '',
+      params?.skip || 0,
+      params?.take || 20
+    );
+    return this.searchPost<any>(endpoint, searchModel);
   }
 
   /**
@@ -53,6 +63,8 @@ export class OrdersService extends BaseApiService {
 
   /**
    * Search for sales return orders
+   * NOTE: Order search in AdminAPI has LIMITED support.
+   * Only supports searching by order ID.
    */
   async searchSalesReturnOrders(params?: {
     search?: string;
@@ -61,7 +73,12 @@ export class OrdersService extends BaseApiService {
     sort?: string;
   }) {
     const endpoint = '/Litium/api/admin/sales/salesReturnOrders/search';
-    return this.searchPost<any>(endpoint, params);
+    const searchModel = FilterBuilder.buildOrderSearch(
+      params?.search || '',
+      params?.skip || 0,
+      params?.take || 20
+    );
+    return this.searchPost<any>(endpoint, searchModel);
   }
 
   /**
@@ -98,6 +115,7 @@ export class OrdersService extends BaseApiService {
 
   /**
    * Search for shipments
+   * Supports searching by shipment ID
    */
   async searchShipments(params?: {
     search?: string;
@@ -106,7 +124,12 @@ export class OrdersService extends BaseApiService {
     sort?: string;
   }) {
     const endpoint = '/Litium/api/admin/sales/shipments/search';
-    return this.searchPost<any>(endpoint, params);
+    const searchModel = FilterBuilder.buildGenericSearch(
+      params?.search || '',
+      params?.skip || 0,
+      params?.take || 20
+    );
+    return this.searchPost<any>(endpoint, searchModel);
   }
 
   /**
@@ -143,6 +166,7 @@ export class OrdersService extends BaseApiService {
 
   /**
    * Search for payments
+   * Supports searching by payment ID
    */
   async searchPayments(params?: {
     search?: string;
@@ -151,7 +175,12 @@ export class OrdersService extends BaseApiService {
     sort?: string;
   }) {
     const endpoint = '/Litium/api/admin/sales/payments/search';
-    return this.searchPost<any>(endpoint, params);
+    const searchModel = FilterBuilder.buildGenericSearch(
+      params?.search || '',
+      params?.skip || 0,
+      params?.take || 20
+    );
+    return this.searchPost<any>(endpoint, searchModel);
   }
 
   /**
@@ -188,6 +217,7 @@ export class OrdersService extends BaseApiService {
 
   /**
    * Search for campaigns
+   * Supports searching by campaign ID or name
    */
   async searchCampaigns(params?: {
     search?: string;
@@ -196,7 +226,12 @@ export class OrdersService extends BaseApiService {
     sort?: string;
   }) {
     const endpoint = '/Litium/api/admin/sales/campaigns/search';
-    return this.searchPost<any>(endpoint, params);
+    const searchModel = FilterBuilder.buildGenericSearch(
+      params?.search || '',
+      params?.skip || 0,
+      params?.take || 20
+    );
+    return this.searchPost<any>(endpoint, searchModel);
   }
 
   /**
@@ -209,6 +244,7 @@ export class OrdersService extends BaseApiService {
 
   /**
    * Search for discounts
+   * Supports searching by discount ID or name
    */
   async searchDiscounts(params?: {
     search?: string;
@@ -217,7 +253,12 @@ export class OrdersService extends BaseApiService {
     sort?: string;
   }) {
     const endpoint = '/Litium/api/admin/sales/discounts/search';
-    return this.searchPost<any>(endpoint, params);
+    const searchModel = FilterBuilder.buildGenericSearch(
+      params?.search || '',
+      params?.skip || 0,
+      params?.take || 20
+    );
+    return this.searchPost<any>(endpoint, searchModel);
   }
 
   /**

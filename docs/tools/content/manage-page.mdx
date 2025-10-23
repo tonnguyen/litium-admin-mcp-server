@@ -5,16 +5,199 @@ description: 'Manage website pages (published and drafts)'
 
 ## Overview
 
-Manage pages. Operations: search, get, create, update, delete, unpublish, search_drafts, get_draft, create_draft, update_draft, delete_draft, publish_draft.
+The `manage_page` tool provides comprehensive management of website pages in Litium, including both published pages and draft versions. Use this tool for full page lifecycle management.
 
-## Example
+<Note>
+  **Enhanced Search:** Page search now searches across multiple fields (ID, Title) for better discovery of pages.
+</Note>
 
-```json
+## Operations
+
+<ParamField path="operation" type="string" required>
+  The operation to perform:
+  
+  **Published Pages:**
+  - `search` - Search for published pages
+  - `get` - Get a published page by ID
+  - `create` - Create and publish a new page
+  - `update` - Update a published page
+  - `delete` - Delete a published page
+  - `unpublish` - Unpublish a page
+  
+  **Draft Management:**
+  - `search_drafts` - Search for page drafts
+  - `get_draft` - Get a draft by ID
+  - `create_draft` - Create a new draft
+  - `update_draft` - Update an existing draft
+  - `delete_draft` - Delete a draft
+  - `publish_draft` - Publish a draft to make it live
+</ParamField>
+
+## Parameters
+
+### For `search` and `search_drafts` operations
+
+<ParamField path="params" type="object">
+  Search parameters (all optional):
+  
+  <Expandable title="properties">
+    <ParamField path="search" type="string">
+      Search term for filtering pages
+    </ParamField>
+    <ParamField path="skip" type="number" default="0">
+      Pagination offset
+    </ParamField>
+    <ParamField path="take" type="number" default="20">
+      Results per page
+    </ParamField>
+    <ParamField path="sort" type="string">
+      Sort field
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### For `get`, `update`, `delete`, `unpublish` operations
+
+<ParamField path="systemId" type="string" required>
+  The unique system ID of the page
+</ParamField>
+
+### For `create`, `update`, `create_draft`, `update_draft` operations
+
+<ParamField path="data" type="object" required>
+  Page data object with page fields and content
+</ParamField>
+
+## Examples
+
+### Search Published Pages
+
+<CodeGroup>
+```json JSON-RPC
 {
-  "name": "manage_page",
-  "arguments": {
-    "operation": "search",
-    "params": {"search": "home"}
-  }
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "manage_page",
+    "arguments": {
+      "operation": "search",
+      "params": {
+        "search": "home",
+        "take": 5
+      }
+    }
+  },
+  "id": 1
 }
 ```
+
+```text Natural Language
+"Find all pages with 'home' in the name"
+```
+</CodeGroup>
+
+### Get Page Details
+
+<CodeGroup>
+```json JSON-RPC
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "manage_page",
+    "arguments": {
+      "operation": "get",
+      "systemId": "page-abc-123"
+    }
+  },
+  "id": 2
+}
+```
+
+```text Natural Language
+"Show me the page with ID page-abc-123"
+```
+</CodeGroup>
+
+### Create Draft Page
+
+<CodeGroup>
+```json JSON-RPC
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "manage_page",
+    "arguments": {
+      "operation": "create_draft",
+      "data": {
+        "name": "New Landing Page",
+        "content": "..."
+      }
+    }
+  },
+  "id": 3
+}
+```
+
+```text Natural Language
+"Create a draft page called 'New Landing Page'"
+```
+</CodeGroup>
+
+### Publish Draft
+
+<CodeGroup>
+```json JSON-RPC
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "manage_page",
+    "arguments": {
+      "operation": "publish_draft",
+      "systemId": "draft-abc-123"
+    }
+  },
+  "id": 4
+}
+```
+
+```text Natural Language
+"Publish the draft page with ID draft-abc-123"
+```
+</CodeGroup>
+
+## Common Workflows
+
+<AccordionGroup>
+  <Accordion title="Draft-to-Publish Workflow">
+    1. Create draft: `create_draft`
+    2. Review draft: `get_draft`
+    3. Update draft: `update_draft` (if needed)
+    4. Publish: `publish_draft`
+  </Accordion>
+  
+  <Accordion title="Content Update Workflow">
+    1. Find page: `search`
+    2. Get details: `get`
+    3. Update content: `update`
+    4. Verify: `get` again
+  </Accordion>
+  
+  <Accordion title="Page Retirement">
+    1. Find page: `search`
+    2. Unpublish: `unpublish` (keeps page but removes from site)
+    3. Or delete: `delete` (permanently removes)
+  </Accordion>
+</AccordionGroup>
+
+## Related Tools
+
+- [manage_block](/tools/content/manage-block) - Manage content blocks
+- [manage_media](/tools/media/manage-media) - Manage page images
+- [manage_website](/tools/websites/manage-website) - Manage websites and redirects
+
+<Warning>
+  Use `delete` and `unpublish` operations carefully in production environments!
+</Warning>

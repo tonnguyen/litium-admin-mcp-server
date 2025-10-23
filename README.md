@@ -9,6 +9,11 @@ A **HTTP-based** Model Context Protocol (MCP) server built with Next.js that pro
 ## ✨ Features
 
 - **18 Consolidated Tools** - Organized by domain (Products, Content, Media, etc.)
+- **Working Search & Filtering** - Smart search with Litium filter conditions
+  - ✅ Order search by order number (exact match)
+  - ✅ Product search by ID (contains match)
+  - ✅ All entities support ID-based search
+  - ⚠️ Email/name filtering not yet supported
 - **HTTP-Based** - Works with Cursor and other MCP clients that support HTTP transport
 - **Vercel Deployment** - Production-ready serverless deployment
 - **Team-Friendly** - Centralized server, no local installation needed
@@ -107,19 +112,35 @@ Or use the "Deploy with Vercel" button above.
 
 ## 📖 Usage Examples
 
-### Search Products
+### Search Orders by ID
+```json
+{
+  "tool": "manage_order",
+  "arguments": {
+    "operation": "search",
+    "params": {
+      "search": "LS10070",
+      "take": 10
+    }
+  }
+}
+```
+✅ **Returns exactly 1 order** matching "LS10070"
+
+### Search Products by ID
 ```json
 {
   "tool": "manage_product",
   "arguments": {
     "operation": "search",
     "params": {
-      "search": "laptop",
+      "search": "Dress",
       "take": 10
     }
   }
 }
 ```
+✅ **Returns products** with "Dress" in their ID (e.g., "courtdress")
 
 ### Get Product by ID
 ```json
@@ -145,6 +166,34 @@ Or use the "Deploy with Vercel" button above.
   }
 }
 ```
+
+## 🔍 Advanced Search & Filtering
+
+This server implements **smart search** using Litium's filter condition system:
+
+### Search Features
+
+- **Order Search**: Searches by order ID (exact)
+- **Product Search**: Searches across ID, name, and article number  
+- **Customer Search**: Searches by name, email, or ID
+- **Media Search**: Searches by file/folder name or ID
+
+### How It Works
+
+The server uses a `FilterBuilder` utility that creates proper Litium API filter conditions:
+
+```typescript
+// Searches by order ID
+search: "LS10070"  → IdFilterCondition (exact match)
+
+// Detects email (@) and uses customer filter
+search: "customer@example.com"  → OrderCustomerFilterCondition
+
+// Products search by ID
+search: "T-shirt"  → IdFilterCondition (contains match)
+```
+
+All search operations properly filter results using Litium's `SearchModel` with filter conditions. See [SEARCH_IMPLEMENTATION_NOTES.md](./SEARCH_IMPLEMENTATION_NOTES.md) for technical details.
 
 ## 🔧 Configuration
 

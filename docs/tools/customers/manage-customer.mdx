@@ -7,28 +7,82 @@ description: 'Manage customers in Litium'
 
 Manage customer accounts and profiles. Operations: search, get, create, update, delete.
 
+<Note>
+  **Enhanced Search:** Customer search now searches across multiple fields (ID, FirstName, LastName, Email, Phone) for better results.
+</Note>
+
 ## Operations
 
-- `search` - Search for customers
-- `get` - Get customer by ID
+- `search` - Search for customers by ID, name, email, or phone
+- `get` - Get customer by System ID
 - `create` - Create new customer
 - `update` - Update existing customer
 - `delete` - Delete a customer
 
-## Example
+## Examples
 
-```json
+### Search by Email
+
+<CodeGroup>
+```json JSON-RPC
 {
-  "name": "manage_customer",
-  "arguments": {
-    "operation": "search",
-    "params": {
-      "search": "john@example.com"
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "manage_customer",
+    "arguments": {
+      "operation": "search",
+      "params": {
+        "search": "john@example.com",
+        "take": 10
+      }
     }
-  }
+  },
+  "id": 1
 }
 ```
 
-## Natural Language
+```text Natural Language
+"Find customers with email john@example.com"
+```
+</CodeGroup>
 
-"Find the customer with email john@example.com"
+### Search by Name
+
+<CodeGroup>
+```json JSON-RPC
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "manage_customer",
+    "arguments": {
+      "operation": "search",
+      "params": {
+        "search": "Smith"
+      }
+    }
+  },
+  "id": 2
+}
+```
+
+```text Natural Language
+"Find customers with 'Smith' in their name"
+```
+</CodeGroup>
+
+## Search Capabilities
+
+The customer search uses OR logic to search across multiple fields:
+- **Customer ID** - Login/username
+- **First Name** - Customer's first name
+- **Last Name** - Customer's last name  
+- **Email** - Email address
+- **Phone** - Phone number
+
+A single search term will match customers if it appears in any of these fields.
+
+<Info>
+  Search is case-insensitive and uses "contains" matching, so searching for "john" will find "John", "Johnson", "john@example.com", etc.
+</Info>

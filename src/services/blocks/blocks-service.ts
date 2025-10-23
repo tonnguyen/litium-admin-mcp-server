@@ -1,5 +1,6 @@
 import { BaseApiService } from '../base-api';
 import { type LitiumConfig } from '../../types/config';
+import { FilterBuilder } from '../../utils/filter-builder';
 
 export class BlocksService extends BaseApiService {
   constructor(config: LitiumConfig) {
@@ -8,6 +9,7 @@ export class BlocksService extends BaseApiService {
 
   /**
    * Search for content blocks
+   * Supports searching by block ID or name
    */
   async searchBlocks(params?: {
     search?: string;
@@ -16,7 +18,12 @@ export class BlocksService extends BaseApiService {
     sort?: string;
   }) {
     const endpoint = '/Litium/api/admin/blocks/blocks/search';
-    return this.searchPost<any>(endpoint, params);
+    const searchModel = FilterBuilder.buildBlockSearch(
+      params?.search || '',
+      params?.skip || 0,
+      params?.take || 20
+    );
+    return this.searchPost<any>(endpoint, searchModel);
   }
 
   /**

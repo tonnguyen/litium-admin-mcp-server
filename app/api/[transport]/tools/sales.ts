@@ -7,7 +7,11 @@ export function registerSalesTools(server: any, getApiService: (req: Request) =>
   // Order management
   server.tool(
     'manage_order',
-    `Manage orders (read-only). Supported operations: search, get`,
+    `Manage orders (read-only). Supported operations: search, get
+
+API Endpoints:
+- search: POST /Litium/api/admin/sales/salesOrders/search
+- get: GET /Litium/api/admin/sales/salesOrders/{systemId}`,
     {
       operation: z.enum(['search', 'get']),
       systemId: z.string().optional(),
