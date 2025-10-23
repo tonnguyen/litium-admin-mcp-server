@@ -1,0 +1,158 @@
+---
+title: manage_price_list
+description: 'Manage price lists and price list items'
+---
+
+## Overview
+
+The `manage_price_list` tool provides management of product price lists in your Litium catalog. Price lists contain pricing information for product variants, including support for volume/tier pricing.
+
+## Operations
+
+<ParamField path="operation" type="string" required>
+  The operation to perform:
+  - `search` - Search for price lists
+  - `get` - Get a specific price list by ID
+  - `create` - Create a new price list
+  - `update` - Update an existing price list
+  - `delete` - Delete a price list
+  - `get_items` - Get all price items in a price list
+</ParamField>
+
+## Parameters
+
+### For `search` operation
+
+<ParamField path="params" type="object">
+  Search parameters:
+  
+  <Expandable title="properties">
+    <ParamField path="search" type="string">
+      Search term for filtering price lists
+    </ParamField>
+    <ParamField path="skip" type="number" default="0">
+      Pagination offset
+    </ParamField>
+    <ParamField path="take" type="number" default="20">
+      Results per page
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### For `get`, `update`, `delete`, `get_items` operations
+
+<ParamField path="systemId" type="string" required>
+  The unique system ID of the price list
+</ParamField>
+
+### For `create`, `update` operations
+
+<ParamField path="data" type="object" required>
+  Price list data including name, description, and other properties
+</ParamField>
+
+## Examples
+
+### Get Price List Items
+
+<CodeGroup>
+```json JSON-RPC
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "manage_price_list",
+    "arguments": {
+      "operation": "get_items",
+      "systemId": "pricelist-abc-123"
+    }
+  },
+  "id": 1
+}
+```
+
+```text Natural Language
+"Get all prices from the price list pricelist-abc-123"
+```
+</CodeGroup>
+
+**Response Format:**
+```json
+[
+  {
+    "variantSystemId": "variant-guid-1",
+    "minimumQuantity": 1.0,
+    "price": 99.99
+  },
+  {
+    "variantSystemId": "variant-guid-1",
+    "minimumQuantity": 10.0,
+    "price": 89.99
+  },
+  {
+    "variantSystemId": "variant-guid-2",
+    "minimumQuantity": 1.0,
+    "price": 149.99
+  }
+]
+```
+
+### Search Price Lists
+
+<CodeGroup>
+```json JSON-RPC
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "manage_price_list",
+    "arguments": {
+      "operation": "search",
+      "params": {
+        "search": "Standard",
+        "take": 10
+      }
+    }
+  },
+  "id": 2
+}
+```
+
+```text Natural Language
+"Find price lists with 'Standard' in the name"
+```
+</CodeGroup>
+
+## Understanding Price List Items
+
+Price list items contain:
+- **variantSystemId**: The unique ID of the product variant
+- **minimumQuantity**: The minimum order quantity for this price tier
+- **price**: The price for this quantity tier
+
+Multiple entries with the same `variantSystemId` but different `minimumQuantity` values enable volume/tier pricing.
+
+## Use Cases
+
+<AccordionGroup>
+  <Accordion title="Getting Product Prices">
+    Use `get_items` to retrieve all prices from a price list, then match them to product variants by `variantSystemId`.
+  </Accordion>
+  
+  <Accordion title="Volume Pricing">
+    Price lists support tier pricing where the same variant can have different prices based on minimum quantity.
+  </Accordion>
+  
+  <Accordion title="Multi-Market Pricing">
+    Different price lists can be used for different markets, channels, or customer segments.
+  </Accordion>
+</AccordionGroup>
+
+## Related Tools
+
+- [manage_product](/tools/products/manage-product) - Manage products that use these prices
+- [manage_product_variant](/tools/products/manage-product-variant) - Manage variants that are priced
+
+<Info>
+  For a complete workflow on getting product images and prices, see the guide: [Product Images and Prices](/guides/adminapi-products-images-and-prices)
+</Info>

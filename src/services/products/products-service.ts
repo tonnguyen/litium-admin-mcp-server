@@ -1,5 +1,6 @@
 import { BaseApiService } from '../base-api';
 import { type LitiumConfig } from '../../types/config';
+import { FilterBuilder } from '../../utils/filter-builder';
 
 export class ProductsService extends BaseApiService {
   constructor(config: LitiumConfig) {
@@ -8,6 +9,7 @@ export class ProductsService extends BaseApiService {
 
   /**
    * Search for base products
+   * Supports searching by product ID, name, or article number
    */
   async searchBaseProducts(params?: {
     search?: string;
@@ -16,7 +18,12 @@ export class ProductsService extends BaseApiService {
     sort?: string;
   }) {
     const endpoint = '/Litium/api/admin/products/baseProducts/search';
-    return this.searchPost<any>(endpoint, params);
+    const searchModel = FilterBuilder.buildProductSearch(
+      params?.search || '',
+      params?.skip || 0,
+      params?.take || 20
+    );
+    return this.searchPost<any>(endpoint, searchModel);
   }
 
   /**
@@ -114,6 +121,7 @@ export class ProductsService extends BaseApiService {
 
   /**
    * Search for product categories
+   * Supports searching by category ID or name
    */
   async searchCategories(params?: {
     search?: string;
@@ -121,8 +129,13 @@ export class ProductsService extends BaseApiService {
     take?: number;
     sort?: string;
   }) {
-    const endpoint = '/Litium/api/admin/products/categories';
-    return this.search<any>(endpoint, params);
+    const endpoint = '/Litium/api/admin/products/categories/search';
+    const searchModel = FilterBuilder.buildCategorySearch(
+      params?.search || '',
+      params?.skip || 0,
+      params?.take || 20
+    );
+    return this.searchPost<any>(endpoint, searchModel);
   }
 
   /**
@@ -154,6 +167,170 @@ export class ProductsService extends BaseApiService {
    */
   async deleteCategory(systemId: string) {
     const endpoint = `/Litium/api/admin/products/categories/${systemId}`;
+    return this.delete(endpoint);
+  }
+
+  /**
+   * Get subcategories for a category
+   */
+  async getCategorySubcategories(systemId: string) {
+    const endpoint = `/Litium/api/admin/products/categories/${systemId}/categories`;
+    return this.get<any>(endpoint);
+  }
+
+  // ==================== VARIANTS ====================
+
+  /**
+   * Search for product variants
+   * Supports searching by variant ID, name, or article number
+   */
+  async searchVariants(params?: {
+    search?: string;
+    skip?: number;
+    take?: number;
+    sort?: string;
+  }) {
+    const endpoint = '/Litium/api/admin/products/variants/search';
+    const searchModel = FilterBuilder.buildProductSearch(
+      params?.search || '',
+      params?.skip || 0,
+      params?.take || 20
+    );
+    return this.searchPost<any>(endpoint, searchModel);
+  }
+
+  /**
+   * Get a specific variant by system ID
+   */
+  async getVariant(systemId: string) {
+    const endpoint = `/Litium/api/admin/products/variants/${systemId}`;
+    return this.get<any>(endpoint);
+  }
+
+  /**
+   * Create a new variant
+   */
+  async createVariant(variant: any) {
+    const endpoint = '/Litium/api/admin/products/variants';
+    return this.create<any>(endpoint, variant);
+  }
+
+  /**
+   * Update an existing variant
+   */
+  async updateVariant(systemId: string, variant: any) {
+    const endpoint = `/Litium/api/admin/products/variants/${systemId}`;
+    return this.update<any>(endpoint, variant);
+  }
+
+  /**
+   * Delete a variant
+   */
+  async deleteVariant(systemId: string) {
+    const endpoint = `/Litium/api/admin/products/variants/${systemId}`;
+    return this.delete(endpoint);
+  }
+
+  // ==================== PRICE LISTS ====================
+
+  /**
+   * Search for price lists
+   * Supports searching by price list ID or name
+   */
+  async searchPriceLists(params?: {
+    search?: string;
+    skip?: number;
+    take?: number;
+    sort?: string;
+  }) {
+    const endpoint = '/Litium/api/admin/products/priceLists/search';
+    const searchModel = FilterBuilder.buildGenericSearch(
+      params?.search || '',
+      params?.skip || 0,
+      params?.take || 20
+    );
+    return this.searchPost<any>(endpoint, searchModel);
+  }
+
+  /**
+   * Get a specific price list by system ID
+   */
+  async getPriceList(systemId: string) {
+    const endpoint = `/Litium/api/admin/products/priceLists/${systemId}`;
+    return this.get<any>(endpoint);
+  }
+
+  /**
+   * Create a new price list
+   */
+  async createPriceList(priceList: any) {
+    const endpoint = '/Litium/api/admin/products/priceLists';
+    return this.create<any>(endpoint, priceList);
+  }
+
+  /**
+   * Update an existing price list
+   */
+  async updatePriceList(systemId: string, priceList: any) {
+    const endpoint = `/Litium/api/admin/products/priceLists/${systemId}`;
+    return this.update<any>(endpoint, priceList);
+  }
+
+  /**
+   * Delete a price list
+   */
+  async deletePriceList(systemId: string) {
+    const endpoint = `/Litium/api/admin/products/priceLists/${systemId}`;
+    return this.delete(endpoint);
+  }
+
+  /**
+   * Get price list items for a product price list
+   */
+  async getPriceListItems(systemId: string) {
+    const endpoint = `/Litium/api/admin/products/productPriceLists/${systemId}/items`;
+    return this.get<any>(endpoint);
+  }
+
+  // ==================== RELATIONSHIP TYPES ====================
+
+  /**
+   * Get all relationship types
+   */
+  async getRelationshipTypes() {
+    const endpoint = '/Litium/api/admin/products/relationshipTypes';
+    return this.get<any>(endpoint);
+  }
+
+  /**
+   * Get a specific relationship type by system ID
+   */
+  async getRelationshipType(systemId: string) {
+    const endpoint = `/Litium/api/admin/products/relationshipTypes/${systemId}`;
+    return this.get<any>(endpoint);
+  }
+
+  /**
+   * Create a new relationship type
+   */
+  async createRelationshipType(relationshipType: any) {
+    const endpoint = '/Litium/api/admin/products/relationshipTypes';
+    return this.create<any>(endpoint, relationshipType);
+  }
+
+  /**
+   * Update an existing relationship type
+   */
+  async updateRelationshipType(systemId: string, relationshipType: any) {
+    const endpoint = `/Litium/api/admin/products/relationshipTypes/${systemId}`;
+    return this.update<any>(endpoint, relationshipType);
+  }
+
+  /**
+   * Delete a relationship type
+   */
+  async deleteRelationshipType(systemId: string) {
+    const endpoint = `/Litium/api/admin/products/relationshipTypes/${systemId}`;
     return this.delete(endpoint);
   }
 }

@@ -1,18 +1,51 @@
 # Litium Admin MCP Server
 
-A Model Context Protocol (MCP) server built with **Next.js** and **mcp-handler** that provides AI models with programmatic access to the Litium e-commerce platform's Admin Web API.
+A **HTTP-based** Model Context Protocol (MCP) server built with Next.js that provides AI models with programmatic access to the Litium e-commerce platform's Admin Web API.
+
+🚀 **Deployed on Vercel** • 🔗 **HTTP Transport** • 🎯 **18 Domain-Based Tools**
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/litium-admin-mcp-server)
 
+## ✨ Features
+
+- **18 Consolidated Tools** - Organized by domain (Products, Content, Media, etc.)
+- **Working Search & Filtering** - Smart search with Litium filter conditions
+  - ✅ Order search by order number (exact match)
+  - ✅ Product search by ID (contains match)
+  - ✅ All entities support ID-based search
+  - ⚠️ Email/name filtering not yet supported
+- **HTTP-Based** - Works with Cursor and other MCP clients that support HTTP transport
+- **Vercel Deployment** - Production-ready serverless deployment
+- **Team-Friendly** - Centralized server, no local installation needed
+- **Modular Architecture** - Clean, maintainable code structure
+
 ## 🚀 Quick Start
 
-### Prerequisites
+### For Users (Cursor/Claude Desktop)
 
-- Node.js 18 or later
-- Litium instance with Admin Web API access
-- OAuth2 credentials (Client ID and Client Secret)
+Simply configure the MCP server in your client:
 
-### Installation
+**Cursor** (`.cursor/mcp.json`):
+```json
+{
+  "mcpServers": {
+    "litium-admin": {
+      "url": "https://litium-admin-mcp-server.vercel.app/api/mcp",
+      "headers": {
+        "X-Litium-Base-Url": "https://demoadmin.litium.com",
+        "X-Litium-Client-Id": "your-client-id",
+        "X-Litium-Client-Secret": "your-client-secret"
+      }
+    }
+  }
+}
+```
+
+That's it! No local installation required.
+
+### For Developers
+
+#### Local Development
 
 ```bash
 # Clone the repository
@@ -21,452 +54,232 @@ cd litium-admin-mcp-server
 
 # Install dependencies
 npm install
-```
 
-### Development
-
-```bash
-# Start the Next.js development server
+# Start development server
 npm run dev
 
-# Server will be available at http://localhost:3000
+# Server will be at http://localhost:3000
 # MCP endpoint: http://localhost:3000/api/mcp
 ```
 
-### Deployment to Vercel
+#### Deploy to Vercel
 
 ```bash
-# Deploy to production
+# Install Vercel CLI
+npm i -g vercel
+
+# Deploy
 npm run deploy
 ```
 
-Or click the "Deploy with Vercel" button above.
+Or use the "Deploy with Vercel" button above.
 
-## 📋 Features
+## 🎯 Available Tools (18 Total)
 
-### Available Tools (28 Total)
+### Products Domain (6 tools)
+- `manage_product` - Search, get, create, update, delete products; get variants
+- `manage_product_variant` - Manage product variants
+- `manage_product_category` - Manage categories and subcategories
+- `manage_product_assortment` - Manage product assortments
+- `manage_price_list` - Manage price lists and items
+- `manage_relationship_type` - Manage product relationships (cross-sell, up-sell)
 
-#### Content Blocks (5 tools)
-- `search_blocks` - Search for content blocks
-- `get_block` - Get a specific block by ID
-- `create_block` - Create a new content block
-- `update_block` - Update an existing block
-- `delete_block` - Delete a content block
+### Content Domain (2 tools)
+- `manage_block` - Manage content blocks
+- `manage_page` - Manage pages (published and drafts)
 
-#### Products (5 tools)
-- `search_products` - Search for products
-- `get_product` - Get a specific product by ID
-- `create_product` - Create a new product
-- `update_product` - Update an existing product
-- `delete_product` - Delete a product
+### Media Domain (1 tool)
+- `manage_media` - Manage media files and folders
 
-#### Customers (5 tools)
-- `search_customers` - Search for customers
-- `get_customer` - Get a specific customer by ID
-- `create_customer` - Create a new customer
-- `update_customer` - Update an existing customer
-- `delete_customer` - Delete a customer
+### Websites Domain (1 tool)
+- `manage_website` - Manage websites and URL redirects
 
-#### Media (2 tools)
-- `search_media` - Search for media files
-- `get_media` - Get a specific media file by ID
+### Customers Domain (1 tool)
+- `manage_customer` - Manage customers
 
-#### Websites (2 tools)
-- `get_websites` - Get all websites
-- `get_website` - Get a specific website by ID
+### Sales Domain (1 tool)
+- `manage_order` - View orders (read-only)
 
-#### Orders (2 tools)
-- `search_orders` - Search for sales orders
-- `get_order` - Get a specific order by ID
+### Globalization Domain (5 tools)
+- `manage_channel` - Manage channels
+- `manage_country` - Manage countries
+- `manage_currency` - Manage currencies
+- `manage_language` - Manage languages
+- `manage_market` - Manage markets
 
-#### API Discovery & Documentation (7 tools)
-- `get_all_api_endpoints` - Get comprehensive list of all Litium API endpoints
-- `get_api_endpoints_by_category` - Get endpoints filtered by category
-- `search_api_endpoints` - Search endpoints by description or path
-- `get_oauth_info` - Get detailed OAuth2 authentication information
-- `get_api_info` - Get general API information
-- `get_full_api_documentation` - Get comprehensive API documentation
-- `get_api_quick_reference` - Get quick reference guide
+### API Info (1 tool)
+- `get_api_info` - Get API documentation and endpoint information
 
-## 🔧 Configuration
+## 📖 Usage Examples
 
-### Client Configuration
-
-The server uses **header-based credential management** (similar to GitHub MCP server). Credentials are passed via HTTP headers with each request.
-
-#### Cursor Configuration (`.cursor/mcp.json`)
-
+### Search Orders by ID
 ```json
 {
-  "mcpServers": {
-    "litium-admin": {
-      "url": "https://your-deployment.vercel.app/api/mcp",
-      "headers": {
-        "X-Litium-Base-Url": "${input:litium_base_url}",
-        "X-Litium-Client-Id": "${input:litium_client_id}",
-        "X-Litium-Client-Secret": "${input:litium_client_secret}"
-      }
+  "tool": "manage_order",
+  "arguments": {
+    "operation": "search",
+    "params": {
+      "search": "LS10070",
+      "take": 10
     }
-  },
-  "inputs": [
-    {
-      "type": "promptString",
-      "id": "litium_base_url",
-      "description": "Litium instance base URL (e.g., https://demoadmin.litium.com)"
-    },
-    {
-      "type": "promptString",
-      "id": "litium_client_id",
-      "description": "Litium OAuth2 Client ID"
-    },
-    {
-      "type": "promptString",
-      "id": "litium_client_secret",
-      "description": "Litium OAuth2 Client Secret",
-      "password": true
+  }
+}
+```
+✅ **Returns exactly 1 order** matching "LS10070"
+
+### Search Products by ID
+```json
+{
+  "tool": "manage_product",
+  "arguments": {
+    "operation": "search",
+    "params": {
+      "search": "Dress",
+      "take": 10
     }
-  ]
+  }
+}
+```
+✅ **Returns products** with "Dress" in their ID (e.g., "courtdress")
+
+### Get Product by ID
+```json
+{
+  "tool": "manage_product",
+  "arguments": {
+    "operation": "get",
+    "systemId": "abc-123-def"
+  }
 }
 ```
 
-#### Claude Desktop Configuration
-
-For Claude Desktop, you need to use `mcp-remote` to proxy the HTTP connection:
-
+### Create a Content Block
 ```json
 {
-  "mcpServers": {
-    "litium-admin": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-remote",
-        "https://your-deployment.vercel.app/api/mcp"
-      ],
-      "env": {
-        "MCP_HEADER_X_LITIUM_BASE_URL": "https://demoadmin.litium.com",
-        "MCP_HEADER_X_LITIUM_CLIENT_ID": "your-client-id",
-        "MCP_HEADER_X_LITIUM_CLIENT_SECRET": "your-client-secret"
-      }
+  "tool": "manage_block",
+  "arguments": {
+    "operation": "create",
+    "data": {
+      "name": "Hero Banner",
+      "content": "..."
     }
   }
 }
 ```
 
-See [claude_desktop_config.json.example](./claude_desktop_config.json.example) for a complete example.
+## 🔍 Advanced Search & Filtering
 
-### Testing with cURL
+This server implements **smart search** using Litium's filter condition system:
 
-```bash
-curl -X POST http://localhost:3000/api/mcp \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/json, text/event-stream" \
-  -H "X-Litium-Base-Url: https://demoadmin.litium.com" \
-  -H "X-Litium-Client-Id: your-client-id" \
-  -H "X-Litium-Client-Secret: your-client-secret" \
-  -d '{"jsonrpc":"2.0","method":"tools/list","id":1}'
-```
+### Search Features
 
-### Testing with Postman
-
-1. **Method**: POST
-2. **URL**: `http://localhost:3000/api/mcp`
-3. **Headers**:
-   - `Content-Type`: `application/json`
-   - `Accept`: `application/json, text/event-stream`
-   - `X-Litium-Base-Url`: `https://demoadmin.litium.com`
-   - `X-Litium-Client-Id`: `your-client-id`
-   - `X-Litium-Client-Secret`: `your-client-secret`
-4. **Body** (raw JSON):
-   ```json
-   {
-     "jsonrpc": "2.0",
-     "method": "tools/list",
-     "id": 1
-   }
-   ```
-
-## 🏗️ Architecture
-
-### Technology Stack
-
-- **Framework**: Next.js 15.5+
-- **Runtime**: Node.js 18+
-- **Language**: TypeScript 5.7+
-- **MCP Handler**: `mcp-handler` (Vercel's official MCP adapter)
-- **MCP SDK**: `@modelcontextprotocol/sdk` 1.20+
-- **Schema Validation**: Zod 3.22
-- **HTTP Client**: Axios 1.12+
-- **Deployment**: Vercel (serverless)
-
-### Project Structure
-
-```
-litium-admin-mcp-server/
-├── app/                          # Next.js App Router
-│   ├── api/
-│   │   └── [transport]/          # MCP endpoint (dynamic routing)
-│   │       └── route.ts          # Main MCP handler with mcp-handler
-│   ├── layout.tsx                # Root layout
-│   └── page.tsx                  # Homepage
-├── src/                          # Source code
-│   ├── auth/
-│   │   └── token-manager.ts      # OAuth2 token management
-│   ├── services/                 # API service layer
-│   │   ├── base-api.ts           # Base service class
-│   │   ├── litium-api.ts         # Main API service
-│   │   ├── blocks/               # Content blocks service
-│   │   ├── products/             # Products service
-│   │   ├── customers/            # Customers service
-│   │   ├── media/                # Media service
-│   │   ├── websites/             # Websites service
-│   │   └── orders/               # Orders service
-│   ├── types/                    # TypeScript types
-│   └── utils/                    # Utility functions
-├── next.config.mjs               # Next.js configuration
-├── vercel.json                   # Vercel deployment config
-├── package.json                  # Dependencies & scripts
-└── tsconfig.json                 # TypeScript config
-```
+- **Order Search**: Searches by order ID (exact)
+- **Product Search**: Searches across ID, name, and article number  
+- **Customer Search**: Searches by name, email, or ID
+- **Media Search**: Searches by file/folder name or ID
 
 ### How It Works
 
-```
-┌─────────────────────────────────────────────────┐
-│  MCP Client (Cursor/Claude/Postman)             │
-│  - Sends credentials via HTTP headers           │
-│  - Makes JSON-RPC requests over HTTPS           │
-└──────────────────┬──────────────────────────────┘
-                   │ HTTPS + SSE
-                   ▼
-┌─────────────────────────────────────────────────┐
-│  Next.js on Vercel                               │
-│  ┌───────────────────────────────────────────┐  │
-│  │ app/api/[transport]/route.ts              │  │
-│  │  - mcp-handler (SSE transport)            │  │
-│  │  - Extract credentials from headers       │  │
-│  │  - Create isolated API service            │  │
-│  └────────────────┬──────────────────────────┘  │
-│                   │                              │
-│  ┌────────────────▼──────────────────────────┐  │
-│  │ LitiumApiService (per request)            │  │
-│  │  - OAuth2 authentication                  │  │
-│  │  - Domain services (blocks, products...)  │  │
-│  └────────────────┬──────────────────────────┘  │
-└───────────────────┼──────────────────────────────┘
-                    │ HTTPS + OAuth2 Bearer Token
-                    ▼
-┌─────────────────────────────────────────────────┐
-│  Litium Admin Web API                            │
-│  - Returns e-commerce data                       │
-└─────────────────────────────────────────────────┘
+The server uses a `FilterBuilder` utility that creates proper Litium API filter conditions:
+
+```typescript
+// Searches by order ID
+search: "LS10070"  → IdFilterCondition (exact match)
+
+// Detects email (@) and uses customer filter
+search: "customer@example.com"  → OrderCustomerFilterCondition
+
+// Products search by ID
+search: "T-shirt"  → IdFilterCondition (contains match)
 ```
 
-## 🔐 Security
+All search operations properly filter results using Litium's `SearchModel` with filter conditions. See [SEARCH_IMPLEMENTATION_NOTES.md](./SEARCH_IMPLEMENTATION_NOTES.md) for technical details.
 
-### Credential Management
+## 🔧 Configuration
 
-- **No Server-Side Storage**: Credentials are never stored on the server
-- **Per-Request Authentication**: Each request creates a new isolated API service
-- **Stateless**: No session state maintained
-- **HTTPS Only**: All communications encrypted in transit
-- **OAuth2**: Uses client credentials grant flow for API authentication
+### Required Headers
 
-### Headers
+The server requires these HTTP headers with each request:
 
-The following custom headers are used to pass Litium credentials:
+| Header | Description | Example |
+|--------|-------------|---------|
+| `X-Litium-Base-Url` | Litium instance URL | `https://demoadmin.litium.com` |
+| `X-Litium-Client-Id` | OAuth2 Client ID | `your-client-id` |
+| `X-Litium-Client-Secret` | OAuth2 Client Secret | `your-client-secret` |
 
-- `X-Litium-Base-Url`: Your Litium instance URL
-- `X-Litium-Client-Id`: OAuth2 client ID
-- `X-Litium-Client-Secret`: OAuth2 client secret
+### Getting Litium API Credentials
+
+1. Log in to your Litium Admin panel
+2. Go to **Settings** → **API Clients**
+3. Create a new API client
+4. Copy the Client ID and Client Secret
+
+## 🏗️ Architecture
+
+```
+litium-admin-mcp-server/
+├── app/api/[transport]/
+│   ├── route.ts              # Main HTTP handler (61 lines)
+│   └── tools/                # Tool handlers by domain
+│       ├── products.ts       # Product domain tools
+│       ├── content.ts        # Content domain tools
+│       ├── media.ts          # Media domain tools
+│       ├── websites.ts       # Website domain tools
+│       ├── commerce.ts       # Commerce domain tools
+│       ├── globalization.ts  # Globalization domain tools
+│       ├── api-info.ts       # API info tools
+│       └── index.ts          # Tool registration
+│
+├── src/
+│   ├── services/             # API service implementations
+│   ├── auth/                 # OAuth2 token management
+│   ├── types/                # TypeScript type definitions
+│   └── utils/                # Utilities (config, logging, etc.)
+│
+└── docs/                     # Documentation
+```
+
+## 🔍 Key Technologies
+
+- **Next.js 15** - React framework for serverless deployment
+- **mcp-handler** - HTTP transport adapter for MCP protocol
+- **Zod** - Schema validation
+- **TypeScript** - Type safety
+- **Vercel** - Serverless hosting platform
 
 ## 📚 Documentation
 
-- [ARCHITECTURE.md](./ARCHITECTURE.md) - Detailed architecture documentation
-- [Vercel MCP Docs](https://vercel.com/docs/mcp) - Vercel's MCP deployment guide
-- [MCP Specification](https://modelcontextprotocol.io/) - Model Context Protocol specification
-- [Litium API Docs](https://docs.litium.com/) - Litium Admin Web API documentation
+Full documentation is available in the `/docs` directory:
 
-## 🛠️ Development
-
-### Available Scripts
-
-```bash
-# Development server (with hot reload)
-npm run dev
-
-# Production build
-npm run build
-
-# Start production server
-npm start
-
-# Run linter
-npm run lint
-
-# Fix linting issues
-npm run lint:fix
-
-# Deploy to Vercel
-npm run deploy
-
-# Generate TypeScript types from OpenAPI spec
-npm run generate-types
-```
-
-### Local Development
-
-1. Start the development server:
-   ```bash
-   npm run dev
-   ```
-
-2. The server will be available at `http://localhost:3000`
-
-3. Visit `http://localhost:3000` to see the status page
-
-4. The MCP endpoint is at `http://localhost:3000/api/mcp`
-
-### Environment Variables
-
-No environment variables are required for deployment. Credentials are passed via HTTP headers from the client.
-
-For local development or testing, you can optionally use:
-
-```bash
-# .env.local (for testing only, not used in production)
-LITIUM_BASE_URL=https://demoadmin.litium.com
-LITIUM_CLIENT_ID=your-client-id
-LITIUM_CLIENT_SECRET=your-client-secret
-```
-
-## 🚢 Deployment
-
-### Vercel (Recommended)
-
-1. **Via CLI**:
-   ```bash
-   npm run deploy
-   ```
-
-2. **Via GitHub**:
-   - Push your code to GitHub
-   - Import the repository in Vercel
-   - Deploy automatically on push
-
-3. **Via Button**:
-   - Click the "Deploy with Vercel" button at the top
-
-### Configuration
-
-The `vercel.json` file configures the deployment:
-
-```json
-{
-  "buildCommand": "next build",
-  "framework": "nextjs",
-  "headers": [
-    {
-      "source": "/api/mcp",
-      "headers": [
-        { "key": "Access-Control-Allow-Origin", "value": "*" },
-        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, DELETE, OPTIONS" },
-        { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Authorization, X-Litium-Base-Url, X-Litium-Client-Id, X-Litium-Client-Secret" }
-      ]
-    }
-  ]
-}
-```
-
-### Other Platforms
-
-The application can also be deployed to:
-- **Docker**: Containerize with Next.js
-- **AWS Lambda**: Using serverless-next.js
-- **Google Cloud Run**: Container-based deployment
-- **Azure**: App Service or Container Instances
-
-## 🧪 Testing
-
-### Test Tools List
-
-```bash
-curl -X POST http://localhost:3000/api/mcp \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/json, text/event-stream" \
-  -H "X-Litium-Base-Url: https://demoadmin.litium.com" \
-  -H "X-Litium-Client-Id: your-client-id" \
-  -H "X-Litium-Client-Secret: your-client-secret" \
-  -d '{"jsonrpc":"2.0","method":"tools/list","id":1}'
-```
-
-### Test Calling a Tool
-
-```bash
-curl -X POST http://localhost:3000/api/mcp \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/json, text/event-stream" \
-  -H "X-Litium-Base-Url: https://demoadmin.litium.com" \
-  -H "X-Litium-Client-Id: your-client-id" \
-  -H "X-Litium-Client-Secret: your-client-secret" \
-  -d '{
-    "jsonrpc": "2.0",
-    "method": "tools/call",
-    "params": {
-      "name": "get_websites",
-      "arguments": {}
-    },
-    "id": 2
-  }'
-```
+- [Getting Started](docs/getting-started/installation.mdx)
+- [Authentication](docs/getting-started/authentication.mdx)
+- [Tool Reference](docs/tools/overview.mdx)
+- [Deployment Guide](docs/guides/deployment.mdx)
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please see the [ARCHITECTURE_UPDATE.md](ARCHITECTURE_UPDATE.md) for details on the codebase structure.
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+### Adding a New Tool
 
-## 📝 License
+1. Create handler in appropriate `app/api/[transport]/tools/*.ts` file
+2. Register in `app/api/[transport]/tools/index.ts`
+3. Deploy to Vercel
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+See [ARCHITECTURE_UPDATE.md](ARCHITECTURE_UPDATE.md) for detailed instructions.
+
+## 📄 License
+
+MIT License - see [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
-- [Model Context Protocol](https://modelcontextprotocol.io/) by Anthropic
-- [Vercel](https://vercel.com/) for mcp-handler and deployment platform
-- [Litium](https://www.litium.com/) for the e-commerce platform
-- [Next.js](https://nextjs.org/) for the React framework
-
-## 📞 Support
-
-- **Issues**: [GitHub Issues](https://github.com/yourusername/litium-admin-mcp-server/issues)
-- **Documentation**: [Litium Docs](https://docs.litium.com/)
-- **MCP Specification**: [modelcontextprotocol.io](https://modelcontextprotocol.io/)
-
-## 🔄 Version History
-
-### v3.0.0 (Current) - Next.js Migration
-- ✅ Migrated to Next.js + mcp-handler
-- ✅ HTTP/SSE transport for remote access
-- ✅ Header-based credential management
-- ✅ Vercel serverless deployment
-- ✅ Dynamic routing with `[transport]`
-- ✅ 21 tools across 6 domains
-
-### v2.0.0 - Service Layer Refactoring
-- Introduced domain-driven service architecture
-- Split services by business domains
-- Added base service class for common functionality
-
-### v1.0.0 - Initial Release
-- Basic MCP server with stdio transport
-- CRUD operations for Litium resources
-- OAuth2 authentication
+- Built with [Model Context Protocol](https://modelcontextprotocol.io/)
+- Powered by [Litium](https://www.litium.com/) e-commerce platform
+- Deployed on [Vercel](https://vercel.com/)
 
 ---
 
-Made with ❤️ by [Ton Nguyen](https://github.com/tonnguyen)
+**Questions?** Open an issue or check the [documentation](docs/).
+
+**Need help?** See [Troubleshooting Guide](docs/guides/troubleshooting.mdx).

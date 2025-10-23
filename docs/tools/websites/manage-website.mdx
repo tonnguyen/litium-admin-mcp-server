@@ -1,0 +1,136 @@
+---
+title: manage_website
+description: 'Manage websites and URL redirects in Litium'
+---
+
+## Overview
+
+The `manage_website` tool manages websites and URL redirects in your Litium instance. Use it to list websites, get website details, and manage URL redirects.
+
+## Operations
+
+<ParamField path="operation" type="string" required>
+  The operation to perform:
+  - `list` - Get all websites
+  - `get` - Get a specific website by ID
+  - `search_redirects` - Search URL redirects
+  - `get_redirect` - Get a specific redirect
+  - `create_redirect` - Create a new URL redirect
+  - `update_redirect` - Update an existing redirect
+  - `delete_redirect` - Delete a URL redirect
+</ParamField>
+
+## Parameters
+
+### For `list` operation
+
+No parameters required.
+
+### For `get`, `get_redirect`, `update_redirect`, `delete_redirect` operations
+
+<ParamField path="systemId" type="string" required>
+  The unique system ID
+</ParamField>
+
+### For `search_redirects` operation
+
+<ParamField path="params" type="object">
+  Search parameters
+</ParamField>
+
+### For `create_redirect` and `update_redirect` operations
+
+<ParamField path="data" type="object" required>
+  Redirect data object
+</ParamField>
+
+## Examples
+
+### List All Websites
+
+<CodeGroup>
+```json JSON-RPC
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "manage_website",
+    "arguments": {
+      "operation": "list"
+    }
+  },
+  "id": 1
+}
+```
+
+```text Natural Language
+"List all websites in my Litium instance"
+```
+</CodeGroup>
+
+### Get Website Details
+
+<CodeGroup>
+```json JSON-RPC
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "manage_website",
+    "arguments": {
+      "operation": "get",
+      "systemId": "website-123"
+    }
+  },
+  "id": 2
+}
+```
+
+```text Natural Language
+"Show me the website with ID website-123"
+```
+</CodeGroup>
+
+### Create URL Redirect
+
+<CodeGroup>
+```json JSON-RPC
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "manage_website",
+    "arguments": {
+      "operation": "create_redirect",
+      "data": {
+        "fromUrl": "/old-page",
+        "toUrl": "/new-page",
+        "redirectType": "301"
+      }
+    }
+  },
+  "id": 3
+}
+```
+
+```text Natural Language
+"Create a 301 redirect from /old-page to /new-page"
+```
+</CodeGroup>
+
+## Common Use Cases
+
+<AccordionGroup>
+  <Accordion title="Website Configuration">
+    List all websites to view your multi-site setup and get specific website configurations.
+  </Accordion>
+  
+  <Accordion title="SEO Management">
+    Create and manage URL redirects to maintain SEO when restructuring your site.
+  </Accordion>
+</AccordionGroup>
+
+<Info>
+  URL redirects are important for maintaining SEO when changing page URLs or site structure.
+</Info>
+

@@ -1,0 +1,182 @@
+---
+title: manage_media
+description: 'Manage media files and folders'
+---
+
+## Overview
+
+The `manage_media` tool provides comprehensive media asset management for your Litium instance. Search for files, navigate folder structures, upload new media, and download existing assets.
+
+<Note>
+  **Enhanced Search:** The search operation now searches across multiple fields (ID, FileName, Description) to provide better results.
+</Note>
+
+## Operations
+
+<ParamField path="operation" type="string" required>
+  The operation to perform:
+  - `search` - Search for media files by name, ID, or description
+  - `get` - Get media file details by ID
+  - `upload` - Upload a new media file
+  - `download` - Get the download URL for a media file
+  - `get_folder_files` - List all files in a specific folder
+  - `get_subfolders` - List all subfolders in a specific folder
+</ParamField>
+
+## Parameters
+
+### For `search` operation
+
+<ParamField path="params" type="object">
+  Search parameters:
+  
+  <Expandable title="properties">
+    <ParamField path="search" type="string">
+      Search term for filtering media files
+    </ParamField>
+    <ParamField path="skip" type="number" default="0">
+      Pagination offset
+    </ParamField>
+    <ParamField path="take" type="number" default="20">
+      Results per page
+    </ParamField>
+    <ParamField path="sort" type="string">
+      Sort field
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### For `get`, `download`, `get_folder_files`, `get_subfolders` operations
+
+<ParamField path="systemId" type="string" required>
+  The unique system ID of the media file or folder
+</ParamField>
+
+### For `upload` operation
+
+<ParamField path="data" type="object" required>
+  Media upload data including file content and metadata
+</ParamField>
+
+## Examples
+
+### Search Media Files
+
+<CodeGroup>
+```json JSON-RPC
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "manage_media",
+    "arguments": {
+      "operation": "search",
+      "params": {
+        "search": "logo",
+        "take": 10
+      }
+    }
+  },
+  "id": 1
+}
+```
+
+```text Natural Language
+"Find all media files with 'logo' in the name"
+```
+</CodeGroup>
+
+### Get Media Details
+
+<CodeGroup>
+```json JSON-RPC
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "manage_media",
+    "arguments": {
+      "operation": "get",
+      "systemId": "media-abc-123"
+    }
+  },
+  "id": 2
+}
+```
+
+```text Natural Language
+"Show me details of the media file with ID media-abc-123"
+```
+</CodeGroup>
+
+### List Files in Folder
+
+<CodeGroup>
+```json JSON-RPC
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "manage_media",
+    "arguments": {
+      "operation": "get_folder_files",
+      "systemId": "folder-abc-123"
+    }
+  },
+  "id": 3
+}
+```
+
+```text Natural Language
+"List all files in the folder with ID folder-abc-123"
+```
+</CodeGroup>
+
+### Navigate Folder Structure
+
+<CodeGroup>
+```json JSON-RPC
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "manage_media",
+    "arguments": {
+      "operation": "get_subfolders",
+      "systemId": "folder-abc-123"
+    }
+  },
+  "id": 4
+}
+```
+
+```text Natural Language
+"Show me all subfolders in folder-abc-123"
+```
+</CodeGroup>
+
+## Common Use Cases
+
+<AccordionGroup>
+  <Accordion title="Asset Discovery">
+    Use `search` to quickly find images, PDFs, or other media assets by name or partial name match.
+  </Accordion>
+  
+  <Accordion title="Folder Navigation">
+    Combine `get_subfolders` and `get_folder_files` to navigate your media library structure.
+  </Accordion>
+  
+  <Accordion title="Asset Management">
+    Upload new assets with `upload`, retrieve details with `get`, and download with `download`.
+  </Accordion>
+</AccordionGroup>
+
+## Related Tools
+
+- [manage_block](/tools/content/manage-block) - Use media in content blocks
+- [manage_page](/tools/content/manage-page) - Use media in pages
+- [manage_product](/tools/products/manage-product) - Product images and media
+
+<Info>
+  Media files in Litium support various formats including images (JPG, PNG, SVG), documents (PDF), and more.
+</Info>

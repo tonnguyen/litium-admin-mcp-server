@@ -5,57 +5,91 @@ This document describes the architecture and organization of the Litium Admin MC
 ## 🏗️ Project Structure
 
 ```
-app/                         # Next.js App Router
+app/                            # Next.js App Router
 ├── api/
-│   └── [transport]/        # MCP server endpoint (supports SSE)
-│       └── route.ts        # Main MCP server implementation
-├── layout.tsx              # Root layout
-└── page.tsx                # Homepage
+│   └── [transport]/           # HTTP MCP server endpoint
+│       ├── route.ts           # Main HTTP handler (minimal - 64 lines)
+│       └── tools/             # Domain-specific tool handlers
+│           ├── index.ts       # Tool registration orchestrator
+│           ├── products.ts    # Product domain tools (6 tools)
+│           ├── content.ts     # Content domain tools (2 tools)
+│           ├── media.ts       # Media domain tools (1 tool)
+│           ├── websites.ts    # Website domain tools (1 tool)
+│           ├── customers.ts   # Customer domain tools (1 tool)
+│           ├── sales.ts       # Sales/Order domain tools (1 tool)
+│           ├── globalization.ts # Globalization tools (5 tools)
+│           └── api-info.ts    # API documentation tools (1 tool)
+├── layout.tsx                 # Root layout
+└── page.tsx                   # Homepage with docs link
 
 src/
-├── auth/                    # Authentication layer
-│   └── token-manager.ts    # OAuth2 token management
-├── services/               # API service layer (domain-based)
-│   ├── base-api.ts         # Base service with common functionality
-│   ├── litium-api.ts       # Main API service (orchestrator)
-│   ├── blocks/             # Content blocks domain
+├── auth/                      # Authentication layer
+│   └── token-manager.ts       # OAuth2 token management
+├── services/                  # API service layer (domain-based)
+│   ├── base-api.ts           # Base service with common functionality
+│   ├── litium-api.ts         # Main API service (orchestrator)
+│   ├── blocks/               # Content blocks domain
 │   │   ├── index.ts
 │   │   └── blocks-service.ts
-│   ├── products/           # Products domain
+│   ├── products/             # Products domain
 │   │   ├── index.ts
 │   │   └── products-service.ts
-│   ├── customers/          # Customers domain
+│   ├── customers/            # Customers domain
 │   │   ├── index.ts
 │   │   └── customers-service.ts
-│   ├── media/              # Media files domain
+│   ├── media/                # Media files domain
 │   │   ├── index.ts
 │   │   └── media-service.ts
-│   ├── websites/           # Websites domain
+│   ├── websites/             # Websites domain
 │   │   ├── index.ts
 │   │   └── websites-service.ts
-│   └── orders/             # Orders domain
+│   ├── orders/               # Orders/Sales domain
+│   │   ├── index.ts
+│   │   └── orders-service.ts
+│   ├── globalization/        # Globalization domain
+│   │   ├── index.ts
+│   │   └── globalization-service.ts
+│   ├── api-discovery/        # API discovery domain
+│   │   ├── index.ts
+│   │   └── api-discovery-service.ts
+│   └── api-documentation/    # API documentation domain
 │       ├── index.ts
-│       └── orders-service.ts
-├── types/                  # TypeScript type definitions
-│   ├── auth.ts            # Authentication types
-│   └── config.ts          # Configuration types
-└── utils/                  # Utility functions
-    ├── config.ts          # Configuration management
-    ├── error-handler.ts   # Error handling utilities
-    └── logger.ts          # Logging utilities
+│       └── api-documentation-service.ts
+├── types/                    # TypeScript type definitions
+│   ├── auth.ts              # Authentication types
+│   └── config.ts            # Configuration types
+└── utils/                    # Utility functions
+    ├── config.ts            # Configuration management
+    ├── error-handler.ts     # Error handling utilities
+    └── logger.ts            # Logging utilities
 ```
 
 ## 🔧 Design Patterns
 
 ### 1. Domain-Driven Design (DDD)
 
-The services are organized by business domains:
+Both the MCP tools and API services are organized by business domains:
+
+#### MCP Tool Domains (18 consolidated tools):
+- **Products** (6 tools): Product management, variants, categories, price lists, relationship types
+- **Content** (2 tools): Blocks and pages
+- **Media** (1 tool): Media files and folders
+- **Websites** (1 tool): Website configuration
+- **Customers** (1 tool): Customer management
+- **Sales** (1 tool): Orders and sales operations
+- **Globalization** (5 tools): Languages, markets, countries, currencies, display templates
+- **API Info** (1 tool): API documentation and discovery
+
+#### API Service Domains:
 - **Blocks**: Content management (pages, blocks, categories)
-- **Products**: Product catalog (products, categories, assortments)
+- **Products**: Product catalog (products, categories, assortments, variants, price lists)
 - **Customers**: Customer management (people, groups, organizations)
 - **Media**: Media management (files, folders, file types)
 - **Websites**: Website configuration
 - **Orders**: Sales and order management
+- **Globalization**: Multi-language and multi-market support
+- **API Discovery**: API endpoint discovery
+- **API Documentation**: API reference documentation
 
 ### 2. Service Layer Pattern
 
@@ -65,7 +99,24 @@ Each domain has its own service class that encapsulates:
 - Error handling
 - Business logic
 
-### 3. Base Service Pattern
+### 3. Modular Tool Architecture (HTTP Transport)
+
+The MCP server uses a modular architecture where tools are organized by domain:
+
+**Tool Structure**:
+- Each domain has its own file in `app/api/[transport]/tools/`
+- Tools use Zod for schema validation
+- Each tool supports multiple operations via an `operation` parameter
+- Tool handlers are registered via registration functions
+
+**Benefits**:
+- **Reduced Tool Count**: 18 domain-based tools vs. 107 individual tools
+- **Better Performance**: Fewer tools for AI models to process
+- **Easier Navigation**: Find tools by business domain
+- **Smaller Files**: Each file is 40-250 lines (maintainable)
+- **Clearer Separation**: Tool registration separate from business logic
+
+### 4. Base Service Pattern
 
 All domain services extend `BaseApiService` which provides:
 - Common HTTP operations (GET, POST, PUT, DELETE)
@@ -133,7 +184,45 @@ Each domain service provides methods specific to that domain:
 - Payments
 - Campaigns and discounts
 
+#### GlobalizationService
+- Languages and translations
+- Markets and countries
+- Currencies
+- Display templates
+
+#### ApiDiscoveryService
+- Endpoint discovery
+- API exploration
+
+#### ApiDocumentationService
+- API reference
+- Quick reference guides
+
 ## 🔄 Data Flow
+
+### HTTP MCP Request Flow
+
+```
+MCP Client (Cursor/Claude) 
+    ↓ (HTTP POST with headers)
+app/api/[transport]/route.ts
+    ↓ (Extract credentials from headers)
+getApiService(req)
+    ↓ (Create LitiumApiService)
+Domain Tool Handler (app/api/[transport]/tools/*.ts)
+    ↓ (Call operation)
+Domain Service (src/services/*-service.ts)
+    ↓ (API call)
+BaseApiService
+    ↓ (OAuth2 token)
+TokenManager
+    ↓ (Authenticated request)
+Litium Admin Web API
+    ↓ (JSON response)
+← Response flows back up the chain
+```
+
+### Legacy Data Flow (for reference)
 
 ```
 MCP Request → LitiumApiService → Domain Service → BaseApiService → TokenManager → Litium API
@@ -182,6 +271,78 @@ const blocks = await api.blocks.searchBlocks({ search: 'test' });
 const products = await api.products.searchBaseProducts({ take: 10 });
 const customers = await api.customers.searchCustomers({ search: 'john' });
 ```
+
+## 🔧 Adding New Tools
+
+To add a new MCP tool to the HTTP server:
+
+### 1. Create or update domain tool file
+
+Create or update `app/api/[transport]/tools/my-domain.ts`:
+
+```typescript
+import { z } from 'zod';
+import { LitiumApiService } from '../../../../src/services/litium-api';
+import { handleError, formatErrorForMCP } from '../../../../src/utils/error-handler';
+import { logger } from '../../../../src/utils/logger';
+
+export function registerMyDomainTools(server: any, getApiService: (req: Request) => LitiumApiService, req: Request) {
+  server.tool(
+    'manage_my_entity',
+    `Manage my entities. Supported operations: search, get, create, update, delete`,
+    {
+      operation: z.enum(['search', 'get', 'create', 'update', 'delete']),
+      systemId: z.string().optional(),
+      data: z.any().optional(),
+      params: z.object({
+        search: z.string().optional(),
+        skip: z.number().optional(),
+        take: z.number().optional(),
+      }).optional(),
+    },
+    async ({ operation, systemId, data, params }: any) => {
+      try {
+        const apiService = getApiService(req);
+        switch (operation) {
+          case 'search':
+            return { content: [{ type: 'text', text: JSON.stringify(await apiService.myDomain.searchItems(params), null, 2) }] };
+          case 'get':
+            return { content: [{ type: 'text', text: JSON.stringify(await apiService.myDomain.getItem(systemId!), null, 2) }] };
+          // ... other operations
+          default:
+            throw new Error(`Unknown operation: ${operation}`);
+        }
+      } catch (error) {
+        const apiError = handleError(error);
+        logger.error('manage_my_entity failed:', apiError);
+        throw new Error(formatErrorForMCP(apiError));
+      }
+    }
+  );
+}
+```
+
+### 2. Register tool in main route
+
+Update `app/api/[transport]/route.ts`:
+
+```typescript
+import { registerMyDomainTools } from './tools/my-domain';
+
+const handler = async (req: Request) => {
+  return createMcpHandler(
+    (server) => {
+      // ... existing registrations
+      registerMyDomainTools(server, getApiService, req);
+    },
+    // ... server config
+  )(req);
+};
+```
+
+### 3. Create documentation
+
+Create `docs/tools/my-domain/manage-my-entity.mdx` following the existing documentation structure.
 
 ## 🔧 Adding New Services
 
@@ -277,8 +438,19 @@ const result = await blocksService.searchBlocks({ search: 'test' });
 
 ## 🚀 Future Enhancements
 
+### Tool Layer
+- **Tool Testing**: Automated testing for each domain tool
+- **Tool Metrics**: Track tool usage and performance
+- **Tool Documentation**: Auto-generate tool docs from schemas
+
+### Service Layer
 - **Caching Layer**: Add caching for frequently accessed data
 - **Rate Limiting**: Implement rate limiting per service
 - **Metrics**: Add performance metrics for each service
 - **Validation**: Add input validation for service methods
 - **Pagination**: Standardize pagination across all services
+
+### Transport Layer
+- **WebSocket Support**: Add real-time updates via WebSocket
+- **Request Batching**: Batch multiple operations in one request
+- **Response Streaming**: Stream large responses for better performance

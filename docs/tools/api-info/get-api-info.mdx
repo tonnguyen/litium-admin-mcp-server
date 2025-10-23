@@ -1,0 +1,170 @@
+---
+title: get_api_info
+description: 'Get Litium API information and documentation'
+---
+
+## Overview
+
+The `get_api_info` tool provides access to Litium API documentation and endpoint discovery. Use this tool to explore available API endpoints, understand OAuth configuration, and get quick API references.
+
+## Operations (Types)
+
+<ParamField path="type" type="string" required>
+  The type of API information to retrieve:
+  - `full` - Complete API documentation with all endpoints and schemas
+  - `quick` - Quick reference guide with endpoint summaries
+  - `oauth` - OAuth2 configuration and authentication information
+  - `endpoints` - List endpoints filtered by category
+</ParamField>
+
+## Parameters
+
+### For `endpoints` type
+
+<ParamField path="category" type="string">
+  Filter endpoints by category (e.g., "Products", "Content", "Sales", "Media")
+</ParamField>
+
+<ParamField path="search" type="string">
+  Search endpoints by keyword or path
+</ParamField>
+
+## Examples
+
+### Get OAuth Information
+
+<CodeGroup>
+```json JSON-RPC
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "get_api_info",
+    "arguments": {
+      "type": "oauth"
+    }
+  },
+  "id": 1
+}
+```
+
+```text Natural Language
+"Show me the OAuth configuration for Litium API"
+```
+</CodeGroup>
+
+**Use Case**: Learn how to authenticate with the Litium API
+
+### List Product Endpoints
+
+<CodeGroup>
+```json JSON-RPC
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "get_api_info",
+    "arguments": {
+      "type": "endpoints",
+      "category": "Products"
+    }
+  },
+  "id": 2
+}
+```
+
+```text Natural Language
+"Show me all product-related API endpoints"
+```
+</CodeGroup>
+
+**Use Case**: Discover available product management endpoints
+
+### Get Quick Reference
+
+<CodeGroup>
+```json JSON-RPC
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "get_api_info",
+    "arguments": {
+      "type": "quick"
+    }
+  },
+  "id": 3
+}
+```
+
+```text Natural Language
+"Give me a quick reference of the Litium API"
+```
+</CodeGroup>
+
+**Use Case**: Get a concise overview of all API capabilities
+
+### Search Endpoints
+
+<CodeGroup>
+```json JSON-RPC
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "get_api_info",
+    "arguments": {
+      "type": "endpoints",
+      "search": "customer"
+    }
+  },
+  "id": 4
+}
+```
+
+```text Natural Language
+"Find all API endpoints related to customers"
+```
+</CodeGroup>
+
+**Use Case**: Discover customer-related API functionality
+
+## Common Use Cases
+
+<AccordionGroup>
+  <Accordion title="API Exploration">
+    Use `endpoints` with category filters to discover what's available in each domain (Products, Sales, Content, etc.)
+  </Accordion>
+  
+  <Accordion title="Authentication Setup">
+    Use `oauth` to understand OAuth2 configuration and get your credentials set up correctly
+  </Accordion>
+  
+  <Accordion title="Quick Learning">
+    Use `quick` for a rapid overview when you're new to the Litium API
+  </Accordion>
+  
+  <Accordion title="Comprehensive Reference">
+    Use `full` when you need detailed documentation including request/response schemas
+  </Accordion>
+</AccordionGroup>
+
+## API Categories
+
+The Litium Admin API is organized into these main categories:
+
+- **Products** - Base products, variants, categories, assortments, price lists
+- **Content** - Blocks, pages, websites
+- **Media** - Files, folders, media assets
+- **Sales** - Orders, order history
+- **Customers** - Customer accounts and profiles
+- **Globalization** - Channels, markets, currencies, languages, countries
+
+## Related Tools
+
+- All other MCP tools use the endpoints discovered by this tool
+- Use this tool to understand the underlying API structure
+
+<Info>
+  This tool is particularly useful when you want to understand what's possible with the Litium API or need technical details for advanced integrations.
+</Info>

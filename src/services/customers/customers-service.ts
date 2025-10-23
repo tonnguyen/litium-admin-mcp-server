@@ -1,5 +1,6 @@
 import { BaseApiService } from '../base-api';
 import { type LitiumConfig } from '../../types/config';
+import { FilterBuilder } from '../../utils/filter-builder';
 
 export class CustomersService extends BaseApiService {
   constructor(config: LitiumConfig) {
@@ -8,6 +9,7 @@ export class CustomersService extends BaseApiService {
 
   /**
    * Search for customers (people)
+   * Supports searching by name, email, or customer ID
    */
   async searchCustomers(params?: {
     search?: string;
@@ -16,7 +18,12 @@ export class CustomersService extends BaseApiService {
     sort?: string;
   }) {
     const endpoint = '/Litium/api/admin/customers/people/search';
-    return this.searchPost<any>(endpoint, params);
+    const searchModel = FilterBuilder.buildCustomerSearch(
+      params?.search || '',
+      params?.skip || 0,
+      params?.take || 20
+    );
+    return this.searchPost<any>(endpoint, searchModel);
   }
 
   /**
@@ -53,6 +60,7 @@ export class CustomersService extends BaseApiService {
 
   /**
    * Search for customer groups
+   * Supports searching by group ID or name
    */
   async searchCustomerGroups(params?: {
     search?: string;
@@ -61,7 +69,12 @@ export class CustomersService extends BaseApiService {
     sort?: string;
   }) {
     const endpoint = '/Litium/api/admin/customers/groups/search';
-    return this.searchPost<any>(endpoint, params);
+    const searchModel = FilterBuilder.buildGenericSearch(
+      params?.search || '',
+      params?.skip || 0,
+      params?.take || 20
+    );
+    return this.searchPost<any>(endpoint, searchModel);
   }
 
   /**
@@ -98,6 +111,7 @@ export class CustomersService extends BaseApiService {
 
   /**
    * Search for organizations
+   * Supports searching by organization name or ID
    */
   async searchOrganizations(params?: {
     search?: string;
@@ -106,7 +120,12 @@ export class CustomersService extends BaseApiService {
     sort?: string;
   }) {
     const endpoint = '/Litium/api/admin/customers/organizations/search';
-    return this.searchPost<any>(endpoint, params);
+    const searchModel = FilterBuilder.buildCustomerSearch(
+      params?.search || '',
+      params?.skip || 0,
+      params?.take || 20
+    );
+    return this.searchPost<any>(endpoint, searchModel);
   }
 
   /**

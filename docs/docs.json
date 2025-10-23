@@ -47,71 +47,61 @@
             ]
           },
           {
-            "group": "Blocks Tools",
+            "group": "Products Domain",
             "pages": [
-              "tools/blocks/search-blocks",
-              "tools/blocks/get-block",
-              "tools/blocks/create-block",
-              "tools/blocks/update-block",
-              "tools/blocks/delete-block"
+              "tools/products/manage-product",
+              "tools/products/manage-product-variant",
+              "tools/products/manage-product-category",
+              "tools/products/manage-product-assortment",
+              "tools/products/manage-price-list",
+              "tools/products/manage-relationship-type"
             ]
           },
           {
-            "group": "Products Tools",
+            "group": "Content Domain",
             "pages": [
-              "tools/products/search-products",
-              "tools/products/get-product",
-              "tools/products/create-product",
-              "tools/products/update-product",
-              "tools/products/delete-product"
+              "tools/content/manage-block",
+              "tools/content/manage-page"
             ]
           },
           {
-            "group": "Customers Tools",
+            "group": "Media Domain",
             "pages": [
-              "tools/customers/search-customers",
-              "tools/customers/get-customer",
-              "tools/customers/create-customer",
-              "tools/customers/update-customer",
-              "tools/customers/delete-customer"
+              "tools/media/manage-media"
             ]
           },
           {
-            "group": "Media Tools",
+            "group": "Websites Domain",
             "pages": [
-              "tools/media/search-media",
-              "tools/media/get-media"
+              "tools/websites/manage-website"
             ]
           },
           {
-            "group": "Websites Tools",
+            "group": "Customers Domain",
             "pages": [
-              "tools/websites/get-websites",
-              "tools/websites/get-website"
+              "tools/customers/manage-customer"
             ]
           },
           {
-            "group": "Orders Tools",
+            "group": "Sales Domain",
             "pages": [
-              "tools/orders/search-orders",
-              "tools/orders/get-order"
+              "tools/sales/manage-order"
             ]
           },
           {
-            "group": "API Discovery Tools",
+            "group": "Globalization Domain",
             "pages": [
-              "tools/api-discovery/get-all-api-endpoints",
-              "tools/api-discovery/get-api-endpoints-by-category",
-              "tools/api-discovery/search-api-endpoints",
-              "tools/api-discovery/get-oauth-info",
-              "tools/api-discovery/get-api-info"
+              "tools/globalization/manage-channel",
+              "tools/globalization/manage-country",
+              "tools/globalization/manage-currency",
+              "tools/globalization/manage-language",
+              "tools/globalization/manage-market"
             ]
           },
           {
-            "group": "API Documentation Tools",
+            "group": "API Info",
             "pages": [
-              "tools/api-documentation/get-full-api-documentation",
-              "tools/api-documentation/get-api-quick-reference"
+              "tools/api-info/get-api-info"
             ]
           }
         ]
