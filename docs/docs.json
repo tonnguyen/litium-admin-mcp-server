@@ -34,6 +34,12 @@
               "guides/testing",
               "guides/troubleshooting"
             ]
+          },
+          {
+            "group": "How to",
+            "pages": [
+              "how-to/create-custom-panel"
+            ]
           }
         ]
       },
@@ -145,5 +151,17 @@
     "ga4": {
       "measurementId": "G-XXXXXXXXXX"
     }
-  }
+  },
+ "contextual": {
+   "options": [
+     "copy",
+     "view",
+     "chatgpt",
+     "claude",
+     "perplexity",
+     "mcp",
+     "cursor",
+     "vscode"
+   ]
+ }
 }
