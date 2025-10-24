@@ -38,7 +38,8 @@
           {
             "group": "How to",
             "pages": [
-              "how-to/create-custom-panel"
+              "how-to/create-custom-panel",
+              "how-to/create-custom-field-types"
             ]
           }
         ]
