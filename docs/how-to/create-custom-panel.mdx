@@ -1,0 +1,109 @@
+---
+title: "How to create a custom panel"
+description: "This tutorial explains how to build a custom panel. Since Litium 8, Area panels have been rewritten to eliminate WebForms, improve the performance and reliability."
+---
+
+This tutorial is for Litium 8. Please check older version's tutorial in case of creating custom panel in other technology.
+
+There are two ways to create custom panel: using Angular component or use an URL which can point to internal or external page.
+
+1. Embed an URL in an Iframe: by defining an URL, the system will create an Iframe to display that URL. This approach is suitable when you have your existing page, or you want to implement custom panel in MVC, then the only thing you need is to point out the URL to your page. The page can be both internal or external.
+2. Use Angular component: by creating an Angular component and point out the component name in the configuration. This approach is suitable when most of the logic is defined in JavaScript code.
+
+Either creating custom panel in URL or Angular mode, a panel definition needs to be created.
+
+### Create a panel definition
+
+Panel is defined in C# code by implement _IPanelDefinition_. But the easiest way is to extend _PanelDefinitionBase_:
+
+```
+public class SampleAngularPanel : PanelDefinitionBase<CustomerArea, SampleAngularPanel.SettingsModel>
+{
+    public override string ComponentName => "Accelerator#SampleAngularPanel";
+
+    public override string Url => null;
+
+    public override bool PermissionCheck()
+    {
+        return true;
+    }
+
+    public override async Task<SettingsModel> GetSettingsAsync()
+    {
+        return new SettingsModel();
+    }
+
+    public class SettingsModel : IPanelSettings
+    {
+        public string Title { get; set; } = "Sample Title";
+    }
+}
+```
+
+In the sample above, we are creating a new panel and registering it for the _Customers area_ (by having _CustomerArea_ as the first generic parameter of _PanelDefinitionBase_).
+
+- This panel defines an Angular component name in _ComponentName_ property. When _ComponentName_ is defined, URL property is ignored. If _ComponentName_ is null, URL will be used.
+- PermissionCheck: a method to check if current user has permission to view this custom panel. Return _false_ would hide this Panel from user.
+- _GetSettingsAsync_: returns the Settings object. The second generic parameter of _PanelDefinitionBase_ is the type of the settings object. This should be used when you want to pass a settings object to the custom panel. A custom panel which is written as an Angular panel has the built in _settings_ property which is populated automatically, by calling this method under the hood. Check more detail of how to use this _settings_ property in Angular component in the section down below.
+
+### Create a custom panel Angular component
+
+This step is required only when a custom panel is implemented in Angular component mode. If a custom panel's URL is used, this step can be ignored.
+
+Below is the sample Angular component which was referenced in _SampleAngularPanel_ under _ComponentName_ property:
+
+```
+// /Src/Litium.Accelerator.FieldTypes/src/Accelerator/components/sample-angular-panel/sample-angular-panel.component.ts
+import { Component, ChangeDetectionStrategy } from '@angular/core';
+@Component({
+    selector: 'sample-angular-panel',
+    templateUrl: './sample-angular-panel.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush, 
+})
+export class SampleAngularPanel {
+    settings: any;
+}
+```
+
+```
+<!-- /Src/Litium.Accelerator.FieldTypes/src/Accelerator/components/sample-angular-panel/sample-angular-panel.component.html -->
+{{ settings?.title }}
+```
+
+Note the _settings_ property in the component, it contains the settings object which is defined in _SampleAngularPanel_. The template simply prints out the _title_ property of the settings object, which is "Sample Title" in this case.
+
+### Register the component in the module
+
+The next step is to register the components in the module, _extensions.ts_. Note that the "SampleAngularPanel" component has been imported and registered in _declarations_ in the _Accelerator_ module below:
+
+```
+@NgModule({
+    declarations: [
+        SampleAngularPanel
+    ],
+```
+
+The component needs to be exposed in webpack.js, using [ModuleFederationPlugin](https://webpack.js.org/concepts/module-federation/), so the platform can find and load it:
+
+```
+new ModuleFederationPlugin({
+    exposes: {
+        Accelerator: "./Litium.Accelerator.FieldTypes/src/Accelerator/extensions.ts",
+        SampleAngularPanel: "./Litium.Accelerator.FieldTypes/src/Accelerator/components/sample-angular-panel/sample-angular-panel.component.ts",
+    },
+```
+
+### Translation
+
+The name of the custom panel is configured in _Administration.resx_ file, with the conversion: panels.[CustomPanelClassName].title by default, where [CustomPanelClassName] should be replaced by the class name of the custom panel. For the _SampleAngularPanel_ class above, the correct value should be added into _Administration.resx_ file is:
+
+```
+<!-- /Src/Litium.Accelerator.Mvc/Site/Resources/Administration/Administration.resx -->
+<data name="panels.SampleAngularPanel.title" xml:space="preserve">
+    <value>Sample angular panel</value>
+</data>
+```
+
+The panel resource text should be added to resource file. When creating new panel, the panel text will follow this format "panels.[panel name].title". Ex: _panels.SampleAngularPanel.title_
+
+The translation key can be customized by overriding the field _TranslationKey_ of _PanelDefinitionBase_.
