@@ -1,118 +1,148 @@
 ---
-title: Introduction
-description: 'Welcome to the Litium Admin MCP Server documentation'
+title: Welcome to Litium
+description: 'Your complete guide to the Litium e-commerce platform, APIs, and development tools'
 ---
-
-## What is Litium Admin MCP Server?
-
-Litium Admin MCP Server is a Model Context Protocol (MCP) server that provides AI models with programmatic access to the Litium e-commerce platform's Admin Web API. Built with Next.js and deployed on Vercel, it enables AI assistants like Claude and Cursor to interact with your Litium instance.
 
 <CardGroup cols={2}>
   <Card
-    title="Quick Start"
+    title="Platform Overview"
+    icon="building"
+    href="/platform/overview"
+  >
+    Learn about Litium's architecture and core concepts
+  </Card>
+  <Card
+    title="APIs"
+    icon="code"
+    href="/apis/overview"
+  >
+    Explore our comprehensive API collection
+  </Card>
+  <Card
+    title="MCP Servers"
+    icon="server"
+    href="/mcp-servers/overview"
+  >
+    AI-powered integrations via Model Context Protocol
+  </Card>
+  <Card
+    title="Accelerators"
     icon="rocket"
-    href="/getting-started/installation"
+    href="/accelerators/overview"
   >
-    Get up and running in minutes
-  </Card>
-  <Card
-    title="Tools Reference"
-    icon="wrench"
-    href="/tools/overview"
-  >
-    Explore all 18 available tools
-  </Card>
-  <Card
-    title="Configuration"
-    icon="gear"
-    href="/getting-started/configuration"
-  >
-    Configure for Cursor or Claude Desktop
-  </Card>
-  <Card
-    title="Deployment"
-    icon="cloud"
-    href="/guides/deployment"
-  >
-    Deploy to Vercel or other platforms
+    Quick-start templates for React and MVC
   </Card>
 </CardGroup>
 
-## Key Features
+## Documentation Sections
 
 <AccordionGroup>
-  <Accordion title="18 Domain-Based Tools" icon="toolbox">
-    Access 18 consolidated tools across 8 domains: Products, Content, Media, Websites, Customers, Sales, Globalization, and API Info. Each tool supports multiple operations.
+  <Accordion title="Platform" icon="building">
+    Core platform concepts, architecture, configuration, and deployment guides. Start here to understand how Litium works.
   </Accordion>
   
-  <Accordion title="Secure Authentication" icon="lock">
-    Uses OAuth2 client credentials flow with header-based credential management. No credentials stored server-side.
+  <Accordion title="APIs" icon="code">
+    Complete API reference with interactive playgrounds:
+    - **Admin Web API** - Full platform management
+    - **Connect APIs** - ERP integrations
+    - **Extension Management API** - Manage platform extensions
   </Accordion>
   
-  <Accordion title="Remote Access" icon="globe">
-    HTTP/SSE transport allows remote access from any MCP client. No local installation required.
+  <Accordion title="MCP Servers" icon="server">
+    Model Context Protocol servers that provide AI assistants like Claude and Cursor with programmatic access to Litium:
+    - **Admin MCP Server** - AI-powered admin operations
   </Accordion>
   
-  <Accordion title="Serverless Deployment" icon="server">
-    Deploy to Vercel with one click. Scales automatically and runs on-demand.
+  <Accordion title="Accelerators" icon="rocket">
+    Production-ready templates to jumpstart your project:
+    - **React Accelerator** - Modern headless storefront
+    - **MVC Accelerator** - Traditional ASP.NET MVC storefront
+  </Accordion>
+  
+  <Accordion title="Apps" icon="puzzle-piece">
+    Build custom apps to extend Litium's functionality. Learn about the app framework, SDK, and deployment.
   </Accordion>
 </AccordionGroup>
 
-## Use Cases
+## Quick Start by Role
 
-<CardGroup cols={2}>
-  <Card title="Content Management" icon="file-lines">
-    Create, update, and manage content blocks across your Litium sites
+<Tabs>
+  <Tab title="Developers">
+    **Building with Litium?**
+    
+    1. Read the [Platform Overview](/platform/overview)
+    2. Explore the [API Reference](/apis/overview)
+    3. Try an [Accelerator](/accelerators/overview)
+    4. Build your first [App](/apps/overview)
+  </Tab>
+  
+  <Tab title="Integrators">
+    **Connecting Litium to other systems?**
+    
+    1. Review [Connect APIs](/apis/connect/overview) for ERP integration
+    2. Check [Extension Management API](/apis/extension-management-api/overview)
+    3. Explore authentication and security patterns
+  </Tab>
+  
+  <Tab title="AI Developers">
+    **Want AI to interact with Litium?**
+    
+    1. Learn about [MCP Servers](/mcp-servers/overview)
+    2. Deploy the [Admin MCP Server](/mcp-servers/admin/introduction)
+    3. Configure your AI assistant (Claude, Cursor)
+  </Tab>
+  
+  <Tab title="Architects">
+    **Planning your Litium implementation?**
+    
+    1. Study [Platform Architecture](/platform/architecture)
+    2. Review [API Capabilities](/apis/overview)
+    3. Evaluate [Accelerators](/accelerators/overview)
+    4. Plan for scalability and performance
+  </Tab>
+</Tabs>
+
+## Interactive API Playgrounds
+
+All our APIs include interactive playgrounds where you can test endpoints directly from the documentation. Configure your credentials once and explore the full capabilities of each API.
+
+<Info>
+  **Try it now**: Visit any [API section](/apis/overview) to access the playground.
+</Info>
+
+## Popular Resources
+
+<CardGroup cols={3}>
+  <Card title="Admin Web API" icon="shield-halved" href="/apis/admin-web-api/overview">
+    Full platform management
   </Card>
-  <Card title="Product Management" icon="box">
-    Search, create, and update products in your e-commerce catalog
+  <Card title="Connect ERP API" icon="database" href="/apis/connect/erp-api/overview">
+    ERP system integration
   </Card>
-  <Card title="Customer Service" icon="users">
-    Access and manage customer information efficiently
+  <Card title="React Accelerator" icon="react" href="/accelerators/react/overview">
+    Modern headless storefront
   </Card>
-  <Card title="Order Processing" icon="cart-shopping">
-    Search and retrieve order details for customer support
+  <Card title="Admin MCP Server" icon="robot" href="/mcp-servers/admin/introduction">
+    AI-powered admin access
+  </Card>
+  <Card title="Building Apps" icon="puzzle-piece" href="/apps/overview">
+    Extend platform capabilities
   </Card>
 </CardGroup>
 
-## Architecture
+## Community and Support
 
-The server uses a stateless, header-based authentication model:
-
-```mermaid
-graph LR
-    A[MCP Client] -->|HTTPS + Headers| B[Next.js on Vercel]
-    B -->|OAuth2| C[Litium Admin API]
-    C -->|JSON Response| B
-    B -->|JSON-RPC| A
-```
-
-<Info>
-  **No Server-Side Storage**: Credentials are passed via HTTP headers with each request. The server never stores your credentials.
-</Info>
-
-## What's Next?
-
-<Steps>
-  <Step title="Install">
-    Follow the [installation guide](/getting-started/installation) to set up the server
-  </Step>
-  <Step title="Configure">
-    Set up your MCP client with [configuration instructions](/getting-started/configuration)
-  </Step>
-  <Step title="Authenticate">
-    Learn about [OAuth2 authentication](/getting-started/authentication) with Litium
-  </Step>
-  <Step title="Explore">
-    Browse the [tools reference](/tools/overview) to see what you can do
-  </Step>
-</Steps>
-
-## Support
-
-Need help? Here are some resources:
-
-- [GitHub Issues](https://github.com/tonnguyen/litium-admin-mcp-server/issues) - Report bugs or request features
-- [Litium Documentation](https://docs.litium.com/) - Official Litium API docs
-- [MCP Specification](https://modelcontextprotocol.io/) - Learn about Model Context Protocol
-
+<CardGroup cols={2}>
+  <Card title="GitHub" icon="github" href="https://github.com/tonnguyen/litium-admin-mcp-server">
+    Contribute and report issues
+  </Card>
+  <Card title="Discord Community" icon="discord" href="https://discord.gg/litium">
+    Join the conversation
+  </Card>
+  <Card title="Official Docs" icon="book" href="https://docs.litium.com">
+    Legacy documentation
+  </Card>
+  <Card title="Support Portal" icon="life-ring" href="https://support.litium.com">
+    Get help from our team
+  </Card>
+</CardGroup>

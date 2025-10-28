@@ -1,0 +1,405 @@
+---
+title: 'Create custom field types'
+description: 'How to create a custom field type that will be rendered as a textbox in the backoffice UI.'
+---
+
+It is usually sufficient to use the multi-field field type to create a composite field from other field types. However, in special scenarios, you may want to create your own field types from scratch. This section explains how it is done.
+
+In this tutorial, we will create a custom text field, which is rendered as a textbox in the UI.
+
+The field has *CustomTextField* as Id.
+
+### [Creating custom field types]()
+
+1\. [Define the field type metadata.](#1-define-the-field-type-metadata)
+
+2\. [Edit field type converter.](#2-edit-field-type-converter)
+
+3\. [Convert the field between entity and Excel columns data (optional).](#3-convert-the-field-between-entity-and-excel-columns-data)
+
+4\. [Create the *Edit* component.](#4-create-the-edit-component)
+
+5\. [Register the component in the module.](#5-register-the-component-in-the-module)
+
+6\. [Build the component for the custom field type.](#6-build-the-component-for-the-custom-field-type)
+
+7\. [Scripts routing registration.](#7-scripts-routing-registration)
+
+### [1. Define the field type metadata]()
+
+The Field type defines the behavior of that field type, for example, if the field is an array. It has information on whether the field can be in a grid, used as a filter, or sortable.
+
+The field definition contains information and settings for the instance of the field, and the field type contains information about operations that can be used for filtering and sorting.
+
+Field definition
+
+This field type metadata, in combination with the information from the field definition, describes how it should be used.
+
+For example, the field type can have as settings that it is possible to show the field in a grid - field type level setting - and in field defintion we also have the same setting. The combination of the field type and field defintion setting will define how that field behave. Let's see this chart :
+
+\- Field Type setting : allow in grid , Field defition setting : allow in grid -> The field instance will be allowed in grid.
+
+\- Field type setting : allow in grid , Field definition setting : not allow in grid -> The field instance will not be allowed in grid.
+
+\- Field type setting : not allow in grid , Field defintion setting : allow in grid - > The fiend instance will not be allowed in gird.
+
+Let us create a file named *CustomTextFieldTypeMetadata.cs* under *Litium.Accelerator.FieldTypes* project:
+
+```
+using Litium.FieldFramework;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Litium.Accelerator.FieldTypes
+{
+    public class CustomTextFieldTypeMetadata : FieldTypeMetadataBase
+    {
+        public override string Id => "CustomTextField";
+        public override bool CanBeGridColumn => true;
+        public override bool CanBeGridFilter => false;
+        public override bool CanSort => false;
+        public override Type JsonType => typeof(string);
+
+        public override IFieldType CreateInstance(IFieldDefinition fieldDefinition)
+        {
+            var item = new CustomTextFieldType();
+            item.Init(fieldDefinition);
+            return item;
+        }
+
+        public class CustomTextFieldType : FieldTypeBase
+        {
+            public override object GetValue(ICollection<FieldData> fieldDatas) => fieldDatas.FirstOrDefault()?.TextValue;
+
+            public override ICollection<FieldData> PersistFieldData(object item) => PersistFieldDataInternal(item);
+
+            protected override ICollection<FieldData> PersistFieldDataInternal(object item) => new[] { new FieldData { TextValue = (string)item } };
+        }
+    }
+}
+
+```
+
+[Back to steps](#creating-custom-field-types)
+
+### [2. Edit field type converter]()
+
+To be able to use an instance of the field in the back office, the edit field type converter needs to be implemented.
+
+The edit field type converter is responsible for providing the back office with information about which controller and template to use for the edit or the settings view.
+
+The settings component name is used when setting up the field definition in the system settings, while the edit component name is used when an administrator edits the entity.
+
+Litium.Accelerator.FieldTypes\CustomTextEditFieldTypeConverter.cs:
+
+```
+using Litium.FieldFramework;
+using Litium.Runtime.DependencyInjection;
+using Litium.Web.Administration.FieldFramework;
+using Newtonsoft.Json.Linq;
+
+namespace Litium.Accelerator.FieldTypes
+{
+    [Service(Name = "CustomTextField")]
+    internal class CustomTextEditFieldTypeConverter : IEditFieldTypeConverter
+    {
+        private readonly IFieldTypeMetadata _fieldTypeMetadata;
+
+        public CustomTextEditFieldTypeConverter(FieldTypeMetadataService fieldTypeMetadataService)
+        {
+            _fieldTypeMetadata = fieldTypeMetadataService.Get("CustomTextField");
+        }
+
+        public object CreateOptionsModel() => null;
+
+        public virtual object ConvertFromEditValue(EditFieldTypeConverterArgs args, JToken item)
+        {
+            var fieldTypeInstance = _fieldTypeMetadata.CreateInstance(args.FieldDefinition);
+            return fieldTypeInstance.ConvertFromJsonValue(item.ToObject(_fieldTypeMetadata.JsonType));
+        }
+
+        public virtual JToken ConvertToEditValue(EditFieldTypeConverterArgs args, object item)
+        {
+            var fieldTypeInstance = _fieldTypeMetadata.CreateInstance(args.FieldDefinition);
+            var value = fieldTypeInstance.ConvertToJsonValue(item);
+            if (value == null)
+            {
+                return JValue.CreateNull();
+            }
+            return JToken.FromObject(value);
+        }
+
+        /// <summary>
+        /// The Angular component to edit the CustomText field.
+        /// </summary>
+        /// <remark>
+        /// The extension module should have the module name (Accelerator in this case) 
+        /// as prefix, followed by the component name (FieldEditorCustomText), to be able to find the correct component on the client side.
+        /// </remark>
+        public string EditComponentName => "Accelerator#FieldEditorCustomText";
+
+       
+        // Since we don't have the setting UI for this CustomText field, we can skip the setting controllers and components.
+       
+        public string SettingsComponentName => string.Empty;
+    }
+}
+```
+
+*EditComponentName,* the last property in the code example above, defines which edit components will be used in the UI.
+
+As mentioned in the remarks, the value should have the module name as a prefix, followed by the # character and the component name.
+
+**⚠️ Important:** Ensure component naming consistency across all files:
+- Angular component class name: `FieldEditorCustomText`
+- C# converter EditComponentName: `"Accelerator#FieldEditorCustomText"`
+- Webpack exposure: `FieldEditorCustomText`
+- All three must match exactly to avoid module federation errors.
+
+#### Module prefix
+
+In this case, *Accelerator*, which is the name of the extension module.
+
+The extension module is the module developed in the solution that should be injected into the back office UI.
+
+You can see how the module is defined in the file *extension.ts* in *Litium.Accelerator.FieldTypes\src\Accelerator.*
+
+The module name must be the same in the path *\src\Accelerator*, in the file *extension.ts* and in the attributes *EditorComponentName*.
+
+If you want to change the module name to something else, make sure you change it in all places.
+
+#### Component name
+
+In this case *FieldEditorCustomText*, which was declared as a component in the Angular project and registered in the file *extension.ts* for the module.
+
+Check the files in Litium.Accelerator.FieldTypes\src\Accelerator\Components.
+
+You have to declare the components in the Angular module to be able to use them.
+
+If you create a new component, make sure you add it in the *declarations* arrays of the module.
+
+[Back to steps](#creating-custom-field-types)
+
+### [3. Convert the field between entity and Excel columns data]()
+
+Optional.
+
+The Excel field type converter is used to convert the field between entity and Excel columns data.
+
+If this was not implemented then the field will not be imported or exported by the excel importer / exporter.
+
+```
+using Litium.Application.Runtime;
+using Litium.FieldFramework;
+using Litium.Runtime.DependencyInjection;
+using Newtonsoft.Json.Linq;
+
+namespace Litium.Web.Administration.FieldFramework.Excel
+{
+    [Service(FallbackService = true, Name = "CustomTextField")]
+    internal class CustomTextExcelFieldTypeConverter : IExcelFieldTypeConverter
+    {
+        public object ConvertFromExcelValue(ExcelFieldTypeConverterArgs args, object item) => string.IsNullOrEmpty(item as string) ? null : new JValue(item).ToObject<string>(ApplicationConverter.JsonSerializer);
+        public object ConvertToExcelValue(ExcelFieldTypeConverterArgs args, object item) => item as string;
+    }
+}
+
+```
+
+[Back to steps](#creating-custom-field-types)
+
+### [4. Create the *Edit* component]()
+
+Since we configured the *EditComponentName* as *Accelerator#FieldEditorCustomText* in the *CustomTextEditFieldTypeConverter*, we need to create that component in Angular.
+
+In Litium Accelerator, the *Edit* component is located in the folder *Litium.Accelerator.FieldTypes\src\Accelerator\components\field-editor-custom-text*. Notice the *field-editor* prefix. All components used for edit fields have this prefix to distinguish them as extensions instead of platform components. Components for edit fields should have the option to change between preview and edit mode. It should also support multiple languages.
+
+A component in Angular consists of two parts, the template, and the code. Usually, they are placed in two different files, one *.html* and one *.ts*.
+
+#### Template file
+
+You can read more about the [template syntax in Angular](http://angular.io/guide/template-syntax) [here](https://angular.io/guide/template-syntax).
+
+*Litium.Accelerator.FieldTypes\src\Accelerator\components\field-editor-custom-text\field-editor-custom-text.component.html*
+
+This is what the code looks like:
+
+```
+<field-editor [field]="field">
+    <p preview></p>
+    <input edit type="text" [id]="name" #control 
+        [ngModel]="getValue(editLanguage)" 
+        (ngModelChange)="valueChange($event, editLanguage)"
+    />
+</field-editor>
+```
+
+*Field-editor* is the component that should be used when you want to create a field edit component. By using *field-editor*, and setting its *field* property like in the code above, you don't have to manage the language change or the preview/edit mode.
+
+Inside the *\<field-editor>* tag, you need to define what should be displayed in preview and edit mode. Note the *preview* and *edit* attributes in the \<p\*> and \<input>\* tags. Those are the slot names that are used to project custom content to the pre-defined component *field-editor*. *\<p preview>* defines what will be displayed in preview mode, and *\<input edit>* defines what will be displayed in edit mode.
+
+#### Code file
+
+The *Edit* component is inherited from the built-in *BaseFieldEditor*, and it does not need to override anything since everything is managed by the base class.
+
+Note that common class components can be imported from the *litium-ui* package.
+
+The template is configured in the component annotation, by setting the *templateUrl*.
+
+*Litium.Accelerator.FieldTypes\src\Accelerator\components\field-editor-custom-text\field-editor-custom-text.component.ts*
+
+```
+import { Component, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
+import { BaseFieldEditor } from 'litium-ui';
+
+@Component({
+    selector: 'field-editor-custom-text',
+    templateUrl: './field-editor-custom-text.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class FieldEditorCustomText extends BaseFieldEditor {
+    constructor(changeDetectorRef: ChangeDetectorRef) {
+        super(changeDetectorRef);
+    }
+}
+```
+
+[Back to steps](#creating-custom-field-types)
+
+### [5. Register the component in the module]()
+
+The next step is to register the components in the module, *extensions.ts*. Note that the "FieldEditorCustomText" component has been imported and registered in *declarations* in the *Accelerator* module below:
+
+```
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
+
+import { FieldEditorFilterFields } from './components';
+import { UiModule, ReducerRegistry } from 'litium-ui';
+
+import { accelerator } from './redux/stores/accelerator.reducer';
+import { FieldEditorCustomText } from './components/field-editor-custom-text/field-editor-custom-text.component';
+
+@NgModule({
+    declarations: [
+        FieldEditorFilterFields,
+        FieldEditorCustomText,
+    ],
+    imports: [ 
+        CommonModule,
+        UiModule,
+        TranslateModule,
+    ]
+})
+export class Accelerator {
+    constructor(private _reducerRegistery: ReducerRegistry) {
+        this._reducerRegistery.register({ accelerator });
+    }
+}
+```
+
+The component needs to be exposed in webpack.js, under [ModuleFederationPlugin](https://webpack.js.org/concepts/module-federation/) in order for the platform to access them:
+
+```
+new ModuleFederationPlugin({
+    name: "Accelerator",
+    filename: "remoteEntry.js",
+    exposes: {
+        Accelerator: "./Litium.Accelerator.FieldTypes/src/Accelerator/extensions.ts",
+        FieldEditorCustomText: "./Litium.Accelerator.FieldTypes/src/Accelerator/components/field-editor-custom-text/field-editor-custom-text.component",
+    },
+```
+
+[Back to steps](#creating-custom-field-types)
+
+### [6. Build the component for the custom field type.]()
+
+If you have modified existing components or created new ones, you have to build them.
+
+In Litium Accelerator we are using a client library with name *litium-ui* which contains the base, common classes, and components. This helps you build the component for the custom field type. As you can see in the code snippets above, you import and use classes from the *litium-ui* package.
+
+The client library is automatically downloaded from *[https://packages.litium.com/Npm/litium-ui?\[version](https://packages.litium.com/Npm/litium-ui?\[version) number]* where you need to ensure that the *\[version number]* is correct for the version you are currently using in your solution. Example  *[https://packages.litium.com/Npm/litium-ui?8.0.0](https://packages.litium.com/Npm/litium-ui?8.0.0)* is used for the Litium version 8.0.0.
+
+After verifying that *litium-ui* has the correct version number in *package.json*, open a command prompt and change the base path to *src\Litium.Accelerator.FieldTypes*, then execute the following two commands:
+
+* yarn install
+* yarn run build
+
+Finally, build the Litium Accelerator solution. Note that we are using Yarn, but NPM works fine too.
+
+### [7. Scripts routing registration]()
+
+JavaScript resources are built to the *src\Litium.Accelerator.FieldTypes\dist* folder.
+
+Accelerator.js and Accelerator.js.map are configured to be embedded resources.
+
+This is needed to deploy and load scripts in a production environment since we only need to deploy the assembly. The routing to these scripts is preconfigured in Litium Accelerator.
+
+Here is how script routings are configured in *src\Litium.Accelerator.FieldTypes\Properties\AssemblyInfo.cs* by using *AngularModuleAttribute*:
+
+```
+using Litium.Web.Administration;
+[assembly: AngularModule("Accelerator")]
+```
+
+*AngularModuleAttribute* is used to register *Accelerator.js* and *Accelerator.js.map* in the routing, under the name Accelerator. Please note:
+
+* The module name, Accelerator, in this case, must be unique. If you register multiple modules with the same module name, an exception will be thrown at runtime.
+* The system finds and loads resources from *src\Litium.Accelerator.FieldTypes\dist* folder, and fall back to assembly embedded resources if it couldn't find the file.
+* By default, the *dist* folder is used to locate the file. *AngularModuleAttribute* accepts *Folder* property to customize this path.
+
+## Troubleshooting
+
+### Common Issues and Solutions
+
+#### 1. Module Federation Error: "Module does not exist in container"
+
+**Error Message:**
+```
+ERROR Error: Unable to dynamically construct a component "Accelerator#FieldEditorCustomText" because the module "Accelerator" could not be found or it does not expose "FieldEditorCustomText".
+```
+
+**Solutions:**
+- **Check Component Naming**: Ensure the component name in the C# converter matches exactly with the Angular component class name and webpack exposure
+- **Verify Webpack Configuration**: Confirm the component is properly exposed in webpack.js under ModuleFederationPlugin
+- **Clear Browser Cache**: Hard refresh (Ctrl+F5 or Cmd+Shift+R) to clear cached JavaScript files
+- **Restart Application**: Restart the Litium application to ensure it picks up the new build
+- **Check Build Output**: Verify the component is included in the dist folder and remoteEntry.js
+
+#### 2. Component Not Loading
+
+**Symptoms:**
+- Field editor shows blank or error state
+- Console errors related to component loading
+
+**Solutions:**
+- **Verify Angular Module**: Ensure component is properly declared in the Angular module
+- **Check Component Export**: Verify the component is properly exported (especially for standalone components)
+- **Build Verification**: Confirm the build was successful and files are in the dist folder
+- **Network Tab**: Check that the new remoteEntry.js is being loaded
+
+#### 3. Build Errors
+
+**Common Build Issues:**
+- **TypeScript Errors**: Check for missing imports or type declarations
+- **Module Declaration Errors**: Ensure components are properly declared in the Angular module
+- **Webpack Errors**: Verify webpack configuration syntax
+
+**Solutions:**
+- **Check Dependencies**: Ensure all required packages are installed
+- **Clear Cache**: Remove node_modules/.cache and rebuild
+- **Verify Imports**: Check that all imports are correct and available
+
+#### 4. Component Architecture Issues
+
+**Standalone vs Non-Standalone Components:**
+- **Standalone Components**: Use `standalone: true` and include `imports: []` array
+- **Non-Standalone Components**: Declare in Angular module declarations array
+- **Module Federation**: Standalone components work better with module federation
+
+**Best Practices:**
+- Use standalone components for field editors when possible
+- Ensure consistent naming across all configuration files
+- Test component loading in isolation before integration

@@ -1,0 +1,340 @@
+---
+title: Tools Overview
+description: 'Complete reference of all 18 domain-based MCP tools available in the Litium Admin MCP Server'
+---
+
+## Available Tools
+
+The Litium Admin MCP Server provides **18 powerful tools** organized by **8 domains**. Each tool supports multiple operations, providing comprehensive functionality for managing your Litium e-commerce platform.
+
+<CardGroup cols={2}>
+  <Card title="Products Domain" icon="box" color="#ea5a0c">
+    6 tools for product, variant, category, assortment, price list, and relationship management
+  </Card>
+  <Card title="Content Domain" icon="file-lines" color="#0285c7">
+    2 tools for blocks and pages
+  </Card>
+  <Card title="Media Domain" icon="image" color="#16a34a">
+    1 tool for media files and folders
+  </Card>
+  <Card title="Websites Domain" icon="globe" color="#9333ea">
+    1 tool for websites and URL redirects
+  </Card>
+  <Card title="Customers Domain" icon="users" color="#f59e0b">
+    1 tool for customer management
+  </Card>
+  <Card title="Sales Domain" icon="cart-shopping" color="#dc2626">
+    1 tool for order management
+  </Card>
+  <Card title="Globalization Domain" icon="language" color="#2563eb">
+    5 tools for channels, countries, currencies, languages, and markets
+  </Card>
+  <Card title="API Info" icon="book" color="#64748b">
+    1 tool for API documentation and discovery
+  </Card>
+</CardGroup>
+
+## Tools by Domain
+
+### Products Domain (6 tools)
+
+Comprehensive product management tools for your e-commerce catalog.
+
+| Tool | Operations | Description |
+|------|-----------|-------------|
+| **`manage_product`** | search, get, create, update, delete, get_variants | Manage base products |
+| **`manage_product_variant`** | search, get, create, update, delete | Manage product variants |
+| **`manage_product_category`** | search, get, create, update, delete, get_subcategories | Manage categories and subcategories |
+| **`manage_product_assortment`** | search, get, create, update, delete, get_categories | Manage product assortments |
+| **`manage_price_list`** | search, get, create, update, delete, get_items | Manage price lists and items |
+| **`manage_relationship_type`** | list, get, create, update, delete | Manage product relationships (cross-sell, up-sell) |
+
+### Content Domain (2 tools)
+
+Tools for managing content across your Litium websites.
+
+| Tool | Operations | Description |
+|------|-----------|-------------|
+| **`manage_block`** | search, get, create, update, delete | Manage content blocks |
+| **`manage_page`** | search, get, create, update, delete, unpublish, search_drafts, get_draft, create_draft, update_draft, delete_draft, publish_draft | Manage pages (published and drafts) |
+
+### Media Domain (1 tool)
+
+Media file and folder management.
+
+| Tool | Operations | Description |
+|------|-----------|-------------|
+| **`manage_media`** | search, get, upload, download, get_folder_files, get_subfolders | Manage media files and folders |
+
+### Websites Domain (1 tool)
+
+Website and URL redirect management.
+
+| Tool | Operations | Description |
+|------|-----------|-------------|
+| **`manage_website`** | list, get, search_redirects, get_redirect, create_redirect, update_redirect, delete_redirect | Manage websites and URL redirects |
+
+### Customers Domain (1 tool)
+
+Customer management tools.
+
+| Tool | Operations | Description |
+|------|-----------|-------------|
+| **`manage_customer`** | search, get, create, update, delete | Manage customers |
+
+### Sales Domain (1 tool)
+
+Sales and order management tools.
+
+| Tool | Operations | Description |
+|------|-----------|-------------|
+| **`manage_order`** | search, get | View orders (read-only) |
+
+### Globalization Domain (5 tools)
+
+Manage globalization settings for multi-market e-commerce.
+
+| Tool | Operations | Description |
+|------|-----------|-------------|
+| **`manage_channel`** | search, get, create, update, delete | Manage channels |
+| **`manage_country`** | search, get, create, update, delete | Manage countries |
+| **`manage_currency`** | search, get, create, update, delete | Manage currencies |
+| **`manage_language`** | search, get, create, update, delete | Manage languages |
+| **`manage_market`** | search, get, create, update, delete | Manage markets |
+
+### API Info (1 tool)
+
+API documentation and endpoint discovery.
+
+| Tool | Operations | Description |
+|------|-----------|-------------|
+| **`get_api_info`** | full, quick, oauth, endpoints | Get API documentation and endpoint information |
+
+## Usage Patterns
+
+All tools follow a consistent pattern with an `operation` parameter:
+
+### Example: Manage Product
+
+```json
+// Search products
+{
+  "tool": "manage_product",
+  "arguments": {
+    "operation": "search",
+    "params": {
+      "search": "laptop",
+      "take": 10
+    }
+  }
+}
+
+// Get specific product
+{
+  "tool": "manage_product",
+  "arguments": {
+    "operation": "get",
+    "systemId": "abc-123-def"
+  }
+}
+
+// Create new product
+{
+  "tool": "manage_product",
+  "arguments": {
+    "operation": "create",
+    "data": {
+      "name": "New Product",
+      "price": 99.99
+    }
+  }
+}
+```
+
+### Common Operations
+
+Most tools support these standard operations:
+
+| Operation | Description | Required Parameters |
+|-----------|-------------|---------------------|
+| `search` | Search with filters | `params` (optional) |
+| `get` | Get by ID | `systemId` |
+| `create` | Create new | `data` |
+| `update` | Update existing | `systemId`, `data` |
+| `delete` | Delete by ID | `systemId` |
+
+### Search Parameters
+
+Search operations typically support:
+
+```json
+{
+  "search": "keyword",   // Search term (optional)
+  "skip": 0,            // Pagination offset (default: 0)
+  "take": 20,           // Results per page (default: 20)
+  "sort": "name"        // Sort field (optional)
+}
+```
+
+## Tool Categories by Use Case
+
+<Tabs>
+  <Tab title="Content Management">
+    **Primary Tools:**
+    - `manage_block` - Content blocks
+    - `manage_page` - Website pages
+    - `manage_media` - Images and files
+    
+    **Common Workflow:**
+    1. Search for content blocks
+    2. Get specific block details
+    3. Update block content
+    4. Manage media assets
+  </Tab>
+
+  <Tab title="E-commerce Operations">
+    **Primary Tools:**
+    - `manage_product` - Product catalog
+    - `manage_product_variant` - Product variations
+    - `manage_price_list` - Pricing
+    - `manage_order` - Order viewing
+    
+    **Common Workflow:**
+    1. Search for products
+    2. Update product details
+    3. Manage variants and pricing
+    4. Track order status
+  </Tab>
+
+  <Tab title="Customer Support">
+    **Primary Tools:**
+    - `manage_customer` - Customer profiles
+    - `manage_order` - Order history
+    
+    **Common Workflow:**
+    1. Find customer by email/name
+    2. View customer details
+    3. Search customer's orders
+    4. Review order information
+  </Tab>
+
+  <Tab title="Multi-Market Setup">
+    **Primary Tools:**
+    - `manage_channel` - Sales channels
+    - `manage_market` - Markets
+    - `manage_currency` - Currencies
+    - `manage_language` - Languages
+    
+    **Common Workflow:**
+    1. Configure markets
+    2. Set up currencies
+    3. Add languages
+    4. Create channels
+  </Tab>
+</Tabs>
+
+## Response Format
+
+All tools return responses in MCP format:
+
+```json
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{...}"    // JSON data
+    }
+  ]
+}
+```
+
+<Info>
+  When using AI assistants like Cursor or Claude, they automatically parse and format these responses for you.
+</Info>
+
+## Quick Reference
+
+### Most Used Tools
+
+<CardGroup cols={2}>
+  <Card title="manage_product" icon="box">
+    Primary product management tool
+  </Card>
+  <Card title="manage_customer" icon="users">
+    Essential customer lookup tool
+  </Card>
+  <Card title="manage_order" icon="receipt">
+    Order details and tracking
+  </Card>
+  <Card title="manage_block" icon="cube">
+    Key content management tool
+  </Card>
+</CardGroup>
+
+### Read-Only vs. Modify Operations
+
+<Tabs>
+  <Tab title="Read-Only Operations (Safe)">
+    These operations only retrieve data:
+    - `search` - Find resources
+    - `get` - Get by ID
+    - `list` - List all
+    - `get_*` variants (e.g., `get_variants`, `get_subcategories`)
+  </Tab>
+
+  <Tab title="Modify Operations (Use with Care)">
+    These operations change data in Litium:
+    - `create` - Add new resources
+    - `update` - Modify existing
+    - `delete` - Remove resources
+    - `unpublish` - Unpublish pages
+    - `publish_draft` - Publish drafts
+    
+    <Warning>
+      Always verify IDs before using modify operations in production!
+    </Warning>
+  </Tab>
+</Tabs>
+
+## Benefits of Domain-Based Tools
+
+The consolidated tool structure provides:
+
+1. **Fewer Tools** - 18 instead of 100+ individual tools
+2. **Consistent Interface** - All tools use the `operation` parameter
+3. **Better Organization** - Grouped by business domain
+4. **Easier Discovery** - Find related operations in one tool
+5. **Reduced Complexity** - Simpler for AI models to use
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Quick Start Guide"
+    icon="rocket"
+    href="/getting-started/quickstart"
+  >
+    Try your first tool call
+  </Card>
+  <Card
+    title="Testing Guide"
+    icon="flask"
+    href="/guides/testing"
+  >
+    Learn how to test tools
+  </Card>
+  <Card
+    title="Configuration"
+    icon="gear"
+    href="/getting-started/configuration"
+  >
+    Set up your MCP client
+  </Card>
+  <Card
+    title="Troubleshooting"
+    icon="screwdriver-wrench"
+    href="/guides/troubleshooting"
+  >
+    Common issues and solutions
+  </Card>
+</CardGroup>

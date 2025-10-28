@@ -1,0 +1,238 @@
+---
+title: Configuration
+description: 'Configure your MCP client to connect to the Litium Admin MCP Server'
+---
+
+## Overview
+
+The Litium Admin MCP Server uses **header-based credential management**, similar to the GitHub MCP server. Credentials are passed via HTTP headers with each request, ensuring maximum security.
+
+<Info>
+  Credentials are **never stored** on the server. Each request creates an isolated API service instance.
+</Info>
+
+## Cursor Configuration
+
+<Steps>
+  <Step title="Create MCP Configuration File">
+    Create or edit `.cursor/mcp.json` in your project:
+
+    ```json .cursor/mcp.json
+    {
+      "mcpServers": {
+        "litium-admin": {
+          "url": "https://your-deployment.vercel.app/api/mcp",
+          "headers": {
+            "X-Litium-Base-Url": "${input:litium_base_url}",
+            "X-Litium-Client-Id": "${input:litium_client_id}",
+            "X-Litium-Client-Secret": "${input:litium_client_secret}"
+          }
+        }
+      },
+      "inputs": [
+        {
+          "type": "promptString",
+          "id": "litium_base_url",
+          "description": "Litium instance base URL (e.g., https://demoadmin.litium.com)"
+        },
+        {
+          "type": "promptString",
+          "id": "litium_client_id",
+          "description": "Litium OAuth2 Client ID"
+        },
+        {
+          "type": "promptString",
+          "id": "litium_client_secret",
+          "description": "Litium OAuth2 Client Secret",
+          "password": true
+        }
+      ]
+    }
+    ```
+  </Step>
+
+  <Step title="Replace Deployment URL">
+    Update `https://your-deployment.vercel.app/api/mcp` with your actual Vercel deployment URL
+  </Step>
+
+  <Step title="Restart Cursor">
+    Restart Cursor to load the new MCP server configuration
+  </Step>
+
+  <Step title="Enter Credentials">
+    When prompted, enter your Litium credentials:
+    - Base URL (e.g., `https://demoadmin.litium.com`)
+    - OAuth2 Client ID
+    - OAuth2 Client Secret
+  </Step>
+</Steps>
+
+## Claude Desktop Configuration
+
+Claude Desktop requires the `mcp-remote` proxy to connect to HTTP-based MCP servers.
+
+<Steps>
+  <Step title="Locate Configuration File">
+    Find your Claude Desktop configuration file:
+
+    <Tabs>
+      <Tab title="macOS">
+        ```bash
+        ~/Library/Application Support/Claude/claude_desktop_config.json
+        ```
+      </Tab>
+      <Tab title="Windows">
+        ```bash
+        %APPDATA%\Claude\claude_desktop_config.json
+        ```
+      </Tab>
+      <Tab title="Linux">
+        ```bash
+        ~/.config/Claude/claude_desktop_config.json
+        ```
+      </Tab>
+    </Tabs>
+  </Step>
+
+  <Step title="Add MCP Server Configuration">
+    Edit the configuration file:
+
+    ```json claude_desktop_config.json
+    {
+      "mcpServers": {
+        "litium-admin": {
+          "command": "npx",
+          "args": [
+            "-y",
+            "mcp-remote",
+            "https://your-deployment.vercel.app/api/mcp"
+          ],
+          "env": {
+            "MCP_HEADER_X_LITIUM_BASE_URL": "https://demoadmin.litium.com",
+            "MCP_HEADER_X_LITIUM_CLIENT_ID": "your-client-id",
+            "MCP_HEADER_X_LITIUM_CLIENT_SECRET": "your-client-secret"
+          }
+        }
+      }
+    }
+    ```
+  </Step>
+
+  <Step title="Update Credentials">
+    Replace the placeholder values:
+    - `https://your-deployment.vercel.app/api/mcp` - Your Vercel URL
+    - `https://demoadmin.litium.com` - Your Litium instance URL
+    - `your-client-id` - Your OAuth2 Client ID
+    - `your-client-secret` - Your OAuth2 Client Secret
+  </Step>
+
+  <Step title="Restart Claude Desktop">
+    Quit and restart Claude Desktop to load the configuration
+  </Step>
+</Steps>
+
+<Warning>
+  **Security Note**: The Claude Desktop configuration stores credentials in plain text. Ensure proper file permissions are set on the config file.
+</Warning>
+
+## Local Development Configuration
+
+For local testing, use `http://localhost:3000/api/mcp` as the URL:
+
+<Tabs>
+  <Tab title="Cursor">
+    ```json .cursor/mcp.json
+    {
+      "mcpServers": {
+        "litium-admin": {
+          "url": "http://localhost:3000/api/mcp",
+          "headers": {
+            "X-Litium-Base-Url": "${input:litium_base_url}",
+            "X-Litium-Client-Id": "${input:litium_client_id}",
+            "X-Litium-Client-Secret": "${input:litium_client_secret}"
+          }
+        }
+      },
+      "inputs": [...]
+    }
+    ```
+  </Tab>
+
+  <Tab title="Claude Desktop">
+    ```json claude_desktop_config.json
+    {
+      "mcpServers": {
+        "litium-admin": {
+          "command": "npx",
+          "args": [
+            "-y",
+            "mcp-remote",
+            "http://localhost:3000/api/mcp"
+          ],
+          "env": {
+            "MCP_HEADER_X_LITIUM_BASE_URL": "https://demoadmin.litium.com",
+            "MCP_HEADER_X_LITIUM_CLIENT_ID": "your-client-id",
+            "MCP_HEADER_X_LITIUM_CLIENT_SECRET": "your-client-secret"
+          }
+        }
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Verify Configuration
+
+After configuration, verify the connection:
+
+<Tabs>
+  <Tab title="Cursor">
+    1. Open Cursor
+    2. Open the Command Palette (Cmd/Ctrl+Shift+P)
+    3. Type "MCP" and select "MCP: List Tools"
+    4. You should see all 18 Litium Admin tools listed
+  </Tab>
+
+  <Tab title="Claude Desktop">
+    1. Open Claude Desktop
+    2. Start a new conversation
+    3. Type: "List available MCP tools"
+    4. Claude should list the Litium Admin tools
+  </Tab>
+</Tabs>
+
+## Custom Headers
+
+The server recognizes these custom headers:
+
+<ParamField header="X-Litium-Base-Url" type="string" required>
+  Your Litium instance base URL (e.g., `https://demoadmin.litium.com`)
+</ParamField>
+
+<ParamField header="X-Litium-Client-Id" type="string" required>
+  OAuth2 client ID for API authentication
+</ParamField>
+
+<ParamField header="X-Litium-Client-Secret" type="string" required>
+  OAuth2 client secret for API authentication
+</ParamField>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Authentication Setup"
+    icon="lock"
+    href="/getting-started/authentication"
+  >
+    Learn about OAuth2 credentials
+  </Card>
+  <Card
+    title="Quick Start"
+    icon="rocket"
+    href="/getting-started/quickstart"
+  >
+    Try your first tool call
+  </Card>
+</CardGroup>
+

@@ -1,0 +1,56 @@
+---
+title: manage_product_category
+description: 'Manage product categories and subcategories'
+---
+
+## Overview
+
+Manage product categories and navigate category hierarchies. Operations: search, get, create, update, delete, get_subcategories.
+
+## Operations
+
+- `search` - Search for categories
+- `get` - Get category by ID
+- `create` - Create a new category
+- `update` - Update an existing category
+- `delete` - Delete a category
+- `get_subcategories` - Get child categories
+
+## Examples
+
+### Get Subcategories
+
+<CodeGroup>
+```json JSON-RPC
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "manage_product_category",
+    "arguments": {
+      "operation": "get_subcategories",
+      "systemId": "1d5e9711-c4d1-47ae-82da-318450a9d48f"
+    }
+  },
+  "id": 1
+}
+```
+
+```text Natural Language
+"Show me subcategories of the Man category"
+```
+</CodeGroup>
+
+**Tested Example**:
+- ✅ Category `1d5e9711-c4d1-47ae-82da-318450a9d48f` (Man) has 5 subcategories: Accessories, Bottoms, Shoes, Tops, Underwear
+
+### Navigate Category Hierarchy
+
+You can combine `get_subcategories` with `manage_product` to navigate and retrieve products:
+
+1. **Get subcategories**: Category `1d5e9711-c4d1-47ae-82da-318450a9d48f` (Man)
+2. **Find "Tops" subcategory**: `c3ef7d35-9437-495a-a4f0-b673a0366413`
+3. **Get products in "Tops"**: Use `manage_product_assortment` with `get_categories` operation
+
+**Tested Navigation**:
+- ✅ Man → Tops → 7 products (e.g., M Windtherm Hood, M Windtherm Jacket)

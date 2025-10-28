@@ -1,7 +1,7 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Litium Admin MCP Server",
+  "name": "Litium Platform Documentation",
   "logo": {
     "light": "/logo/logo-black.svg",
     "dark": "/logo/logo-white.svg"
@@ -15,31 +15,147 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Documentation",
+        "tab": "Platform",
         "groups": [
           {
-            "group": "Get Started",
+            "group": "Getting Started",
             "pages": [
               "introduction",
-              "getting-started/installation",
-              "getting-started/configuration",
-              "getting-started/authentication",
-              "getting-started/quickstart"
-            ]
-          },
-          {
-            "group": "Guides",
-            "pages": [
-              "guides/deployment",
-              "guides/testing",
-              "guides/troubleshooting"
+              "platform/overview"
             ]
           },
           {
             "group": "How to",
             "pages": [
-              "how-to/create-custom-panel",
-              "how-to/create-custom-field-types"
+              "mcp-servers/admin/how-to/create-custom-panel",
+              "mcp-servers/admin/how-to/create-custom-field-types"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Accelerators",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "accelerators/overview"
+            ]
+          },
+          {
+            "group": "React Accelerator",
+            "pages": [
+              "accelerators/react/overview"
+            ]
+          },
+          {
+            "group": "MVC Accelerator",
+            "pages": [
+              "accelerators/mvc/overview"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Apps",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "apps/overview"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "MCP Servers",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "mcp-servers/overview"
+            ]
+          },
+          {
+            "group": "Admin MCP Server",
+            "pages": [
+              "mcp-servers/admin/introduction",
+              "mcp-servers/admin/getting-started/installation",
+              "mcp-servers/admin/getting-started/configuration",
+              "mcp-servers/admin/getting-started/authentication",
+              "mcp-servers/admin/getting-started/quickstart",
+              {
+                "group": "Guides",
+                "pages": [
+                  "mcp-servers/admin/guides/deployment",
+                  "mcp-servers/admin/guides/testing",
+                  "mcp-servers/admin/guides/troubleshooting"
+                ]
+              },
+              {
+                "group": "Tools Reference",
+                "pages": [
+                  "mcp-servers/admin/tools/overview",
+                  {
+                    "group": "Products Domain",
+                    "pages": [
+                      "mcp-servers/admin/tools/products/manage-product",
+                      "mcp-servers/admin/tools/products/manage-product-variant",
+                      "mcp-servers/admin/tools/products/manage-product-category",
+                      "mcp-servers/admin/tools/products/manage-product-assortment",
+                      "mcp-servers/admin/tools/products/manage-price-list",
+                      "mcp-servers/admin/tools/products/manage-relationship-type"
+                    ]
+                  },
+                  {
+                    "group": "Content Domain",
+                    "pages": [
+                      "mcp-servers/admin/tools/content/manage-block",
+                      "mcp-servers/admin/tools/content/manage-page"
+                    ]
+                  },
+                  {
+                    "group": "Media Domain",
+                    "pages": [
+                      "mcp-servers/admin/tools/media/manage-media"
+                    ]
+                  },
+                  {
+                    "group": "Websites Domain",
+                    "pages": [
+                      "mcp-servers/admin/tools/websites/manage-website"
+                    ]
+                  },
+                  {
+                    "group": "Customers Domain",
+                    "pages": [
+                      "mcp-servers/admin/tools/customers/manage-customer"
+                    ]
+                  },
+                  {
+                    "group": "Sales Domain",
+                    "pages": [
+                      "mcp-servers/admin/tools/sales/manage-order"
+                    ]
+                  },
+                  {
+                    "group": "Globalization Domain",
+                    "pages": [
+                      "mcp-servers/admin/tools/globalization/manage-channel",
+                      "mcp-servers/admin/tools/globalization/manage-country",
+                      "mcp-servers/admin/tools/globalization/manage-currency",
+                      "mcp-servers/admin/tools/globalization/manage-language",
+                      "mcp-servers/admin/tools/globalization/manage-market"
+                    ]
+                  },
+                  {
+                    "group": "API Info",
+                    "pages": [
+                      "mcp-servers/admin/tools/api-info/get-api-info"
+                    ]
+                  }
+                ]
+              }
             ]
           }
         ]
@@ -48,67 +164,50 @@
         "tab": "API Reference",
         "groups": [
           {
-            "group": "Tools Overview",
+            "group": "APIs",
             "pages": [
-              "tools/overview"
-            ]
-          },
-          {
-            "group": "Products Domain",
-            "pages": [
-              "tools/products/manage-product",
-              "tools/products/manage-product-variant",
-              "tools/products/manage-product-category",
-              "tools/products/manage-product-assortment",
-              "tools/products/manage-price-list",
-              "tools/products/manage-relationship-type"
-            ]
-          },
-          {
-            "group": "Content Domain",
-            "pages": [
-              "tools/content/manage-block",
-              "tools/content/manage-page"
-            ]
-          },
-          {
-            "group": "Media Domain",
-            "pages": [
-              "tools/media/manage-media"
-            ]
-          },
-          {
-            "group": "Websites Domain",
-            "pages": [
-              "tools/websites/manage-website"
-            ]
-          },
-          {
-            "group": "Customers Domain",
-            "pages": [
-              "tools/customers/manage-customer"
-            ]
-          },
-          {
-            "group": "Sales Domain",
-            "pages": [
-              "tools/sales/manage-order"
-            ]
-          },
-          {
-            "group": "Globalization Domain",
-            "pages": [
-              "tools/globalization/manage-channel",
-              "tools/globalization/manage-country",
-              "tools/globalization/manage-currency",
-              "tools/globalization/manage-language",
-              "tools/globalization/manage-market"
-            ]
-          },
-          {
-            "group": "API Info",
-            "pages": [
-              "tools/api-info/get-api-info"
+              "apis/overview",
+              {
+                "group": "Admin Web API",
+                "openapi": "specs/litium-admin-openapi.json",
+                "pages": [
+                  "apis/admin-web-api/overview"
+                ]
+              },
+              {
+                "group": "Connect APIs",
+                "pages": [
+                  "apis/connect/overview",
+                  {
+                    "group": "ERP API",
+                    "openapi": "specs/litium-connect-erp-openapi.json",
+                    "pages": [
+                      "apis/connect/erp-api/overview"
+                    ]
+                  },
+                  {
+                    "group": "Payment API",
+                    "openapi": "specs/litium-connect-payment-openapi.json",
+                    "pages": [
+                      "apis/connect/payment-api/overview"
+                    ]
+                  },
+                  {
+                    "group": "Shipment API",
+                    "openapi": "specs/litium-connect-shipment-openapi.json",
+                    "pages": [
+                      "apis/connect/shipment-api/overview"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "Extension Management API",
+                "openapi": "specs/litium-extension-management-openapi.json",
+                "pages": [
+                  "apis/extension-management-api/overview"
+                ]
+              }
             ]
           }
         ]
@@ -135,34 +234,31 @@
         "label": "GitHub",
         "href": "https://github.com/tonnguyen/litium-admin-mcp-server"
       }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Deploy to Vercel",
-      "href": "https://vercel.com/new/clone?repository-url=https://github.com/tonnguyen/litium-admin-mcp-server"
-    }
+    ]
   },
   "footer": {
     "socials": {
-      "github": "https://github.com/tonnguyen/litium-admin-mcp-server",
-      "x": "https://twitter.com/litium"
+      "github": "https://github.com/tonnguyen/litium-admin-mcp-server"
     }
   },
-  "analytics": {
-    "ga4": {
-      "measurementId": "G-XXXXXXXXXX"
+  "api": {
+    "playground": {
+      "display": "interactive",
+      "proxy": true
+    },
+    "examples": {
+      "languages": ["javascript", "curl"],
+      "prefill": true
     }
   },
- "contextual": {
-   "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
- }
+  "contextual": {
+    "options": [
+      "copy",
+      "chatgpt",
+      "claude",
+      "mcp",
+      "cursor",
+      "vscode"
+    ]
+  }
 }

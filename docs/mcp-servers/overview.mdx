@@ -1,0 +1,116 @@
+---
+title: MCP Servers Overview
+description: 'Model Context Protocol servers for AI-powered Litium integration'
+---
+
+## What are MCP Servers?
+
+Model Context Protocol (MCP) servers provide AI assistants like Claude and Cursor with programmatic access to Litium's APIs. They act as intelligent bridges between AI models and your Litium platform, enabling natural language interactions with your e-commerce data.
+
+<CardGroup cols={2}>
+  <Card
+    title="Admin MCP Server"
+    icon="shield-halved"
+    href="/mcp-servers/admin/introduction"
+  >
+    AI-powered admin operations and platform management
+  </Card>
+  <Card
+    title="Getting Started"
+    icon="rocket"
+    href="/mcp-servers/admin/getting-started/installation"
+  >
+    Deploy and configure your first MCP server
+  </Card>
+</CardGroup>
+
+## Available MCP Servers
+
+<AccordionGroup>
+  <Accordion title="Admin MCP Server" icon="shield-halved">
+    **Full platform management via AI**
+    
+    Provides 18 domain-based tools across:
+    - Products (search, create, update)
+    - Content (blocks, pages)
+    - Media management
+    - Customer operations
+    - Order processing
+    - Globalization settings
+    
+    [Get started →](/mcp-servers/admin/introduction)
+  </Accordion>
+  
+  <Accordion title="Future MCP Servers" icon="plus">
+    **Coming soon:**
+    
+    - **Connect ERP MCP** - AI-powered ERP integration
+    - **Extension Management MCP** - Platform extension control
+    
+    These will provide specialized AI access to each Connect API.
+  </Accordion>
+</AccordionGroup>
+
+## How MCP Servers Work
+
+```mermaid
+graph LR
+    A[AI Assistant<br/>Claude/Cursor] -->|Natural Language| B[MCP Server]
+    B -->|OAuth2| C[Litium API]
+    C -->|JSON Response| B
+    B -->|Structured Data| A
+```
+
+<Steps>
+  <Step title="Deploy">
+    Deploy the MCP server to Vercel or your preferred platform
+  </Step>
+  <Step title="Configure">
+    Set up OAuth2 credentials and API endpoints
+  </Step>
+  <Step title="Connect">
+    Configure your AI assistant to use the MCP server
+  </Step>
+  <Step title="Interact">
+    Use natural language to manage your Litium platform
+  </Step>
+</Steps>
+
+## Benefits
+
+<CardGroup cols={2}>
+  <Card title="Natural Language Interface" icon="comments">
+    Ask questions and give commands in plain English
+  </Card>
+  <Card title="Secure Access" icon="lock">
+    OAuth2 authentication with no credential storage
+  </Card>
+  <Card title="Real-time Operations" icon="bolt">
+    Direct API access without intermediate steps
+  </Card>
+  <Card title="Scalable Architecture" icon="server">
+    Serverless deployment with automatic scaling
+  </Card>
+</CardGroup>
+
+## Getting Started
+
+Ready to set up your first MCP server? Start with the Admin MCP Server:
+
+<CardGroup cols={3}>
+  <Card title="Installation" icon="download" href="/mcp-servers/admin/getting-started/installation">
+    Deploy to Vercel
+  </Card>
+  <Card title="Configuration" icon="gear" href="/mcp-servers/admin/getting-started/configuration">
+    Set up authentication
+  </Card>
+  <Card title="Quick Start" icon="play" href="/mcp-servers/admin/getting-started/quickstart">
+    First commands
+  </Card>
+</CardGroup>
+
+## Support
+
+- [GitHub Issues](https://github.com/tonnguyen/litium-admin-mcp-server/issues) - Report bugs or request features
+- [MCP Specification](https://modelcontextprotocol.io/) - Learn about Model Context Protocol
+- [Discord Community](https://discord.gg/litium) - Get help from the community

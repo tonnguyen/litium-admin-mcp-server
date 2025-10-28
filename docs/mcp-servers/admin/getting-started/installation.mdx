@@ -1,0 +1,173 @@
+---
+title: Installation
+description: 'Install and set up the Litium Admin MCP Server'
+---
+
+## Prerequisites
+
+Before you begin, ensure you have the following:
+
+<CardGroup cols={2}>
+  <Card title="Node.js 18+" icon="node-js">
+    Download from [nodejs.org](https://nodejs.org/)
+  </Card>
+  <Card title="Litium Instance" icon="shop">
+    Access to a Litium e-commerce instance
+  </Card>
+  <Card title="OAuth2 Credentials" icon="key">
+    Client ID and Secret from Litium
+  </Card>
+  <Card title="MCP Client" icon="robot">
+    Cursor, Claude Desktop, or another MCP client
+  </Card>
+</CardGroup>
+
+## Installation Methods
+
+<Tabs>
+  <Tab title="Deploy to Vercel (Recommended)">
+    The easiest way to get started is to deploy directly to Vercel:
+
+    <Steps>
+      <Step title="Click Deploy Button">
+        Click the "Deploy with Vercel" button:
+        
+        [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/tonnguyen/litium-admin-mcp-server)
+      </Step>
+      
+      <Step title="Connect GitHub">
+        Connect your GitHub account and choose a repository name
+      </Step>
+      
+      <Step title="Deploy">
+        Click "Deploy" - no environment variables needed!
+      </Step>
+      
+      <Step title="Get Your URL">
+        Once deployed, copy your Vercel URL (e.g., `https://your-app.vercel.app`)
+      </Step>
+    </Steps>
+
+    <Note>
+      The server uses header-based authentication, so no environment variables are required for deployment.
+    </Note>
+  </Tab>
+
+  <Tab title="Local Development">
+    For local development and testing:
+
+    ```bash
+    # Clone the repository
+    git clone https://github.com/tonnguyen/litium-admin-mcp-server.git
+    cd litium-admin-mcp-server
+
+    # Install dependencies
+    npm install
+
+    # Start the development server
+    npm run dev
+    ```
+
+    The server will be available at `http://localhost:3000`
+
+    <Info>
+      The MCP endpoint is at `http://localhost:3000/api/mcp`
+    </Info>
+  </Tab>
+
+  <Tab title="Docker">
+    Run the server using Docker:
+
+    ```bash
+    # Pull the image (when available)
+    docker pull litium/admin-mcp-server:latest
+
+    # Or build locally
+    docker build -t litium-admin-mcp-server .
+
+    # Run the container
+    docker run -p 3000:3000 litium-admin-mcp-server
+    ```
+
+    Access the server at `http://localhost:3000`
+  </Tab>
+</Tabs>
+
+## Verify Installation
+
+Once installed, verify the server is running:
+
+<CodeGroup>
+```bash cURL
+curl -X POST http://localhost:3000/api/mcp \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{"jsonrpc":"2.0","method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0.0"}},"id":1}'
+```
+
+```bash Postman
+POST http://localhost:3000/api/mcp
+Content-Type: application/json
+Accept: application/json
+
+{
+  "jsonrpc": "2.0",
+  "method": "initialize",
+  "params": {
+    "protocolVersion": "2024-11-05",
+    "capabilities": {},
+    "clientInfo": {
+      "name": "test",
+      "version": "1.0.0"
+    }
+  },
+  "id": 1
+}
+```
+</CodeGroup>
+
+You should receive a JSON-RPC response with server information.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Configure MCP Client"
+    icon="gear"
+    href="/getting-started/configuration"
+  >
+    Set up Cursor or Claude Desktop
+  </Card>
+  <Card
+    title="Set Up Authentication"
+    icon="lock"
+    href="/getting-started/authentication"
+  >
+    Configure OAuth2 credentials
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Port 3000 already in use">
+    Change the port by setting the `PORT` environment variable:
+    ```bash
+    PORT=3001 npm run dev
+    ```
+  </Accordion>
+
+  <Accordion title="Installation fails">
+    Try clearing npm cache and reinstalling:
+    ```bash
+    npm cache clean --force
+    rm -rf node_modules package-lock.json
+    npm install
+    ```
+  </Accordion>
+
+  <Accordion title="Vercel deployment fails">
+    Ensure your repository is public or you have proper permissions. Check the Vercel deployment logs for specific errors.
+  </Accordion>
+</AccordionGroup>
+
