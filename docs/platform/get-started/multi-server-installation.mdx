@@ -1,0 +1,39 @@
+---
+title: "Multi-server installation"
+description: "Please read the system requirements to verify the compatibility of the hosting environment and the Litium system before installing Litium."
+---
+Components required in a multi-server environment and how these are installed.
+
+Please read the [system requirements](/platform/guides/upgrade-to-litium-8/upgrade-the-platform-solution/dotnet-upgrade) to verify the compatibility of the hosting environment and the Litium system before installing Litium.
+
+This article describes the extra components required in a multi-server environment, for example a web farm or multiple developer computers using the same database.
+
+## Service bus
+
+When you have multiple applications running in a web farm, the applications need to communicate with each other. For this purpose, a service bus is used. The service bus replicates events to multiple Litium applications running on the same server, or on multiple servers.
+
+## Distributed caching 
+
+Distributed caching can be applied to single or multiple Litium applications running on the same server, or on multiple servers, to reduce the memory usage. The distributed cache is located outside the Litium application, and the cache is shared by multiple applications.
+
+The distributed cache is available by injecting the _IDistributedCache_ interface.
+
+It is also possible to inject and use the _DistributedMemoryCacheService._ This cache service uses a hybrid solution where data is stored both in memory cache that is configured per entity type as well as in a distributed cache without expiration.
+
+An example on how to implement the _DistributedMemoryCacheService_ with Redis can be found in [Litium developer training material](https://github.com/LitiumAB/Education/tree/litium-8/Developer%20Education/Tasks/Redis).
+
+## Distributed concurrency lock
+
+Use a distributed concurrency lock to avoid concurrent update problems and ensure that an operation only is executed in one of multiple applications at the same time. Default implementation for distributed concurrency lock is using the common storage for files.
+
+The distributed concurrency lock is available by injecting the _DistributedLockService_ and use the service to wrap the locked code in a using-statement:
+
+using (\_distributedLockService.AcquireLock(key, TimeSpan.FromSeconds(10)))
+{
+    // work with the locked item
+    // ...
+}
+
+An example on how to implement the _DistributedLockService_ with Redis can be found in [Litium developer training material](https://github.com/LitiumAB/Education/tree/litium-8/Developer%20Education/Tasks/Redis).
+
+In Litium 8, Redis should be used as it supports the service bus, distributed caching, and distributed concurrency lock. The installation is described in the link down below.

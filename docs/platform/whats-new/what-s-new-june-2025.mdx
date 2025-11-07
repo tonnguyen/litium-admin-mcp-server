@@ -1,0 +1,86 @@
+---
+title: "What's new June 2025"
+description: "We are excited to introduce the new June version of Litium, a release packed with powerful enhancements to improve usability, a new Litium connect taxes api, strengthen integrations across the e-commerce ecosystem and introducing safe order editing with the new framework admin actions."
+---
+
+We are excited to introduce the new June version of Litium, a release packed with powerful enhancements to improve usability, a new Litium connect taxes api, strengthen integrations across the e-commerce ecosystem and introducing safe order editing with the new framework admin actions.
+
+We are excited to introduce the new June version of Litium, a release packed with powerful enhancements to improve usability, a new Litium connect taxes api, strengthen integrations across the e-commerce ecosystem and introducing safe order editing with the new framework admin actions.
+ 
+Litium 8.23
+Edit orders and admin actions
+
+Ability for administrators to edit orders
+Ability to add admin actions to modify a confirmed order
+Ability to edit billing and shipping address of a confirmed order
+Ability to add discount to an order on the edit order page
+
+Improved search
+
+Improved organizations search
+Improved ability for users to manage large volumes in the organization search result
+Improved media search
+Improved ability for users to manage large volumes in the media search result
+
+ 
+React accelerator
+
+Improved display of fees, discounts, tax and VAT of the cart on the checkout page
+
+ 
+New: Litium connect taxes API
+
+Ability to support external tax calculations
+
+ 
+With this version we introduce a new concept to Litium that we call admin actions. Admin actions are designed to enable the system to validate a change to an entity before the change is persisted. This validation can either occur internally in the Litium solution, or externally in a Litium app. This gives the system the ability to allow changes to enteties in Litium while making sure that those changes are accepted in all integrated external systems, ie the ERP system, payment provider and TMS system. With admin actions we enable users to work with entities in Litium while maintaining the data integrity and operational consistency that is required in the modern, integrated e-com ecosystem.
+In Litium 8.23 support for admin actions are implemented for the sales order entity. This enables us to allow administrators working in Litium backoffice to make changes to confirmed orders. Those changes are then validated by the relevant apps registered in Litium. Each app can either refuse or accept the change. Only when the changes have been accepted by the apps are they persisted in Litium.
+We believe this ability gives Litium a very powerful position at the center of our customers everyday operations.
+Read more about admin action
+ 
+Ability for administrators to edit orders
+With the new Admin actions in Litium it is possible to make changes to a confirmed order. To make the Admin actions available to the administrator working with orders in Litium backoffice we are adding a edit page that can be opened from the order details page. On the edit page the admin can make changes, review their impact on the order as well as save the changes to update the order.
+ 
+Ability to add admin actions to modify a confirmed order
+When working with orders there is a need to edit a already placed order, e.g. in customer service scenarios. However, the changes to an order need to be kept in sync with the external systems that are part of the order process, i.e. ERP, PSP and TMS systems.
+With this feature we introduce the ability to edit a confirmed order by adding admin actions to the order. Each admin action represents a specific change to the order., eg "change delivery address". Multiple admin actions can be added to the same order and are handled in batches. When an admin action is added to an order it is always added to the open batch. Once all admin actions have been added, the batch is committed. At this stage the external systems are notified of the requested changes to the order. Each external system is able to either accept or reject the batch of admin actions. If any external system rejects the batch, the user is given the option to either retry, discard the changes or save the changes in Litium.
+The available admin actions in the first release are "change delivery address", "change billing address" and "add discount to order". Additional admin actions will be added in future releases.
+ 
+Ability to edit billing and shipping address of a confirmed order
+With this ability it is possible to edit the billing and shipping address of an order in Litium's backoffice. The editing of addresses is enabled only if the associated ERP, payment and shipment apps allow it.
+ 
+Ability to add discount to an order on the edit order page
+As an admin working with editing confirmed orders, there are often a need to add a discount to an existing order. With this feature we add this ability to the edit order page in Litium backoffice.
+ 
+Improved organizations search
+As an administrator managing a large number of organizations, it is crucial to quickly locate the relevant organizations for your tasks.
+With this improvement, the search field is open directly when entering the page. Less clicks, faster and more efficient.
+
+ 
+Improved ability for users to manage large volumes in the organization search result
+Displaying large datasets at once overwhelms users, increases load times, and creates a cluttered experience. Endless scrolling can make navigation uncontrolled and inefficient, and lead to frustration.
+To manage high volumes we are introducing paginated lists. Pagination organizes data into manageable chunks, improving performance, usability, and scalability. It reduces cognitive load, provides clear navigation controls, and supports accessibility. By structuring content into pages, pagination ensures the interface remains fast, intuitive, and user-friendly, delivering a better experience for users managing large datasets.
+ 
+
+ 
+Improved media search
+As an administrator managing a large number of media, it is crucial to quickly locate the relevant media for your tasks.
+With this improvement, you are taken to the media list directly when entering the Media module, where you can search for media immediately. Less clicks, faster and more efficient.
+ 
+Improved ability for users to manage large volumes in the media search result
+Displaying large datasets at once overwhelms users, increases load times, and creates a cluttered experience. Endless scrolling can make navigation uncontrolled and inefficient, and lead to frustration.
+To manage high volumes we are introducing paginated lists. Pagination organizes data into manageable chunks, improving performance, usability, and scalability. It reduces cognitive load, provides clear navigation controls, and supports accessibility. By structuring content into pages, pagination ensures the interface remains fast, intuitive, and user-friendly, delivering a better experience for users managing large datasets.
+ 
+ 
+Improved display of fees, discounts, tax and VAT of the cart on the checkout page
+The cart displayed on the checkout page is lacking some information that makes it harder for the buyer to understand the total amount to pay. To improve the checkout experience we now display all fees in the cart, display prices excl VAT if that is selected and exclude product discounts from the discount summary row.  
+ 
+ 
+Ability to support external tax calculations
+With this feature the platform support apps to calculate taxes other than VAT to be added to an order in Litium.
+Read more about Litium connect taxes API
+ 
+All bug fixes and smaller improvements are found in the release notes.
+See the release notes here
+
+[Back to what's new](/platform/whats-new)

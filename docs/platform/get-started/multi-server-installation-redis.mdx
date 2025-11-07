@@ -1,0 +1,49 @@
+---
+title: "Redis"
+description: "Redis is an open-source (BSD licensed), in-memory data structure store, used as a database, cache, and message broker."
+---
+Redis is an open-source (BSD licensed), in-memory data structure store, used as a database, cache, and message broker.
+
+Litium uses Redis for:
+
+- [Service bus](https://redis.io/topics/pubsub) 
+    
+
+- [Distributed caching](/platform/architecture/distributed-caching) 
+    
+- [Distributed concurrency lock](https://redis.io/topics/distlock)
+    
+
+Litium is tested with Redis version 5.0.5, other versions may work but are not tested.
+
+## Installation 
+
+Redis is included in Litium Accelerator from version 8 but for older versions, packages for Redis can be installed from Litium's NuGet feed.
+
+[Install the package](/platform/get-started/shared-dependencies-installing-a-nuget-package) below in the MVC project:
+
+Litium.Web.Setup.Redis
+
+### Configuration
+
+The implementation contains both service bus and distributed caching. Add connection strings for the Redis-features that should be activated in appsettings.json.
+
+The configuration is under Litium / Redis section
+
+- _prefix_: the prefix of Redis cache.
+- _cache / connectionString_: the connection string for Redis cache.
+- _distributedLock/ connectionString_: the connection string for Redis distributed lock.
+- _serviceBus/ connectionString_: the connection string for Redis service Bus.
+
+"Redis": {
+      "Prefix": null,
+      "Cache": {
+        "ConnectionString": null,
+      },
+      "DistributedLock": {
+        "ConnectionString": null,
+      },
+      "ServiceBus": {
+        "ConnectionString": null,
+      }
+    }

@@ -1,0 +1,53 @@
+---
+title: "Upgrade to Litium 8"
+description: "Below you will find step-by-step instructions on one way to upgrade to Litium 8 from previous Litium versions, including how to prepare for an upgrade, how to upgrade, and how to go live with an upgraded project. Please also see the documentation on different upgrade paths to take."
+---
+Litium 8 comes with significant changes and major improvements.
+
+Below you will find step-by-step instructions on one way to upgrade to Litium 8 from previous Litium versions, including how to prepare for an upgrade, how to upgrade, and how to go live with an upgraded project. Please also see the documentation on [different upgrade paths](/platform/guides/upgrade-to-litium-8-upgrade-alternatives) to take. 
+
+### Preparatory information 
+
+1\. Read through the instructions on this page to get an overview of how to upgrade to Litium 8, and go live. 
+
+2\. Go through the [before upgrading documentation](/platform/guides/upgrade-to-litium-8-before-upgrading) to get an idea of the scope of an upgrade to Litium 8, from reference documentation of [changes from version to version of Litium](https://docs.litium.com/documentation/upgrade-to-litium-8/before-upgrading#), [changes to consider before migrating sales data](https://docs.litium.com/documentation/upgrade-to-litium-8/before-upgrading/sales-in-litium-8), including discounts and state transitions, and general things to consider [before you upgrade a solution with integrations](https://docs.litium.com/documentation/upgrade-to-litium-8/before-upgrading/integrations).  
+
+3. The [before upgrading documentation](/platform/guides/upgrade-to-litium-8-before-upgrading) should help you determine when an upgrade can be performed. 
+
+4\. Choose an [upgrade path](/platform/guides/upgrade-to-litium-8-upgrade-alternatives). 
+
+### Upgrade to Litium 8
+
+1. Run the [Litium independent script](/platform/guides/upgrade-to-litium-8-upgrade-the-platform-solution-independent-script) to check whether there are still payments pending.
+
+2\. Back up the database and any other files.
+
+3\. Restore the backup to a development environment.
+
+4. When you are upgrading from Litium 5 (read about upgrade to Litium 6 [here](/platform/previous-versions/litium-6/upgrading-to-litium-6)) or from early versions of Litium 6 you have to upgrade first to the latest version of Litium 6 and run the BO a while so that the media files on the disk will be moved to the new folder structure with correct file names.
+
+When the migration of the files is finished a row with Key = "mediamigration-correctblobnames" and ItemJson = "true" will be added to the Common.Setting table in the database.
+
+5\. Upgrade the [solution code](/platform/guides/upgrade-to-litium-8-upgrade-the-platform-solution), including configuring the [Litium app proxy](/platform/guides/upgrade-to-litium-8-upgrade-the-platform-solution-litium-app-proxy), and upgrade the [database](/platform/guides/upgrade-to-litium-8-upgrade-the-database), including running the [scripts for State mapping](/platform/guides/upgrade-to-litium-8-state-mapping). 
+
+### Go live
+
+1\. Close the checkout page to prevent new orders from being placed. 
+
+2\. Close down all integrations to prevent product updates from the ERP, and information such as an order being ready to be shipped, and for monetary transactions to be made. 
+
+3\. After closing down all integrations, please wait 10-15 minutes to proceed, to prevent pending payments from remaining in the system. 
+
+4\. Run the [Litium independent script](/platform/guides/upgrade-to-litium-8-upgrade-the-platform-solution-independent-script) to check whether there are still payments pending. Should there be a pending payment captured, the upgrade must be halted until there are no pending payments in the system. 
+
+5\. Close down the site that will be upgraded, and re-direct customers to a temporary webpage. 
+
+6\. Restore a new version of the production database to a new production database.
+
+7\. Upgrade the new production database to Litium 8.
+
+8\. Start the site with the new code.
+
+9\. Test functions on the site, as deemed necessary.
+
+10\. Allow access to all visitors.

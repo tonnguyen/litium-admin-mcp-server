@@ -1,0 +1,78 @@
+---
+title: "Empty web project"
+description: "Follow the steps below to install the latest version of the Empty project."
+---
+Installation instructions for Litium Empty Web. project
+
+Follow the steps below to install the latest version of the Empty project.
+
+### Before you start
+
+Before Litium Empty project is installed you need to set up the [Litium NuGet feed](/platform/get-started/litium-packages).
+
+Also, set up Elasticsearch, Redis, and Kibana. Please see the [setup instructions here](/platform/get-started/shared-dependencies).
+
+Use a [version control system](/accelerators/mvc-accelerator/upgrade-and-maintenance) for easy upgrades of Litium Accelerator.
+
+### Install the template package
+
+The Litium Empty template package is a pre-created package_._ 
+
+Installation of the template package is only needed the first time the version is created. 
+
+Only one version of the template package can exist at the same time.
+
+1.  Open Powershell command prompt
+2.  Install the template pack with
+    
+    dotnet new --install "Litium.Empty.Templates"
+    
+    After the template is installed, a list of available templates is shown_Note: To update the template to a later version, you should run the installation command again._  
+      
+    If you want to install a specific version of the template you need to append the version number to the template name separated by two colons (::) example for template for the 8.15.0 version
+    
+    dotnet new --install "Litium.Empty.Templates::8.15.0"
+    
+
+## Install and run Litium Empty Web
+
+1.  Open the Powershell command prompt in the folder where the Accelerator should be installed.
+2.  Install the Litium Accelerator with the following ​command.
+    
+    dotnet new litemptyweb
+    
+    To include the Storefront API in the installation you need to add the _\--storefront-api_ to the commando 
+    
+    dotnet new litemptyweb --storefront-api
+    
+    During the creation of Litium Accelerator, the restore of projects and installation of _litium-db_ tool are performed.  
+      
+    [If the installation is performed without errors, continue to step 3](#step 3).  
+      
+    Manually restore the project's dependencies
+    
+    dotnet tool restore
+    dotnet restore
+    
+    Manually install _litium-db_ tool
+    
+    dotnet new tool-manifest 
+    dotnet tool install Litium.Application.Migrations
+    
+      
+    Please find more information about database management and [how to install specific versions of the db-tool here](/platform/get-started/developer-tools-db-tool). 
+3.  Setup the database with help of the _litium-db_ tool. Using the command _(**Note!** A empty database must exist before the command can run_)
+    
+    dotnet litium-db update --connection "Pooling=true;User Id=user;Password=secret;Database=litium8;Server=127.0.0.1;TrustServerCertificate=True"
+    
+    _Remember to replace the settings in the connectionstring for your database._
+4.  Config your Litium Accelerator installation.  
+      
+    See [.Net configuration](http://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/), where you should put common non secret settings for the project (appSettings.json, appSettings.Development.json, and appSettings.Production.json),  [user-secrets should be used for development configuration and local secrets](https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets?view=aspnetcore-5.0&tabs=windows).
+    
+
+## Secure connection (SSL)
+
+Every page should use a secure connection. By setting the HSTS (Http Strict Transport Security) for the domain name, we force the website to use HTTPS instead of HTTP. To configure HSTS, navigate to **Settings** > **Globalization** > **Domain names**, select a domain name, click **Edit** and then choose to edit **HSTS max age** to a value greater than 0.  
+  
+[From Qualys](https://blog.qualys.com/vulnerabilities-threat-research/2016/03/28/the-importance-of-a-proper-http-strict-transport-security-implementation-on-your-web-server) it is advisable to assign the max-age directive’s value to be greater than 10368000 seconds (120 days) and ideally to 31536000 (one year). Websites should aim to ramp up the max-age value to ensure heightened security for a long duration for the current domain and/or subdomains.

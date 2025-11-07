@@ -1,0 +1,64 @@
+---
+title: "Author page"
+description: "Create a new page template to display author information"
+---
+Create a new page template to display author information
+
+## Create the author template
+
+To keep things simple you will create your new template as a copy of the existing _Article_\-template.
+
+## Allow automated template updates from code
+
+In a default installation the templates are only being generated from code the first time the application starts. To make Litium update templates from their coded definition on **every** startup you need to adjust the check that is done in `DefinitionSetup`.
+
+1.  Open `\Src\Litium.Accelerator\Definitions\DefinitionSetup.cs`
+2.  In the method `InitTemplates()` locate the `IsAlreadyExecutedCheck` and just comment out `continue`, now your template will update from code on every restart and any change made in code will be visible on the template after restart.
+
+**Important!** Making this change will also revert any change made to a template in Litium backoffice to the code-version on every restart.
+
+## Create the definitions that will generate the template on startup
+
+The template is what defines which fields that are avaliable when a Author page is created.
+
+1.  Add `Author` to `Litium.Accelerator.Constants.PageTemplateNameConstants`
+2.  Copy `\Src\Litium.Accelerator\Definitions\Pages\ArticlePageTemplateSetup.cs` to `AuthorPageTemplateSetup.cs` in the same folder.
+3.  Search and replace all occurances of _Article_ in the file with _Author_
+4.  Add a translation in `\Src\Litium.Accelerator.Administration.Extensions\Resources\Administration.resx`, use:
+    - **key=**`fieldtemplate.websitearea.Author.name`
+    - **value=**`Author page`
+
+## Add the MVC files needed to render the page
+
+When the template definition is created you can create instances of your new page, but the page cannot be displayed on the public site until MVC files are added.
+
+1.  Copy `\Src\Litium.Accelerator\ViewModels\Article\ArticleViewModel.cs` to `\Src\Litium.Accelerator\ViewModels\Author\AuthorViewModel.cs`
+2.  Search and replace all occurances of _Article_ in the file with _Author_
+3.  Copy `\Src\Litium.Accelerator\Builders\Article\ArticleViewModelBuilder.cs` to `\Src\Litium.Accelerator\Builders\Author\AuthorViewModelBuilder.cs`
+4.  Search and replace all occurances of _Article_ in the file with _Author_
+5.  Copy `\Src\Litium.Accelerator.Mvc\Controllers\Article\ArticleController.cs` to `\Src\Litium.Accelerator.Mvc\Controllers\Author\AuthorController.cs`
+6.  Search and replace all occurances of _Article_ in the file with _Author_
+7.  Copy `\Src\Litium.Accelerator.Mvc\Views\Article\Index.cshtml` to `\Src\Litium.Accelerator.Mvc\Views\Author\Index.cshtml`
+8.  Search and replace all occurances of _Article_ in the file with _Author_
+
+## Connect the definition with the controller
+
+With the MVC Controller and View created you can render the template on the site, but the Litium platform also need to know that the Author template and the Author controller are connected.
+
+1.  Add _Author_ to the `_controllerMapping`\-list in `Litium.Accelerator.Mvc.Definitions.FieldTemplateSetupDecorator`, set type to `Websites.WebsiteArea` and reference your previously created `AuthorController`.
+
+## Try it out
+
+1.  Build your solution and open Litium backoffice
+2.  Select _Website_ in top menu and click _New page_
+3.  Set your favourite authors name as name of the page
+4.  _Author page_ should now be available in the list of templates
+5.  For _location_ select _Home page > Customer service_
+6.  Add some property values (at least set Name, Title, Introduction and Image)
+7.  Click the "..."-menu in the top right corner and select _Quick publish_
+8.  Go to the public site and click the _Customer Service_\-link in the footer
+9.  You should now see a link to your Author page in the left menu
+
+## Next step
+
+[Create a custom service to retreive book titles for authors](/platform/get-started/customization-guide-author-service)

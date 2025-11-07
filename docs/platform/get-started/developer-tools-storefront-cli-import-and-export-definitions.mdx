@@ -1,0 +1,228 @@
+---
+title: "Import and export definitions"
+description: "Definitions are used to transfer settings for fields, templates, and website texts between installations. The definition is YAML formatted text files that is easy to manage in the version control system."
+---
+Definitions are used to transfer settings for fields, templates, and website texts between installations. The definition is YAML formatted text files that is easy to manage in the version control system.
+
+## **Export definitions**
+
+1\. Open Powershell command prompt  
+2\. Export definitions with the following ​command:
+
+litium-storefront definition export --output ../Litium.Storefront/litium-definitions --litium https://localhost:5001 --litium-username admin --litium-password Password! --clean
+
+### **Options**
+
+\--litium - Url for the Litium application
+--litium-username - Username for the Litium application (user must have permissions for all settings (system settings and Administration/Content/Settings for all areas))
+--litium-password - Password for the Litium application
+--output - Output directory for definitions
+--clean - Remove all files in the output folder before starting the export
+
+## **Import definitions**
+
+1\. Open Powershell command prompt  
+2\. Import definitions with the following ​command:  
+
+litium-storefront definition import --file "../Litium.Storefront/litium-definitions/\*\*/\*.yaml" --litium https://localhost:5001 --litium-username admin --litium-password Password!
+
+### **Options**
+
+\--litium - Url for the Litium application
+--litium-username - Username for the Litium application (user must have permissions for all settings (system settings and Administration/Content/Settings for all areas))
+--litium-password - Password for the Litium application
+--file - Directory with definitions for import, supports globbing
+
+## **Manually create definitions for import**
+
+In Litium, definitions have several types: **Templates**, **Fields, Address types, Roles, Relationship types**. Each definition is a YAML file with it's own settings.  
+Let's look on some basic settings for each definition type.
+
+### **Templates**
+
+A template contains _settings_, _blockContainers_ and _fieldGroups_  
+_settings_ \- has type of template, it's id and name  
+_blockContainers_ \- you can set what nested blocks are allowed  
+_fieldGroups_ \- you can set fields that must be in template
+
+### **WebsiteTemplates.yaml file**
+
+websiteTemplates:                   //indicate that it is a template from the website area
+- blockContainers:
+  - id: footer                      //container id
+    name:
+      en-US: footer                 //name of the container
+    childBlocks:
+      combination: IncludeSelected  //define if nested blocks are allowed (All, IncludeSelected, ExcludeSelected)
+      selections:
+      - id: FooterColumn            //id of the nested block template 
+  - id: primaryNavigation           //container id
+    name:
+      en-US: primaryNavigation      //name of the container
+    childBlocks:
+      combination: IncludeSelected  //define if nested blocks are allowed (All, IncludeSelected, ExcludeSelected)
+      selections:
+      - id: PrimaryNavigationLink   //id of the nested block template 
+  settings:
+    indexThePage: false
+  type: Website                     //type of the template
+  fieldGroups:
+  - id: General                     //id of the field group 
+    name:
+      en-US: General               //name of the field group
+      sv-SE: Allmänt               //name of the field group
+    fields:  
+    - id: \_name                    //id of the field 
+    administration:
+      collapsed: false
+    storefront:
+      visible: false
+  - id: Logotype                   //id of the field group 
+    name:
+      en-US: Logotype              //name of the field group
+      sv-SE: Logotyp               //name of the field group
+    fields:
+    - id: \_icon                    //id of the field
+    administration:
+      collapsed: false
+    storefront:
+      visible: false
+  - id: Search                     //id of the field group 
+    name:
+      en-US: Search                //name of the field group
+      sv-SE: Sök                   //name of the field group
+    fields:
+    - id: SearchResultPage         //id of the field
+    administration:
+      collapsed: false
+    storefront:
+      visible: false
+  id: AcceleratorWebsite          //id of the template 
+  name:
+    en-US: Website                //name of the template
+    sv-SE: Webbplats              //name of the template
+
+### **Fields**
+
+For the field definition the type of field and base settings need to be set.
+
+### **Weight.yaml file**
+
+productFields:
+- id: Weight
+  type: Decimal
+  name:
+    en-US: Weight
+    sv-SE: Vikt
+  settings:
+    multiCulture: false
+    administration:
+      columns: true
+      filter: true
+      readonly: false
+    storefront:
+      visible: true
+      searchable: true
+
+### **ProductWithVariants.yaml** file
+
+productTemplates:
+- type: Product
+  productFieldGroups:
+  - id: General
+    fields:
+    - id: \_name
+    - id: \_description
+    - id: Brand
+    - id: Type
+    administration:
+      collapsed: false
+    storefront:
+      visible: false
+  - id: Product information
+    fields:
+    - id: ProductSheet
+    administration:
+      collapsed: false
+    storefront:
+      visible: true
+  - id: Product specification
+    fields:
+    - id: Specification
+    administration:
+      collapsed: false
+    storefront:
+      visible: true
+  variantFieldGroups:
+  - id: General
+    fields:
+    - id: \_name
+    - id: \_description
+    - id: \_url
+    - id: \_seoTitle
+    - id: \_seoDescription
+    - id: Brand
+    administration:
+      collapsed: false
+    storefront:
+      visible: false
+  - id: Product information
+    fields:
+    - id: Color
+    - id: Size
+    administration:
+      collapsed: false
+    storefront:
+      visible: true
+  useVariantUrl: false
+  settings: {}
+  id: ProductWithVariants
+  name:
+    en-US: Product with variants
+    sv-SE: Produkt med varianter
+
+### **Address types**
+
+An address type definition contains id and name.
+
+### **Address.yaml file**
+
+customerAddressTypes:
+- id: Address
+  name:
+    en-US: Address
+    sv-SE: Address
+
+### Roles
+
+A role definition contains id, name and its operations.
+
+### **FullOperations.yaml file**
+
+customerRoles:
+- id: FullOperations
+  name:
+    en-US: Full Operations
+    sv-SE: Full Operations
+  operations:
+  - \_readAddresses
+  - \_readOrganization
+  - \_readOrders
+  - \_placeOrders
+  - \_updateOrganization
+  - \_manageOrganization
+  - \_manageAddresses
+  - \_managePersons
+  - \_readPersons
+  - \_approveOrders
+
+### **Relationship types**
+
+A relationship type definition contains id, name and bidirectional.
+
+productRelationshipTypes:
+- id: Accessory
+  name:
+    en-US: Accessories
+    sv-SE: Tillbehör
+  bidirectional: false

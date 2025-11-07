@@ -1,0 +1,95 @@
+---
+title: "Upgrade solution steps"
+description: "1. Pre-requisites"
+---
+How to run an upgrade to Litium 8 using the .NET Upgrade Assistant.
+
+1. [Pre-requisites](#pre-requisites)
+
+2. [Install](#installation)
+
+3. [Analyze dependencies](#analyze dependencies)
+
+4\. [Run the .NET Upgrade Assistant](#run the .net upgrade assistant)
+
+See the [.NET Upgrade Assistant steps](#.net upgrade assistant steps)
+
+5\. Complete migration to [upgrade the solution](#upgrade the solution). Note that this is the main and most time-consuming bulk of the work.
+
+6. Configure [Litium app proxy](/platform/guides/upgrade-to-litium-8-upgrade-the-platform-solution-litium-app-proxy)
+
+❗️ Make sure that you have a backup.
+
+The .NET Upgrade Assistant will backup the project in the first step after running. Still, we recommend that you have a backup of your database and any other files before you start. 
+
+❗️ Make sure that you have taken all precautions necessary to be able to roll back the upgrade procedure.
+
+### 1\. Pre-requisites
+
+[Configure the Litium NuGet feed](/platform/get-started/litium-packages) [Litium packages](https://docs.litium.com/documentation/get-started/litium-packages). 
+
+The .NET Upgrade Assistant requires that your project builds, which may include installing [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/) in order to upgrade to .NET 6.
+
+It also requires a recent version of MS Build to be installed, in order to work with project files. MS Build can be installed by installing Visual Studio 2022.
+
+### 2\. Install
+
+Install the [.NET Upgrade tool](http://www.nuget.org/packages/upgrade-assistant/) [from NuGet](https://www.nuget.org/packages/upgrade-assistant/) as a .NET CLI tool by running:
+
+dotnet tool install -g upgrade-assistant
+
+❗️ Invalid or authenticated sources in [NuGet configuration](https://docs.microsoft.com/nuget/consume-packages/configuring-nuget-behavior) may cause installation problems.
+
+### 3\. Analyze dependencies
+
+Analyze your project dependencies by navigating to the directory containing your project or solution, and run the following command:
+
+upgrade-assistant analyze <Path to csproj or sln to upgrade>
+
+Change `<Path to csproj or sln to upgrade>` on the commands on this page to the path and name of your solution or project file.
+
+### 4\. Run the .NET Upgrade Assistant
+
+Run the following command to start upgrading your project:
+
+upgrade-assistant upgrade <Path to csproj or sln to upgrade>
+
+### \- .NET Upgrade Assistant steps
+
+When you run the .NET upgrade assistant it will show you the following steps:
+
+1\. Backup project
+
+A backup is created by the .NET Upgrade Assistant. You can choose to skip this step if you have already created the backup.
+
+2\. Convert project file to SDK style
+
+3\. Update TFM (target framework moniker)
+
+4\. Update NuGet packages
+
+5\. Add template file
+
+6\. Migrate app config files
+
+7\. Update C# source
+
+The information about the steps above was last updated upon the release of Litium 8.4 (2022-05-31). Please see the [.NET Upgrade Assistant for more information](https://github.com/dotnet/upgrade-assistant).
+
+### 5\. Upgrade the solution
+
+Note that this is the main and most time-consuming bulk of the work. 
+
+Most things cannot be upgraded automatically by using the Assistant and must be manually converted.
+
+Analyzers are included in the .NET Upgrade Assistant to help you identify some of the remaining changes needed.
+
+After the analyzers evaluate your code, you can let the Upgrade assistant automatically convert your solution to ASP.NET Core.
+
+Please note, however, that many tasks are not fully automated, and that the analyzer also works on an already-converted solution.
+
+Also, note that the solution will most probably not build until you have manually completed the migration steps.
+
+### 6\. Configure the Litium app proxy
+
+[Instructions on how to configure the Litium app proxy](/platform/guides/upgrade-to-litium-8-upgrade-the-platform-solution-litium-app-proxy).

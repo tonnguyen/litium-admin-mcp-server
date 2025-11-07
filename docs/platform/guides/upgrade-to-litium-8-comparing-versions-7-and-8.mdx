@@ -1,0 +1,83 @@
+---
+title: "Comparing versions 7 and 8"
+description: "What was called campaigns in Litium 7 is called discounts in LItium 8. In Litium 8, a campaign can contain discounts, pages and blocks."
+---
+This page covers how features and behaviors have been added, removed or changed between version 7 and 8.
+
+## Campaigns and discounts
+
+What was called campaigns in Litium 7 is called discounts in LItium 8. In Litium 8, a campaign can contain discounts, pages and blocks.
+
+[Read more about discounts in Litium 8](https://docs.litium.com/help/litium-8/sales/campaigns/discounts)
+
+Ther discount type Free fee was removed in Litium 8.
+
+## Order management
+
+In Litium 8.0 there is an improved one page order view in administration with most information needed to be seen for an order.
+
+Administrator abilities like add and edit orders are not released in Litium 8.0, but order management abilities will be added in future versions.
+
+### Order management abilities released in version 8.0
+
+- One page order overview
+
+### Order management released in version 8.1
+
+- Add additional information on the order
+- Add additional information on the order info
+
+### Order management released in version 8.2
+
+- Cancel / refund payment API
+- Ability as an order approver to approve orders (Litium Accelerator)
+- Tags on orders, payments and shipments
+
+### Order management released in version 8.6
+
+- Cancel remaining order rows of an order
+
+### Order management released in version 8.7
+
+- Mange returns coming from ERP API
+
+### Order management released in version 8.10
+
+- Ability to see additional order information in order page
+- Ability to see tags for orders, deliveries and payments in order page
+
+## Changed behaviours
+
+### Order states
+
+The order states are fixed in version 8 and custom states cannot be added. The reason for this is to ensure stability and scalability. The order process is a business critical flow and vulnerable to customizations. Instead we've introduced a framework where you can mark orders, payments and deliveries with different tags, which are useful for adapting Litium to custom business logic. 
+
+### Discount and campaign logic extensibility
+
+In Litium 8 you can no longer extend the campaigns to build your own discount logic. The reason for this is to ensure stability and scalability. The discount calculations is a business critical area and vulnerable to customizations.
+
+### Discount conditions
+
+In Litium 8 you no longer add conditions the way it was done in Litium 7. The conditions can still be set, but you add them in different ways.
+
+### **Only one product discount price is returned per product (from version 8.6)**
+
+You can set up as many discounts as you wish for a product, but only one discounted price is returned by the API. Litium will return the lowest discount price in the given context.
+
+### **Order total condition moved to discount settings**
+
+The order total condition indicated the sum of an order that needed to be exceeded for a discount to be valid. Instead of as in Litium 7, adding a condition for a campaign, this condition is moved to be a setting directly on the discount.
+
+### "User belongs to..." conditions moved to discount settings
+
+These conditions indicate the organizations (company), user groups or target groups for which the discount is valid. Instead of as in Litium 7, adding conditions for a campaign, these conditions are moved to be settings directly on the discount in a settings group called audience.
+
+### "Has product..." conditions moved to target groups
+
+These conditions indicate what products need to be in the cart for a discount to be valid. Instead of as in Litium 7, adding conditions for a campaign, these conditions are moved to be set using a connection to a target group, which in turn has these conditions.
+
+### Voucher codes becomes discount codes
+
+Voucher codes are renamed to discount codes in Litium 8 and will be a setting available on each discount.
+
+Please contact our support if you have quesions [support@litium.com](mailto:support@litium.com)

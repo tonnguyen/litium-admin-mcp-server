@@ -1,0 +1,112 @@
+---
+title: "Setting up a test project"
+description: "The test framework makes it easier to write unit tests for applications based on the Litium platform."
+---
+The test framework makes it easier to write unit tests for the Litium Accelerator.
+
+The test framework makes it easier to write unit tests for applications based on the Litium platform.
+
+We have created a bootstrapper package that uses the [Xunit](https://xunit.net/) together with [Integration tests in ASP.NET Core](https://docs.microsoft.com/aspnet/core/test/integration-tests) to handle the Litium application lifetime for integration with the platforms .NET APIs as well as the Web API.
+
+When testing the Web API endpoints the authentication token, for the current user, is automatically added to the request to keep it easy to test methods that are secured.
+
+### Included in the framework
+
+The framework contains some basic examples for you to see how you can test:
+
+- .NET API - with an example of testing the state engine
+- Web API - with an example controller named `TestController` that have endpoints that are:
+    - public access for everyone.
+    - protected with a specific operation to demonstrate the protection.
+
+Please also see [a lab to set up a test project](https://github.com/LitiumAB/Education/tree/main/Developer%20Education/Tasks/Test%20project) as part of the Litium Certified Developer training.
+
+### Get started
+
+Litium Accelerator version 8.3 or later contains the test project when the Litium Accelerator project is created. In the solution, there is project called `Litium.Accelerator.Test` which contains all examples for the bundled tests.
+
+### Manual installation
+
+1.  Create an empty project
+2.  Set the output type to `exe` in the `OutputType` property.
+3.  Add the package references for the test
+    1.  `Litium.Xunit.Bootstrapper` - Litium application bootstrapper package, ensure using version number that matches with your Litium version.
+    2.  `Microsoft.NET.Test.Sdk` - Used by Visual Studio to detect tests.
+    3.  `xunit` and `xunit.runner.visualstudion` - Xunit test framework with Visual Studio integration.
+4.  Add a reference to the website project
+5.  Define the startup class in property `LitiumApplicationStartup`, this is usually the startup class inside the website project.
+6.  Create a database for use from the test project, follow the instruction on [database maintenance](https://docs.litium.com/documentation/get-started/database-management) to create the database.
+7.  Add an _appsettings.json_ with the configuration for the test. This file is based on the _appsettings.json_ from the website project.
+8.  Add tests to the project to see that everything works.
+
+Example project file  
+ 
+
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <RootNamespace>Litium.Accelerator</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- Produce executable application -->
+    <OutputType>exe</OutputType>
+  </PropertyGroup>
+
+  <!-- 
+    Add package references for nuget packages 
+    Ensure that the package have correct version number to your solution
+    -->
+  <ItemGroup>
+    <PackageReference Include="Litium.Xunit.Bootstrapper" Version="8.3.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
+    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <!-- Add reference to the website project -->
+  <ItemGroup>
+    <ProjectReference Include="..\\..\\Src\\Litium.Accelerator.Mvc\\Litium.Accelerator.Mvc.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <!-- 
+      Define the startup that the test-project should use,
+      usual the startup class in the website project.
+      -->
+    <LitiumApplicationStartup>Litium.Accelerator.Mvc.Startup</LitiumApplicationStartup>
+  </PropertyGroup>
+
+</Project>
+
+Example test  
+ 
+
+using Litium.Security;
+using Microsoft.Extensions.DependencyInjection;
+using Xunit;
+
+namespace Litium.Accelerator;
+
+public class PermissionContextTests : TestBase
+{
+    private readonly ApplicationFixture \_app;
+
+    public PermissionContextTests(ApplicationFixture app)
+    {
+        \_app = app;
+    }
+
+    \[Fact\]
+    public void Tests\_should\_execute\_with\_everyone\_permission()
+    {
+        var securityContextService = \_app.ServiceProvider.GetService<SecurityContextService>();
+        var currentSystemId = securityContextService.GetIdentityUserSystemId() ?? SecurityContextService.Everyone.SystemId;
+        Assert.Equal(SecurityContextService.Everyone.SystemId, currentSystemId);
+    }
+}

@@ -1,0 +1,59 @@
+---
+title: "Web API"
+description: "Add a custom Web API to allow external systems to get book titles"
+---
+Add a custom Web API to allow external systems to get book titles
+
+To do this task you first need to complete the task [Author service](/platform/get-started/customization-guide-author-service)
+
+## Create controller
+
+Your client has resellers that need to access information about books for specific authors through a REST API. You need to create a Web API endpoint to access your [Author service](/platform/get-started/customization-guide-author-service).
+
+The [page about Web APIs in the documentation](https://docs.litium.com/documentation/architecture/web-api) contain a sample API controller which is similar to the controller you will be creating here.
+
+1.  Create a new ViewModel that the API should return
+    
+    public class AuthorApiViewModel
+    {
+        public List<string> Books { get; set; }
+    }
+    
+2.  Create the class `Litium.Accelerator.Mvc.Controllers.Api.AuthorApiController` that inherit from `Litium.Accelerator.Mvc.Controllers.Api.ApiControllerBase`
+    
+3.  Decorate it with `[Route("api/authors")]`
+    
+4.  Add the method `GetAuthor(Guid authorPageId)`
+    
+5.  Decorate it with `[Route("author")]`
+    
+6.  Inject `IAuthorService` in your controllers constructor and use it to get and return a `AuthorApiViewModel` loaded with all books for the provided id
+    
+7.  [A finished `AuthorApiController` example is also available](https://github.com/LitiumAB/Education/blob/99ed050e4241dc15b1f7a5a74f154c880c61cb95/Developer%20Education/Tasks/Web%20API/Resources/AuthorApiController.cs).
+    
+
+## Try it out
+
+1.  Get the systemid for your author page (the easiest way is to open the page in Litium backoffice, then the id is showing in the url-field)
+2.  You should be able to reach your API at _\[your site domain\]/api/authors/author?authorPageId=\[Your author page id\]_
+3.  When you inherited `ApiControllerBase` you got the class decorator `[ApiCollection("site")]` from the base-class, this attribute adds your controller in Litiums Swagger documentation.Verify that your API is now part of the Swagger-documentation:
+    1.  Navigate to `http://[domain]/litium/swagger`
+    2.  Select _Accelerator Web API_ in the top drop-down list
+    3.  Verify that _Author api_ is listed with your method
+
+## Secure the API
+
+You can find additional information on the [page about Web API security](/platform/architecture/web-api/security) in the documentation.
+
+1.  Add the attribute `[Litium.Web.WebApi.OnlyJwtAuthorization]` to your controller to make sure that only requests containing a valid JSON Web token are allowed
+2.  Try accessing your API again and verify that your now get a **401 Unauthorized**\-error
+3.  Create a service account in _Litium Backoffice > Control panel > System settings > Service accounts_
+4.  Use postman to get a JWT token and pass the token in your API-call, instructions on how to do this can be found on the [page about Web API security](/platform/architecture/web-api/security) on Litium Docs.
+
+## Troubleshooting
+
+A common problem is that test string and not a valid `Guid` is used when testing which gives a 404 when you try to call the API.
+
+## Next step
+
+[Add a custom block that can display author information from an author-page](/platform/get-started/customization-guide-author-block)

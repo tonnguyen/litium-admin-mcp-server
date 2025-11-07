@@ -1,0 +1,92 @@
+---
+title: "Price calculator"
+description: "Replace Litium listprice logic with custom prices."
+---
+Replace Litium listprice logic with custom prices.
+
+## Replace Litium listprice
+
+Your client has a complex price model, so you need to replace Litiums price list logic with a custom solution that fetches prices from the custumers ERP.
+
+As with all Litium interfaces and abstract classes you only need to add your own implementation to override the default (fallback) implementation.
+
+1.  Create the class `Litium.Accelerator.Utilities.ErpPriceCalculatorImpl` that implements  
+    `Litium.Products.PriceCalculator.IPriceCalculator`
+2.  The interface-method `GetPriceLists()` can be implemented so that it returns `new List<ProductPriceList>();`
+3.  Add the following logic to the `GetListPrices()`\-method:
+    1.  Create a `new Dictionary<Guid, PriceCalculatorResult>()` that the method should return
+    2.  For each item in `itemArgs` add an item to the dictionary with price set to 100
+4.  Test the logic by browsing products on your public site, all of them should now cost 100.
+
+## Convert into decorator
+
+Only logged in B2B customers should get their prices from ERP. Add a check so Litium's standard price logic is still used for all anonymous users.
+
+1.  Rename `ErpPriceCalculatorImpl` to `ErpPriceCalculatorDecorator` and check the [page on service decorators](https://docs.litium.com/documentation/architecture/dependency-injection/service-decorator) to learn how to convert it into a decorator.
+    
+2.  Inject `SecurityContextService` and use the code below to check if current user is logged in. If current user is logged in return your custom price, otherwise return Litium list price.
+    
+    var userId = \_securityContextService.GetIdentityUserSystemId();
+    var isAuthenticated = userId.HasValue && userId != SecurityContextService.Everyone.SystemId;
+    
+
+## Cache the external price
+
+To get better performance when getting price from external sources such as ERP you always need to add data to cache. By using a distributed cache in Redis the same cache is used for all your web applications.
+
+You will be using the `DistributedMemoryCache` which stores data both in a short (2 minute) memory cache in the application and also in a distributed cache (Redis) for 24 hours.
+
+1.  Make your price fetch really slow by adding `Thread.Sleep(500);` before returning price for a variant and then test the performance on a category page listing multiple products
+    
+2.  Inject `DistributedMemoryCacheService` in the constructor of `ErpPriceCalculatorDecorator`
+    
+3.  First try getting the value from cache before your `Thread.Sleep`:
+    
+    var cacheKey = $"{nameof(ErpPriceCalculatorDecorator)}:{variantSystemId}";
+    if (\_distributedMemoryCacheService.TryGet<PriceCalculatorResult>(cacheKey, out var price))
+        return price;
+    
+4.  Then make sure you store the price in cache after getting it from ERP:
+    
+    \_distributedMemoryCacheService.Set(cacheKey, price);
+    
+    Test by reloading your product listing again, now only the first page load should be slow and all consecutive page loads should be instant
+    
+
+**Note** that expiration is sliding so in any production scenario you would also need to add functionality to clear cached price on any price change event.
+
+## Add distributed lock
+
+When multiple threads or applications might access the same data at the same time it is important to lock the resource to avoid conflicts.
+
+The price calculator has to prevent multiple requests to ERP for the same variant when the price is no longer cached. You do this by placing a lock on the variant while you fetch the price to prevent other servers or threads from calling the API for the same data.
+
+1.  Inject `DistributedLockService` in the constructor of `ErpPriceCalculatorDecorator`
+    
+2.  Wrap the code where you get price for a variant in a lock:
+    
+    using (\_distributedLockService.AcquireLock(cacheKey, TimeSpan.FromSeconds(10)))
+    {
+        // Try getting value from cache again since it may have been added
+        // from another thread/app while you were waiting for the lock
+        if (\_distributedMemoryCacheService.TryGet<PriceCalculatorResult>(cacheKey, out price))
+            return price;
+        
+        // Rest of implementation code for getting variant price
+        ...
+    }
+    
+
+## Try it out
+
+1.  Verify that everything costs 100 when logged in, the page should also load very slowly the first time when no prices are cached. Debug the code if needed to understand the flow.
+2.  [A finished example with everything implemented can be found here](https://github.com/LitiumAB/Education/blob/99ed050e4241dc15b1f7a5a74f154c880c61cb95/Developer%20Education/Tasks/Pricing%20rules/Resources/ErpPriceCalculatorDecorator.cs)
+
+# Add automated tests
+
+1.  Write tests for `ErpPriceCalculatorDecorator` that checks the logic as both anonymous and logged in user, use `SecurityContextService` to execute code with different user context.
+2.  [A finished example can be found here](https://github.com/LitiumAB/Education/blob/99ed050e4241dc15b1f7a5a74f154c880c61cb95/Developer%20Education/Tasks/Test%20project/Resources/ErpPriceCalculatorDecoratorTests.cs)
+
+# Next step
+
+[Add a author-field to products to connect book-products to author-pages and add a custom validation to the field](/platform/get-started/customization-guide-field-and-validation)

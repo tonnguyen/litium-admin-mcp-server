@@ -1,0 +1,54 @@
+---
+title: "Upgrade to Angular 20"
+description: "Here’s how you can update an existing \"classic\" component (declared in a module) to a standalone component."
+---
+## Version compatibility
+
+- **Node.js**: ^20.19.0 || ^22.12.0 || ^24.0.0
+- **Typescript**: >=5.8.0 <5.9.0
+- **RxJS**: ^6.5.3 || ^7.4.0
+
+## Migrating an Angular Component to a Standalone Component
+
+Here’s how you can update an existing "classic" component (declared in a module) to a **standalone component**.
+
+**Before**
+
+// example.component.ts
+@Component({
+  selector: 'app-example',
+  template: \`\`,
+})
+export class ExampleComponent { }
+
+// In the module:
+@NgModule({
+  declarations: \[ExampleComponent\],
+  imports: \[CommonModule\],
+})
+export class ExampleModule {}
+
+**After**
+
+import { Component } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
+
+@Component({
+  selector: 'app-example',
+  standalone: true, // may be omitted (true by default)
+  imports: \[CommonModule, DatePipe\],
+  template: \`\`
+})
+export class ExampleComponent {
+  value = new Date();
+}
+
+## Update litium-ui version
+
+Update the litium-ui version in package.json to the latest version. For example: 
+
+"litium-ui": "https://packages.litium.com/Npm/litium-ui?8.24"
+
+## References
+
+- [Angular Standalone API Docs](https://angular.dev/reference/migrations/standalone#)

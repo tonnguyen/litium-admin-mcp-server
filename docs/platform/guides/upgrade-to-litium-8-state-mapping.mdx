@@ -1,0 +1,57 @@
+---
+title: "State mapping"
+description: "For an overview of the upgrade procedure, please see how to upgrade to Litium 8."
+---
+If you have defined custom states in a previous version of Litium, and want to upgrade the integrations to Litium 8.
+
+For an overview of the upgrade procedure, please see [how to upgrade to Litium 8](https://docs.litium.com/!b4353f6c-fc24-4afb-8a66-7a7e77fff13c/documentation/upgrade-to-litium-8). 
+
+During the upgrade from Litium 7 to Litium 8, a state mapping table is created. It maps the Litium 7 states to Litium 8 states. The mapping table's general structure:
+
+![state mapping L7 to L8.jpg](./media/state%20mapping%20L7%20to%20L8.jpg)
+
+When there is no state in Litium 8 that corresponds to the state in Litium 7, a tag will be created for the entity, with the name of the missing state, as shown in the table above.
+
+You may map any custom state to a defined state in Litium 8 using the same script, and create a tag to denote the state in Litium 7. Use the [Tagging feature in Litium 8](/platform/architecture/tagging) to control the flow of the states.
+
+Script to generate State mapping table:
+
+IF NOT OBJECT\_ID('dbo.StateMapping') IS NULL BEGIN; DROP TABLE dbo.StateMapping; END;
+CREATE TABLE dbo.StateMapping (Area nvarchar(20), SourceStateName nvarchar(100), SourceStateId int, TargetStateName nvarchar(100), Tags nvarchar(max));
+INSERT INTO dbo.StateMapping VALUES
+('Order', 'Init', 0, 'Init', ''),
+('Order', 'WaitingConfirmation', 10, 'Init', '\_awaitOrderApproval'),
+('Order', 'Confirmed', 1, 'Confirmed', ''),
+('Order', 'Processing', 2, 'Processing', ''),
+('Order', 'Completed', 3, 'Completed', ''),
+('Order', 'Cancelled', 4, 'Completed', '\_cancelled'),
+('Order', 'Returned', 5, 'Completed', '\_returned'),
+('Order', 'Attention', 6, 'Processing', '\_attention'),
+('Order', 'ClosedByAdmin', 7, 'Completed', '\_closedByAdmin'),
+('Order', 'ReturnConfirmed', 21, 'Confirmed', ''),
+('Order', 'ReturnProcessing', 22, 'Processing', ''),
+('Order', 'ReturnCompleted', 23, 'Completed', ''),
+('Order', 'Invalid', 99, 'Init', '\_invalid'),
+
+('Shipment', 'Init', 0, 'Init', ''),
+('Shipment', 'Delivered', 1, 'Shipped', ''),
+('Shipment', 'Failed', 2, 'Processing', '\_failed'),
+('Shipment', 'Cancelled', 3, 'Cancelled', ''),
+('Shipment', 'Returned', 4, 'Returned', ''),
+('Shipment', 'Processing', 5, 'Processing', ''),
+('Shipment', 'ReadyToShip', 6, 'ReadyToShip', ''),
+
+('Rma', 'Init', 1, 'Init', ''),
+('Rma', 'PackageReceived', 2, 'PackageReceived', ''),
+('Rma', 'Processing', 4, 'Processing', ''),
+('Rma', 'Completed', 8, 'Completed', '');
+
+Script to map shipping and payment options:
+
+IF NOT OBJECT\_ID('dbo.OptionMapping') IS NULL BEGIN; DROP TABLE dbo.OptionMapping; END;
+CREATE TABLE dbo.OptionMapping(SourceOptionName nvarchar(100), SourceProviderName nvarchar(100), TargetOptionId nvarchar(100), TargetProviderId nvarchar(100));
+INSERT INTO dbo.OptionMapping VALUES
+('Expresspaket', '', 'expressPackage', 'DirectShipment'),
+('Standardpaket', '', 'standardPackage', 'DirectShipment'),
+('DirectPayment', 'DirectPay', 'DirectPay', 'DirectPayment'),
+('SE KlarnaCheckout', 'KlarnaV3', 'SE Checkout', 'KlarnaPayment')

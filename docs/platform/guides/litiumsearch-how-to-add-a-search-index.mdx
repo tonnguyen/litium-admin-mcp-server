@@ -1,0 +1,186 @@
+---
+title: "How to add a search index"
+description: "Set up a search index that can be used for searching."
+---
+Set up a search index that can be used for searching.
+
+To setup a search index you need to implement a [document](#document), a [configuration](#configuration), [index document builder](#index document builder), and [event listener](#event listener).
+
+The search and indexing are using the NEST library that is maintained by the company behind Elasticsearch as an Open Source Project.
+
+### Document
+
+The document is the part that describes what properties Elasticsearch should handle. The document will be used both for index and searching. All documents should inherit the marker interface _Litium.Search.IDocument._
+
+When creating the document, you create properties with the type of data that you want to use for index or searching.
+
+The document can support child and nested collections for advanced search scenarios.
+
+Please read more about [Nest and how to build and maintain documents here](https://www.elastic.co/blog/indexing-documents-with-the-nest-elasticsearch-net-client). 
+
+### Configuration
+
+Each index can be configured in either no lingual or multilingual.
+
+If configured to use multilingual an index in ES will be created for each language that you have in your installation.
+
+The configuration is also able to trigger a full rebuild of the search index. This is useful if you change the document or the creation of the document for indexing.
+
+  
+The following base classes will take care of the creation of the _Nest.CreateIndexDescriptor_ that is used to configure the index.
+
+- No lingual index - creates an index in ES your configuration class should inherit _Litium.Search.Indexing.IndexConfigurationBase_.
+- Multilingual index - creates a multilingual index in ES your configuration class should inherit _Litium.Search.Indexing.MultilingualIndexConfigurationBase_.
+
+The base classes have two methods that can help to configure how Elasticsearch will handle the different properties during index and searching,
+
+- _BuildIndexDescriptor -_ configures global settings for the index like analyzers;
+- _BuildTypeMapDescriptor  -_ configures the properties and how they should be mapped together with the attribute mapping that Nest supports.
+
+### Index document builder
+
+Index document builder implements either _IndexDocumentBuilderBase_ or _MultilingualIndexDocumentBuilderBase_ depending on if the index should be multilingual or not.
+
+Both implementations are working in the same way and converting the Queue item into documents, either for index or deletions.
+
+### Event listener
+
+The event listener converts the events that exist in Litium to different queue items that Elasticsearch should index.
+
+The event listener should implement the marker interface _Litium.Search.Indexing.IIndexQueueHandlerRegistration_ and use the _Litium.Search.Indexing.IndexQueueService_ for adding items to the indexing queue.  
+  
+Let's say we want to search organizations on a site that exists in the system.
+
+Next classes must be added to the **Litium.Accelerator.Elasticsearch** application:
+
+![Organization structure.PNG](./media/Organization%20structure.PNG)
+
+1\. **OrganizationDocument**
+
+using System;
+using System.Collections.Generic;
+using Litium.Search;
+using Nest;
+
+namespace Litium.Accelerator.Search
+{
+    public class OrganizationDocument : IDocument
+    {
+        \[Keyword(Ignore = true)\] public string Id => OrganizationSystemId.ToString();
+
+        public Guid OrganizationSystemId { get; set; }
+
+        public ISet<string> Content { get; set; }
+
+        public string Name { get; set; }
+    }
+}
+
+2\. **OrganizationIndexConfiguration**, it will be no lingual index.
+
+using System.Threading.Tasks;
+using Litium.Customers;
+using Litium.Data;
+using Litium.Search;
+using Litium.Search.Indexing;
+using Microsoft.Extensions.Localization;
+
+namespace Litium.Accelerator.Search.Indexing.Organizations
+{
+    public class OrganizationIndexConfiguration : IndexConfigurationBase<OrganizationDocument>
+    {
+        private readonly DataService \_dataService;
+        private readonly IStringLocalizer \_localizer;
+
+        public OrganizationIndexConfiguration(IndexConfigurationDependencies dependencies, DataService dataService, IStringLocalizer<IndexConfigurationActionResult> localizer)
+            : base(dependencies)
+        {
+            \_dataService = dataService;
+            \_localizer = localizer;
+        }
+
+        protected override Task<IndexConfigurationActionResult> QueueIndexRebuildAsync(IndexQueueService indexQueueService)
+        {
+            using (var query = \_dataService.CreateQuery<Organization>())
+            {
+                foreach (var systemId in query.ToSystemIdList())
+                {
+                    indexQueueService.Enqueue(new IndexQueueItem<OrganizationDocument>(systemId));
+                }
+            }
+
+            return Task.FromResult(new IndexConfigurationActionResult
+            {
+                //Need to add "index.organizations.queued" to Administration.resx
+                Message = \_localizer.GetString("index.organizations.queued")
+            });
+        }
+    }
+}
+
+3\. **OrganizationIndexDocumentBuilder**
+
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using Litium.Accelerator.Indecies;
+using Litium.Customers;
+using Litium.Search;
+using Litium.Search.Indexing;
+
+namespace Litium.Accelerator.Search.Indexing.Organizations
+{
+    public class OrganizationIndexDocumentBuilder : IndexDocumentBuilderBase<OrganizationDocument>
+    {
+        private readonly OrganizationService \_organizationService;
+        private readonly ContentBuilderService \_contentBuilderService;
+
+        public OrganizationIndexDocumentBuilder(IndexDocumentBuilderDependencies dependencies, OrganizationService organizationService, ContentBuilderService contentBuilderService) : base(dependencies)
+        {
+            \_organizationService = organizationService;
+            \_contentBuilderService = contentBuilderService;
+        }
+        public override IEnumerable<IDocument> BuildIndexDocuments(IndexQueueItem item)
+        {
+            var organization = \_organizationService.Get(item.SystemId);
+            if (organization == null)
+            {
+                yield break;
+            }
+
+            yield return new OrganizationDocument
+            {
+                OrganizationSystemId = organization.SystemId,
+                Content = \_contentBuilderService.BuildContent<OrganizationFieldTemplate, CustomerArea>(organization.FieldTemplateSystemId, CultureInfo.CurrentUICulture, organization.Fields),
+                Name = organization.Name,
+            };
+        }
+        public override IEnumerable<IDocument> BuildRemoveIndexDocuments(IndexQueueItem item)
+        {
+            yield return RemoveByFieldDocument.Create<OrganizationDocument, Guid>(x => x.OrganizationSystemId, item.SystemId);
+        }
+    }
+}
+
+4\. **OrganizationEventListener**
+
+using Litium.Events;
+using Litium.Search.Indexing;
+using Litium.Customers.Events;
+
+namespace Litium.Accelerator.Search.Indexing.Organizations
+{
+    public class OrganizationEventListener : IIndexQueueHandlerRegistration
+    {
+        public OrganizationEventListener(EventBroker eventBroker, IndexQueueService indexQueueService)
+        {
+            eventBroker.Subscribe<OrganizationCreated>(x => indexQueueService.Enqueue(new IndexQueueItem<OrganizationDocument>(x.Item.SystemId)));
+            eventBroker.Subscribe<OrganizationUpdated>(x => indexQueueService.Enqueue(new IndexQueueItem<OrganizationDocument>(x.Item.SystemId)));
+            eventBroker.Subscribe<OrganizationDeleted>(x => indexQueueService.Enqueue(new IndexQueueItem<OrganizationDocument>(x.SystemId) { Action = IndexAction.Delete }));
+        }
+    }
+}
+
+The **OrganizationDocument** index will appear in the settings for Elasticsearch, now you can build indices for organizations
+
+![Indices.PNG](./media/Indices.PNG)

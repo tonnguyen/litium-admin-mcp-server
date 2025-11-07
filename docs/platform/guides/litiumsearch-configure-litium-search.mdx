@@ -1,0 +1,44 @@
+---
+title: "Configure Litium search"
+description: "To configure Accelerator to use Litium Search powered by Elasticsearch you must add the connection string to Elasticsearch into appsettings.json."
+---
+How to configure Litium search.
+
+## Configuration
+
+To configure _Accelerator_ to use Litium Search powered by Elasticsearch you must add the connection string to Elasticsearch into _appsettings.json._
+
+"Elasticsearch": {
+      "ConnectionString": "http://localhost:9200"
+      
+
+ **Note:** _http://localhost:9200_ is the default port number that the Elasticsearch listens on_.00_
+
+To be able to use sniffing mode or password protected Elasticsearch, the username and password must be set in _appSettings_ and not in the connection string.
+
+"Elasticsearch": {
+      "Username": "",
+      "Password": ""
+      
+
+## Synonym configuration
+
+Litium is using dynamic synonyms to be able to reload them without needing of turning the index offline or manipulating files on all the Elasticsearch server nodes. Synonyms will be configured to load the synonyms from remote url and the below _appSettings_ need to be set with the domain name that elasticsearch can use to reach the synonym server. Synonym server is part of [shared dependencies](/platform/get-started/shared-dependencies) and need to be installed before synonyms can be used.
+
+[Read more about Litium Search and synonyms in the user guide](https://docs.litium.com/help/litium-8/settings)
+
+"Elasticsearch": {
+      "Synonym": {
+        "Server": "http://synonymserver.localtest.me:9210"
+      }
+
+If Elasticsearch cannot reach the host the index will not be created. Indexing and searching will then result in errors.
+
+### The same Elasticsearch cluster can be used for multiple Litium applications.
+
+To separate Litium applications, the prefix name can be added to Elasticsearch index in _appsettings.json__._
+
+"Elasticsearch": {
+      "Prefix": "prefix\_"
+
+The prefix is optional but is recommended to use also for local development to not mix search indexes between installations.

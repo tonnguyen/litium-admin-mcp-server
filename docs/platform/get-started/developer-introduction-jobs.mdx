@@ -1,0 +1,76 @@
+---
+title: "Jobs"
+description: "Use Litium.Scheduler.SchedulerService to create jobs that run in the background. Jobs are stored in the database and will be executed even if the application restarts."
+---
+## Background jobs
+
+Use `Litium.Scheduler.SchedulerService` to create jobs that run in the background. Jobs are stored in the database and will be executed even if the application restarts.
+
+var fiveSecondsFromNow = DateTimeOffset.Now.AddSeconds(5);
+\_schedulerService.ScheduleJob<TestJobService>(
+    x => x.RunMyJob(), // <-- You can also pass parameters here!
+    new ScheduleJobArgs { ExecuteAt = fiveSecondsFromNow }
+);
+
+## Scheduled jobs
+
+Implement the `ICronScheduleJob`\-interface to create a job that run at a set interval:
+
+\[CronScheduler("Litium.Accelerator.Services.RandomNumberLogger", DefaultCronExpression = CronEveryMinute)\]
+public class RandomNumberLogger : ICronScheduleJob
+{
+    public const string CronEveryMinute = "0 0/1 \* 1/1 \* ? \*";
+    private readonly ILogger<RandomNumberLogger> \_logger;
+
+    public RandomNumberLogger(ILogger<RandomNumberLogger> logger)
+    {
+        \_logger = logger;
+    }
+
+    public async ValueTask ExecuteAsync(object parameter, CancellationToken cancellationToken = new())
+    {
+        \_logger.LogDebug($"Your random number this minute is: {new Random().Next(100)}");
+    }
+}
+
+When a scheduled job has been created it can be adjusted with new parameters and scheduling in `appsettings.json`:
+
+"Policy": {
+    "Litium.Accelerator.Services.RandomNumberLogger": { "CronExpression": "0/10 \* \* \* \* ?" }
+
+## Startup jobs
+
+Sometimes you need to run code every time the application starts, example:
+
+- Data seeding (DefinitionSetup.cs)
+- Register event subscriptions
+
+To run code on startup just add the `Autostart`\-attribute:
+
+\[Autostart\]
+public class StartupLogger
+{
+    public StartupLoggerDemo(ILogger<StartupLogger> logger)
+    {
+        logger.LogDebug("This code in the constructor will run every time Litium starts");
+    }
+}
+
+If your startup code takes time to run it will block and delay the startup, in this case it is better to run it asynchronously. Keep the `AutoStart`\-attribute and add the `IAsyncAutostart`\-interface to execute code in the `StartAsync`\-method:
+
+\[Autostart\] // <-- Note that the autostart attribute is still required for IAsyncAutostart to work
+public class AsyncStartupLogger : IAsyncAutostart
+{
+    private readonly ILogger<AsyncStartupLogger> \_logger;
+    public AsyncStartupLogger(ILogger<AsyncStartupLogger> logger)
+    {
+        \_logger = logger;
+        \_logger.LogDebug("This code will run synchronously (blocking) when litium starts");
+    }
+    public async ValueTask StartAsync(CancellationToken cancellationToken)
+    {
+        \_logger.LogDebug("This code will run asynchronously in the background (non-blocking) when litium starts");
+    }
+}
+
+There is a dedicated page on [application lifecycle](/platform/architecture/application-lifecycle) in the documentation.

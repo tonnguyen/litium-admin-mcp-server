@@ -1,0 +1,11 @@
+---
+title: "Performance"
+description: "As with any platform there are considerations to be taken when developing your Litium solution to help ensure good performance under load. In this page we list some important patterns that we have seen has an significant impact on performance."
+---
+As with any platform there are considerations to be taken when developing your Litium solution to help ensure good performance under load. In this page we list some important patterns that we have seen has an significant impact on performance.
+
+## Sync over async
+
+The Litium platform is designed using the async execution patterns that are available in .NET. The term "sync over async" refers to making an async call but not awaiting it. Often times this is caused by calling **.Wait()** or **.Result** on the returned **Task**. This can cause the threading in .NET to become blocked by syncounous calls and will slow down your solution.
+
+There is an [in-depth guide](https://docs.litium.com/platform/guides/sync-over-async-pattern) available on how to identify and work around this issue.

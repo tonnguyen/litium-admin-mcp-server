@@ -1,0 +1,22 @@
+---
+title: "Independent script"
+description: "Should there be a pending payment captured, the upgrade must be halted until there are no payments pending in the system."
+---
+Run the Litium independent script to check whether there are still payments pending.
+
+Should there be a pending payment captured, the upgrade must be halted until there are no payments pending in the system. 
+
+For an overview of the upgrade procedure, please see [how to upgrade to Litium 8](https://docs.litium.com/!b4353f6c-fc24-4afb-8a66-7a7e77fff13c/documentation/upgrade-to-litium-8). 
+
+IF EXISTS(SELECT NULL FROM dbo.sysobjects WHERE id = object\_id(N'dbo.ECommerce\_Order') AND OBJECTPROPERTY(id, N'IsUserTable') = 1)
+BEGIN
+    EXEC('IF EXISTS( SELECT \*  FROM ECommerce\_Order ord INNER JOIN ECommerce\_PaymentInfo pay on ord.OrderID =  pay.OrderID
+        WHERE pay.PaymentStatus in (1,3,4,9) and DATEDIFF(Day,OrderDate,GETDATE()) = 0)
+        BEGIN
+             SELECT ''Some order payment created in today need to be completed before upgrade'' as Description, ''Error'' as Type
+        END
+        ELSE
+        BEGIN
+             SELECT ''All good!'' as Description, ''Info'' as Type
+        END');
+END

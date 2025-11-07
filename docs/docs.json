@@ -20,15 +20,195 @@
           {
             "group": "Getting Started",
             "pages": [
-              "introduction",
-              "platform/overview"
+              "platform/get-started/overview",
+              "platform/get-started/concepts",
+              {
+                "group": "Developer introduction",
+                "pages": [
+                  "platform/get-started/developer-introduction",
+                  "platform/get-started/developer-introduction-data-modeling",
+                  "platform/get-started/developer-introduction-dependency-injection",
+                  "platform/get-started/developer-introduction-jobs",
+                  "platform/get-started/developer-introduction-events",
+                  "platform/get-started/developer-introduction-security-context",
+                  "platform/get-started/developer-introduction-object-validation",
+                  "platform/get-started/developer-introduction-logging",
+                  "platform/get-started/developer-introduction-entity-model",
+                  "platform/get-started/developer-introduction-data-service",
+                  "platform/get-started/developer-introduction-web-apis",
+                  "platform/get-started/developer-introduction-mvc-accelerator-development",
+                  "platform/get-started/developer-introduction-react-accelerator-development",
+                  "platform/get-started/developer-introduction-e-commerce-development",
+                  "platform/get-started/developer-introduction-database-management",
+                  "platform/get-started/developer-introduction-versioning-and-upgrades",
+                  "platform/get-started/developer-introduction-performance",
+                  "platform/get-started/developer-introduction-headless-storefronts-and-page-previews"
+                ]
+              },
+              "platform/get-started/system-requirements",
+              {
+                "group": "Local installation guide",
+                "pages": [
+                  "platform/get-started/local-installation-guide",
+                  "platform/get-started/local-installation-guide-certificate",
+                  "platform/get-started/local-installation-guide-setup-docker",
+                  "platform/get-started/local-installation-guide-setup-litium-mvc-accelerator",
+                  "platform/get-started/local-installation-guide-configure-litium-search",
+                  "platform/get-started/local-installation-guide-configure-payment-and-shipment-apps",
+                  "platform/get-started/local-installation-guide-configure-redis",
+                  "platform/get-started/local-installation-guide-configure-smtp",
+                  "platform/get-started/local-installation-guide-configure-test-project"
+                ]
+              },
+              {
+                "group": "Customization guide",
+                "pages": [
+                  "platform/get-started/customization-guide",
+                  "platform/get-started/customization-guide-author-page",
+                  "platform/get-started/customization-guide-author-service",
+                  "platform/get-started/customization-guide-price-calculator",
+                  "platform/get-started/customization-guide-field-and-validation",
+                  "platform/get-started/customization-guide-data-service",
+                  "platform/get-started/customization-guide-web-api",
+                  "platform/get-started/customization-guide-author-block"
+                ]
+              },
+              "platform/get-started/deployment-guide",
+              {
+                "group": "Multi-server installation",
+                "pages": [
+                  "platform/get-started/multi-server-installation",
+                  "platform/get-started/multi-server-installation-redis"
+                ]
+              },
+              "platform/get-started/configuration",
+              "platform/get-started/create-admin-user-and-log-in",
+              {
+                "group": "Custom developer certificate",
+                "pages": [
+                  "platform/get-started/custom-developer-certificate",
+                  "platform/get-started/custom-developer-certificate-custom-developer-certificate-non-windows"
+                ]
+              },
+              "platform/get-started/litium-packages",
+              {
+                "group": "Shared dependencies",
+                "pages": [
+                  "platform/get-started/shared-dependencies",
+              "platform/get-started/shared-dependencies-installing-a-nuget-package"
+                ]
+              }
             ]
           },
           {
-            "group": "How to",
+            "group": "Guides",
             "pages": [
-              "mcp-servers/admin/how-to/create-custom-panel",
-              "mcp-servers/admin/how-to/create-custom-field-types"
+              "platform/guides/overview",
+              {
+                "group": "Commerce & accelerator",
+                "pages": [
+                  "platform/guides/how-to-work-with-cart-and-checkout-using-the-storefront-api",
+                  "platform/guides/how-to-create-custom-blocks-in-mvc-accelerator",
+                  "platform/guides/how-to-create-blocks-in-react-accelerator",
+                  "platform/guides/how-to-create-pages-in-react-accelerator",
+                  "platform/guides/how-to-obtain-list-price-for-a-product"
+                ]
+              },
+              {
+                "group": "Data modelling",
+                "pages": [
+                  "platform/guides/data-modelling",
+                  "platform/guides/data-modelling-how-to-create-a-folder-field-template",
+                  "platform/guides/data-modelling-how-to-create-custom-field-types",
+                  "platform/guides/data-modelling-how-to-read-and-write-data-from-an-object-type",
+                  "platform/guides/data-modelling-how-to-set-up-a-multi-field",
+                  "platform/guides/data-modelling-how-to-set-up-a-pointer-field",
+                  "platform/guides/data-modelling-how-to-work-with-a-field-that-is-not-in-a-field-template"
+                ]
+              },
+              {
+                "group": "Back office UI extensions",
+                "pages": [
+                  "platform/guides/back-office-ui-extensions",
+                  "platform/guides/back-office-ui-extensions-how-to-create-a-custom-panel",
+                  "platform/guides/back-office-ui-extensions-how-to-create-a-custom-page-under-settings",
+                  "platform/guides/back-office-ui-extensions-display-dialogs",
+                  "platform/guides/back-office-ui-extensions-configure-html-editor",
+                  "platform/guides/back-office-ui-extensions-translations",
+                  "platform/guides/back-office-ui-extensions-upgrade-extensions-to-latest-version"
+                ]
+              },
+              {
+                "group": "Deployment & DevOps",
+                "pages": [
+                  "platform/guides/deployment",
+                  "platform/guides/deployment-azure-devops-and-webdeploy",
+                  "platform/guides/deployment-azure-devops-and-webdeploy-azure-devops-pipelines-yml",
+                  "platform/guides/deployment-azure-devops-and-webdeploy-script"
+                ]
+              },
+              {
+                "group": "Litium Search",
+                "pages": [
+                  "platform/guides/litiumsearch",
+                  "platform/guides/litiumsearch-set-up-litium-search",
+                  "platform/guides/litiumsearch-configure-litium-search",
+                  "platform/guides/litiumsearch-how-to-add-a-search-index",
+                  "platform/guides/litiumsearch-kibana-to-inspect-search-index",
+                  "platform/guides/litiumsearch-how-to-set-fields-to-searchable",
+                  "platform/guides/litiumsearch-how-to-add-an-edge-ngram-analyzer-to-litium-search"
+                ]
+              },
+              {
+                "group": "Upgrade to Litium 8",
+                "pages": [
+                  "platform/guides/upgrade-to-litium-8",
+                  "platform/guides/upgrade-to-litium-8-before-upgrading",
+                  "platform/guides/upgrade-to-litium-8-before-upgrading-previous-versions",
+                  "platform/guides/upgrade-to-litium-8-before-upgrading-sales-in-litium-8",
+                  "platform/guides/upgrade-to-litium-8-before-upgrading-integrations",
+                  "platform/guides/upgrade-to-litium-8-upgrade-alternatives",
+                  "platform/guides/upgrade-to-litium-8-upgrade-the-platform-solution",
+                  "platform/guides/upgrade-to-litium-8-upgrade-the-platform-solution--net-upgrade-assistant",
+                  "platform/guides/upgrade-to-litium-8-upgrade-the-platform-solution-dotnet-upgrade",
+                  "platform/guides/upgrade-to-litium-8-upgrade-the-platform-solution-independent-script",
+                  "platform/guides/upgrade-to-litium-8-upgrade-the-platform-solution-litium-app-proxy",
+                  "platform/guides/upgrade-to-litium-8-upgrade-the-platform-solution-upgrade-solution-steps",
+                  "platform/guides/upgrade-to-litium-8-upgrade-the-database",
+                  "platform/guides/upgrade-to-litium-8-upgrade-to-angular-20",
+                  "platform/guides/upgrade-to-litium-8-state-mapping",
+                  "platform/guides/upgrade-to-litium-8-comparing-versions-7-and-8"
+                ]
+              },
+              {
+                "group": "Tax app blueprint",
+                "pages": [
+                  "platform/guides/how-to-build-a-tax-app",
+                  "platform/guides/how-to-build-a-tax-app-requesting-tax-from-external-web-api",
+                  "platform/guides/how-to-build-a-tax-app-working-with-discounts",
+                  "platform/guides/how-to-build-a-tax-app-customersubtype",
+                  "platform/guides/how-to-build-a-tax-app-tax-exemptions",
+                  "platform/guides/how-to-build-a-tax-app-getting-taxcode",
+                  "platform/guides/how-to-build-a-tax-app-calculated-tax-response"
+                ]
+              },
+              {
+                "group": "Additional guides",
+                "pages": [
+                  "platform/guides/sync-over-async-pattern",
+                  "platform/guides/customizing-the-gdpr-features",
+                  "platform/guides/custom-pre-order-validation-rule",
+                  "platform/guides/use-payment-token-example",
+                  "platform/guides/trouble-shooting"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Change log",
+            "pages": [
+              "platform/changelog",
+              "platform/whats-new"
             ]
           }
         ]
@@ -68,139 +248,79 @@
         ]
       },
       {
-        "tab": "MCP Servers",
-        "groups": [
+        "tab": "APIs",
+        "pages": [
+          "apis/overview"
+        ],
+        "dropdowns": [
           {
-            "group": "Overview",
-            "pages": [
-              "mcp-servers/overview"
-            ]
-          },
-          {
-            "group": "Admin MCP Server",
-            "pages": [
-              "mcp-servers/admin/introduction",
-              "mcp-servers/admin/getting-started/installation",
-              "mcp-servers/admin/getting-started/configuration",
-              "mcp-servers/admin/getting-started/authentication",
-              "mcp-servers/admin/getting-started/quickstart",
+            "dropdown": "API Reference",
+            "icon": "book",
+            "groups": [
               {
-                "group": "Guides",
+                "group": "Overview",
                 "pages": [
-                  "mcp-servers/admin/guides/deployment",
-                  "mcp-servers/admin/guides/testing",
-                  "mcp-servers/admin/guides/troubleshooting"
-                ]
-              },
-              {
-                "group": "Tools Reference",
-                "pages": [
-                  "mcp-servers/admin/tools/overview",
-                  {
-                    "group": "Products Domain",
-                    "pages": [
-                      "mcp-servers/admin/tools/products/manage-product",
-                      "mcp-servers/admin/tools/products/manage-product-variant",
-                      "mcp-servers/admin/tools/products/manage-product-category",
-                      "mcp-servers/admin/tools/products/manage-product-assortment",
-                      "mcp-servers/admin/tools/products/manage-price-list",
-                      "mcp-servers/admin/tools/products/manage-relationship-type"
-                    ]
-                  },
-                  {
-                    "group": "Content Domain",
-                    "pages": [
-                      "mcp-servers/admin/tools/content/manage-block",
-                      "mcp-servers/admin/tools/content/manage-page"
-                    ]
-                  },
-                  {
-                    "group": "Media Domain",
-                    "pages": [
-                      "mcp-servers/admin/tools/media/manage-media"
-                    ]
-                  },
-                  {
-                    "group": "Websites Domain",
-                    "pages": [
-                      "mcp-servers/admin/tools/websites/manage-website"
-                    ]
-                  },
-                  {
-                    "group": "Customers Domain",
-                    "pages": [
-                      "mcp-servers/admin/tools/customers/manage-customer"
-                    ]
-                  },
-                  {
-                    "group": "Sales Domain",
-                    "pages": [
-                      "mcp-servers/admin/tools/sales/manage-order"
-                    ]
-                  },
-                  {
-                    "group": "Globalization Domain",
-                    "pages": [
-                      "mcp-servers/admin/tools/globalization/manage-channel",
-                      "mcp-servers/admin/tools/globalization/manage-country",
-                      "mcp-servers/admin/tools/globalization/manage-currency",
-                      "mcp-servers/admin/tools/globalization/manage-language",
-                      "mcp-servers/admin/tools/globalization/manage-market"
-                    ]
-                  },
-                  {
-                    "group": "API Info",
-                    "pages": [
-                      "mcp-servers/admin/tools/api-info/get-api-info"
-                    ]
-                  }
+                  "apis/overview"
                 ]
               }
             ]
-          }
-        ]
-      },
-      {
-        "tab": "API Reference",
-        "groups": [
+          },
           {
-            "group": "APIs",
-            "pages": [
-              "apis/overview",
+            "dropdown": "Admin Web API",
+            "icon": "server",
+            "groups": [
               {
                 "group": "Admin Web API",
                 "openapi": "specs/litium-admin-openapi.json",
                 "pages": [
                   "apis/admin-web-api/overview"
                 ]
-              },
+              }
+            ]
+          },
+          {
+            "dropdown": "Connect ERP API",
+            "icon": "plug",
+            "groups": [
               {
-                "group": "Connect APIs",
+                "group": "Connect ERP API",
+                "openapi": "specs/litium-connect-erp-openapi.json",
                 "pages": [
-                  "apis/connect/overview",
-                  {
-                    "group": "ERP API",
-                    "openapi": "specs/litium-connect-erp-openapi.json",
-                    "pages": [
-                      "apis/connect/erp-api/overview"
-                    ]
-                  },
-                  {
-                    "group": "Payment API",
-                    "openapi": "specs/litium-connect-payment-openapi.json",
-                    "pages": [
-                      "apis/connect/payment-api/overview"
-                    ]
-                  },
-                  {
-                    "group": "Shipment API",
-                    "openapi": "specs/litium-connect-shipment-openapi.json",
-                    "pages": [
-                      "apis/connect/shipment-api/overview"
-                    ]
-                  }
+                  "apis/connect/erp-api/overview"
                 ]
-              },
+              }
+            ]
+          },
+          {
+            "dropdown": "Connect Payment API",
+            "icon": "credit-card",
+            "groups": [
+              {
+                "group": "Connect Payment API",
+                "openapi": "specs/litium-connect-payment-openapi.json",
+                "pages": [
+                  "apis/connect/payment-api/overview"
+                ]
+              }
+            ]
+          },
+          {
+            "dropdown": "Connect Shipment API",
+            "icon": "truck",
+            "groups": [
+              {
+                "group": "Connect Shipment API",
+                "openapi": "specs/litium-connect-shipment-openapi.json",
+                "pages": [
+                  "apis/connect/shipment-api/overview"
+                ]
+              }
+            ]
+          },
+          {
+            "dropdown": "Extension Management API",
+            "icon": "puzzle-piece",
+            "groups": [
               {
                 "group": "Extension Management API",
                 "openapi": "specs/litium-extension-management-openapi.json",
@@ -211,22 +331,121 @@
             ]
           }
         ]
+      },
+      {
+        "tab": "Developer tooling",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "platform/get-started/developer-tools",
+              "platform/get-started/developer-tools-db-tool",
+              "platform/get-started/setting-up-a-test-project",
+              "platform/get-started/macos-front-end-development",
+              "platform/get-started/install-empty-litium"
+            ]
+          },
+          {
+            "group": "Storefront CLI",
+            "pages": [
+              "platform/get-started/developer-tools-storefront-cli",
+              "platform/get-started/developer-tools-storefront-cli-release-notes",
+              "platform/get-started/developer-tools-storefront-cli-proxy",
+              "platform/get-started/developer-tools-storefront-cli-import-and-export-definitions",
+              "platform/get-started/developer-tools-storefront-cli-how-to-handle-website-texts"
+            ]
+          },
+          {
+            "group": "MCP Servers",
+            "pages": [
+              "mcp-servers/overview",
+              {
+                "group": "Admin MCP Server",
+                "pages": [
+                  "mcp-servers/admin/introduction",
+                  "mcp-servers/admin/getting-started/installation",
+                  "mcp-servers/admin/getting-started/configuration",
+                  "mcp-servers/admin/getting-started/authentication",
+                  "mcp-servers/admin/getting-started/quickstart",
+                  {
+                    "group": "Guides",
+                    "pages": [
+                      "mcp-servers/admin/guides/deployment",
+                      "mcp-servers/admin/guides/testing",
+                      "mcp-servers/admin/guides/troubleshooting"
+                    ]
+                  },
+                  {
+                    "group": "Tools Reference",
+                    "pages": [
+                      "mcp-servers/admin/tools/overview",
+                      {
+                        "group": "Products Domain",
+                        "pages": [
+                          "mcp-servers/admin/tools/products/manage-product",
+                          "mcp-servers/admin/tools/products/manage-product-variant",
+                          "mcp-servers/admin/tools/products/manage-product-category",
+                          "mcp-servers/admin/tools/products/manage-product-assortment",
+                          "mcp-servers/admin/tools/products/manage-price-list",
+                          "mcp-servers/admin/tools/products/manage-relationship-type"
+                        ]
+                      },
+                      {
+                        "group": "Content Domain",
+                        "pages": [
+                          "mcp-servers/admin/tools/content/manage-block",
+                          "mcp-servers/admin/tools/content/manage-page"
+                        ]
+                      },
+                      {
+                        "group": "Media Domain",
+                        "pages": [
+                          "mcp-servers/admin/tools/media/manage-media"
+                        ]
+                      },
+                      {
+                        "group": "Websites Domain",
+                        "pages": [
+                          "mcp-servers/admin/tools/websites/manage-website"
+                        ]
+                      },
+                      {
+                        "group": "Customers Domain",
+                        "pages": [
+                          "mcp-servers/admin/tools/customers/manage-customer"
+                        ]
+                      },
+                      {
+                        "group": "Sales Domain",
+                        "pages": [
+                          "mcp-servers/admin/tools/sales/manage-order"
+                        ]
+                      },
+                      {
+                        "group": "Globalization Domain",
+                        "pages": [
+                          "mcp-servers/admin/tools/globalization/manage-channel",
+                          "mcp-servers/admin/tools/globalization/manage-country",
+                          "mcp-servers/admin/tools/globalization/manage-currency",
+                          "mcp-servers/admin/tools/globalization/manage-language",
+                          "mcp-servers/admin/tools/globalization/manage-market"
+                        ]
+                      },
+                      {
+                        "group": "API Info",
+                        "pages": [
+                          "mcp-servers/admin/tools/api-info/get-api-info"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Community",
-          "icon": "discord",
-          "href": "https://discord.gg/litium"
-        },
-        {
-          "anchor": "Litium Docs",
-          "icon": "book",
-          "href": "https://docs.litium.com"
-        }
-      ]
-    }
+    ]
   },
   "navbar": {
     "links": [

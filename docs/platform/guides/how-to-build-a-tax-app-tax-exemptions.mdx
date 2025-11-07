@@ -1,0 +1,20 @@
+---
+title: "Tax exemptions"
+description: "Tax exemptions are available in the CustomerInfo.TaxExemption property."
+---
+This section describes how to pass tax exemption details to the tax app from Litium.
+
+Tax exemptions are available in the CustomerInfo.TaxExemption property.
+
+This should be populated during checkout flow, when you create the Litium sales order customer info object.
+
+Following code is in Litium side.
+
+ await cartContext.AddOrUpdateCustomerInfoAsync(new()
+ {
+     CustomerInfo = new CustomerInfo()
+     {
+         TaxExemptions = new Dictionary<string, string>(){{ "TaxExemptCertA", "123455" } }
+     }
+ });
+ await cartContext.CalculateTaxAsync();

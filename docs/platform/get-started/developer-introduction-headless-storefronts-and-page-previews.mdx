@@ -1,0 +1,36 @@
+---
+title: "Headless storefronts and page previews"
+description: "Litium supports to use external storefronts that are built in any programming language. To enable the external storefront for a website you need to edit the settings on the website and select the external storefront from the selection. If your external storefront isn’t in the list, you need to change the appsettings to include that with the correct url."
+---
+This article explains how to make page previews work in the administration when developing headless storefronts.
+
+Litium supports to use external storefronts that are built in any programming language. To enable the external storefront for a website you need to edit the settings on the website and select the external storefront from the selection. If your external storefront isn’t in the list, you need to change the appsettings to include that with the correct url.
+
+The selection for the external storefront on the website will make the external storefront to be used for previews of pages and blocks.
+
+When a preview is requested for a website that have a selection for the external storefront, the url for preview is .well-known/litium/preview with the following querystring parameters:
+
+- path – The path for the page or block that the preview should display.
+- auth-subject – The subject for the authentication to ensure correct user is signed in.
+- auth-host – The host for the authentication.
+
+When the request for the preview endpoint is requested, the following need to happen inside the storefront. The storefront should as well be configured to be able to use Litium for OpenIdConnect authentication with a service account and the OAuth2 Code Flow.
+
+1.  If user isn’t signed in, use the information in the auth-host to redirect the user for authentication. It is important to use the hostname in the auth-host, otherwise the user might not be signed in and preview will not be visible.
+2.  If the user is signed in, verify the subject for the signed in identity with the auth-subject.
+    1.  If the subjects aren’t matching.
+        1.  use the information in the auth-host to redirect the user for authentication. It is important to use the hostname in the auth-host, otherwise the user might not be signed in and preview will not be visible.
+    2.  If the subject is matching.
+        1.  Redirect the user to the path in the querystring or render the preview directly based on the information in the path querystring parameter.
+
+If running Litium Storefront Proxy in combination with the external storefront, the storefront proxy will handle the above to ensure that the request is authenticated correctly before the user is sent to the path for the preview page.
+
+### Blocks
+
+To make it possible for the system to identify the different blocks, the attribute _data-litium-block-id_ need to be added to the most outer element of the block, the attribute value should be the system id of the block.
+
+Example
+
+<div data-litium-block-id="35932139-b6af-492e-b31e-ec012a8447b1">
+    <p>my block data</p>
+</div>

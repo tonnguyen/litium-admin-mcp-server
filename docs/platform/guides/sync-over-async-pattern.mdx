@@ -1,0 +1,66 @@
+---
+title: "Sync over Async Pattern in partner solutions"
+description: "In the ever-evolving world of software development, handling asynchronous operations efficiently is a crucial aspect of building robust and responsive applications. In the realm of .NET, asynchronous programming has come a long way, with continuous improvements and innovations. One prominent pattern that has emerged and gained significant attention is the \"Sync over Async\" pattern. We try to avoid this pattern in our platform as long as possible, but we are starting to see more and more that our partners are having issues with it when they are using legacy code from older versions of their Litium solutions"
+---
+In the ever-evolving world of software development, handling asynchronous operations efficiently is a crucial aspect of building robust and responsive applications. In the realm of .NET, asynchronous programming has come a long way, with continuous improvements and innovations. One prominent pattern that has emerged and gained significant attention is the "Sync over Async" pattern.  
+We try to avoid this pattern in our platform as long as possible, but we are starting to see more and more that our partners are having issues with it when they are using legacy code from older versions of their Litium solutions  
+
+## The Sync over Async Pattern
+
+The Sync over Async pattern is not a new approach to asynchronous programming, but rather a technique that developers employ to use asynchronous methods in a synchronous manner when necessary. It is a pragmatic approach to bridging the gap between legacy synchronous code and modern asynchronous paradigms.
+
+Here is a breakdown of the Sync over Async pattern in .NET:
+
+### Async Methods
+
+Developers create asynchronous methods using the \`async\` keyword, returning a \`Task\` or \`Task<T>\` to indicate that the method can run asynchronously.
+
+### Synchronous Wrappers
+
+To use these asynchronous methods synchronously, developers create synchronous wrapper methods.
+
+### Blocking
+
+Within the synchronous wrapper, developers block the execution by calling the \`Result\` property of the \`Task\` or \`Task<T>\`. This effectively transforms an asynchronous method into a synchronous one, which can be useful in scenarios like console applications or unit testing.
+
+## Performance Issues with Sync over Async
+
+It is crucial to emphasize the potential performance issues that can arise when using the Sync over Async pattern. 
+
+### Blocking and Resource Contention
+
+One of the primary concerns with Sync over Async is that it often involves blocking the execution of code. When you use synchronous wrappers to block on asynchronous operations, you run the risk of resource contention. This means that other parts of your application may have to wait for the blocked operation to be completed, which can reduce overall system performance and responsiveness.
+
+### Thread Pool Usage
+
+In a typical .NET application, asynchronous operations leverage a thread pool to handle tasks efficiently. When you block on asynchronous methods using Sync over Async, you consume threads from the thread pool, potentially leading to thread starvation. This can result in performance degradation and, in the worst-case scenario, can lead to application crashes due to a lack of available threads.  At this blog can you read about the impacts of the sync over async pattern on thread pools in .NET Web applications: [https://wapplegate.com/performance-testing/](https://wapplegate.com/performance-testing/).
+
+### Deadlocks
+
+Deadlocks can occur when a synchronous method waits for an asynchronous operation that, in turn, depends on the completion of another synchronous operation. This circular dependency can lead to application freezes and instability.
+
+### Context Switching Overhead
+
+Each time you switch between synchronous and asynchronous execution, there is an overhead associated with context switching. This can lead to performance bottlenecks, particularly in high-throughput applications.
+
+## Mitigating Sync over Async Performance Issues
+
+To address these performance issues, it's crucial to use the Sync over Async pattern judiciously and adopt the following best practices:
+
+### Thorough Testing
+
+Before deploying Sync over Async code to production, rigorously test it under different scenarios and loads to identify potential performance bottlenecks and deadlocks. Here can you read about debugging thread pool starvation: [https://learn.microsoft.com/en-us/dotnet/core/diagnostics/debug-threadpool-starvation](https://learn.microsoft.com/en-us/dotnet/core/diagnostics/debug-threadpool-starvation).
+
+### Limit Blocking
+
+Avoid blocking on asynchronous methods in critical application threads or on the UI thread. When possible, use asynchronous programming throughout the entire call stack to maintain responsiveness.
+
+### Monitoring and Profiling
+
+Implement performance monitoring and profiling tools to continuously evaluate the impact of Sync over Async on your application. This will help identify areas that require optimization. Here is a good article about two tools that can be helpful to detect the Sync over Async pattern: [https://codeopinion.com/detecting-sync-over-async-code-in-asp-net-core/](https://codeopinion.com/detecting-sync-over-async-code-in-asp-net-core/).
+
+### Optimize External Dependencies
+
+When working with third-party integrations or external partners, communicate your concerns about Sync over Async performance issues. If possible, collaborate to optimize these integrations or consider alternative methods that minimize blocking.
+
+Properly managing blocking, resource contention, and thread pool usage is crucial for ensuring that your application remains responsive and performs optimally in real-world scenarios. Regular monitoring, testing, and optimization are key to addressing and mitigating these performance challenges effectively. There is a good summary of asynchronous programming in .NET at this blog: [https://wapplegate.com/asynchronous-programming/](https://wapplegate.com/asynchronous-programming/).

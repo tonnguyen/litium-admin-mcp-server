@@ -1,0 +1,148 @@
+---
+title: "What's new January 2025"
+description: "Manage high loads with ease In the Litium January release we’re releasing many powerful features enhancing the usability for administrators, making the daily work easier and more efficient."
+---
+
+Manage high loads with ease In the Litium January release we’re releasing many powerful features enhancing the usability for administrators, making the daily work easier and more efficient.
+
+Manage high loads with ease
+In the Litium January release we’re releasing many powerful features enhancing the usability for administrators, making the daily work easier and more efficient. We have improved the search of products, pages and blocks, and also built new abilities to make management of large volumes both easier and faster. Also, the sorting of products in categories have been made easier to work with. 
+ 
+Litium 8.20
+Improved backoffice search
+
+Improved page search in administration
+Ability for administrators to save searches as views for pages
+Improved block search in administration
+Ability for administrators to save searches as views for global blocks
+
+Backoffice search managing large volumes
+
+Improved ability for users to manage large volumes in the product search result
+Improved ability for users to manage large volumes in the page search result
+Improved ability for users to manage large volumes in the global block search result
+Improved ability for users to manage large volumes in the order search result
+
+Sales
+
+Ability to edit and approve RMAs in the order detail view
+Ability to show additional info for shipments
+Ability to have orders in Pending processing state
+Ability to cancel an order that has not reached Confirmed state
+
+PIM
+
+Improved UI to set product sort order and search for products in a category
+Improved ability to manage high volumes of products in a category
+
+UI
+
+Ability for user to see the product selector when scrolling the product page
+Ability to collapse items in multi fields
+
+Other
+
+Ability for administrator to separate currency formats in backoffice and the storefront
+Ability to use .NET 9
+
+ 
+React accelerator 1.5
+
+Upgrade to NextJS 15.1
+
+ 
+Storefront API
+
+Ability for Storefront API to return currency formatting rules
+Ability to return unit of measurement in Storefront API
+
+ 
+Improved backoffice search
+As an administrator managing a large number of website pages and blocks, it is crucial to quickly locate the relevant pages or blocks for your tasks.
+With this improvement, you are taken to the page list directly when entering the Websites module, where you can search for pages immediately. Less clicks, faster and more efficient.
+ 
+As an administrator you commonly have a need to repeat the same search or filtering many times. You could for example want to filter pages for a certain channel. These repeated searches are commonly related to a recurring task that needs to be done, sometimes by multiple people. 
+ 
+To save time and foster collaboration, users can now save both page and block searches as reusable views for future use.
+
+Users can now save searches as views for pages and blocks
+ 
+Backoffice search managing large volumes
+Displaying large datasets at once overwhelms users, increases load times, and creates a cluttered experience. Endless scrolling can make navigation uncontrolled and inefficient, and lead to frustration.
+ 
+To manage high volumes we are introducing paginated lists.  Pagination organizes data into manageable chunks, improving performance, usability, and scalability. It reduces cognitive load, provides clear navigation controls, and supports accessibility. By structuring content into pages, pagination ensures the interface remains fast, intuitive, and user-friendly, delivering a better experience for users managing large datasets.
+ 
+In this release we have introduced the pagination for:
+
+the search results of products, orders, pages and blocks
+the Products tab in the category page
+
+ 
+
+Pagination organizes data into manageable chunks, improving performance, usability, and scalability 
+ 
+Ability to edit and approve RMAs in the order detail view
+When working with returns in Litium admin users need the ability to edit the RMA. With this feature admins can edit received quantity, return reasons, inventory decisions and comments, as well as move the RMA status forward.
+Ability to show additional info for shipments
+As an administrator working with orders in Litium there is a need to be able to see information stored as additional info on the shipments. With this feature we add the ability to configure which information to show for shipments, in the same way as we already have for additional info for orders.
+Ability to have orders in Pending processing state
+We have added a new state, Pending processing, to the orders in Litium. This state is designed to be used as an intermediary state between Confirmed and Processing. Orders in the Confirmed state can be edited in the Litium backoffice, and should be moved to Pending processing state to prevent further changes.
+Ability to cancel an order that has not reached Confirmed state
+Currently you can only cancel an order that has reached the Confirmed state. However, when working with order approval flows there can be a need to cancel an unapproved order. It is now possible to cancel (either through API or the Backoffice UI) an order that is waiting for approval in the Init state. Also, once the order has been cancelled it will automatically move to the Completed state.
+ 
+Improved UI to set product sort order and search for products in a category
+When sorting products in a category with many products, it has been causing issues since the ordering was done using drag and drop. This has been due to that a long scrollable page was not efficient in combination with drag and drop.
+ 
+With this new UI the manual sort order of a product in a category you simply write a number in a text box for the position where you want to place the product. In combination with the new paginated list view, and an added ability to search products directly in the list, the manual sort order is now much easier to work with.
+ 
+
+Easier control of the manual sort order by simply entering a number. A product search is also added to the view.
+ 
+Improved ability to manage high volumes of products in a category
+Displaying large datasets at once overwhelms users, increases load times, and creates a cluttered experience. Endless scrolling can make navigation uncontrolled and inefficient, and lead to frustration.
+To manage high volumes we are introducing paginated lists in many views and also in the Products tab in the category page.
+ 
+
+ 
+Ability for user to see the product selector when scrolling the product page
+As an administrator working with the properties of a product, and having a product with many properties, it is efficient to always see which is being edited. With this feature, the product selector remains visible (sticky) when the user scrolls down the page.
+
+A sticky product selector makes it easier to understand which product you are editing.
+ 
+Ability to collapse items in multi fields
+As an administrator working with multi fields, when having many items it is valuable to be able to collapse the items in order to have a clearer overview of the items. With this new feature you can expand and collapse the items in multi fields.
+
+Collapsed multi field items to gice a better overview.
+ 
+Ability for administrator to separate currency formats in backoffice and the storefront
+In previous versions of Litium, the settings for how to show a currency was applied to both the storefront and the backoffice admin UI. Some of these settings relied upon .NET standards, which does not work well with the new Storefront API. With this feature the backoffice will always show currencies according to their ISO 4217 standard, while the settings for both MVC and headless storefronts are separated into their own settings.
+ 
+Ability to use .NET 9
+The Litium platform now supports Microsoft .NET 9 that has a special focus on cloud-native apps and performance.
+
+https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-9/overview
+ 
+The React accelerator is only available to customers running Litium Commerce Cloud and note that you can run it locally and in Litium serverless cloud.
+The headless React accelerator is built on React and Next.JS and has all the tools and frameworks you would expect from a modern single page application. It is designed mobile first for a better and updated user experience.
+The new react accelerator has its own description and release notes, but here are some of the new things delivered in this release.
+React accelerator roadmap
+ 
+Upgrade to NextJS 15.1
+From this version of the React accelerator, we support and use the NEXTJS version 15.1, to offer the most efficient framework to partner developers.
+ 
+Read more: Next.js 15.1 | Next.js
+ 
+Ability for Storefront API to return currency formatting rules
+As a merchant it is valuable to be able to change the way a currency is shown. Some merchants have it in their brand to show prices in a certain way like for example :- instead of the currency symbol. With this feature it is possible to fetch these settings with the Storefront API, to be used in a headless storefront.
+ 
+Ability to return unit of measurement in Storefront API
+Sometimes when selling products it needs to be specified which units that are sold. Products could for example be sold by pieces or package, meter or centimeter. With this feature, it is possible to fetch the unit of measurement with the Storefront API.
+ 
+Learn more:
+Storefront API introduction
+Storefront API roadmap
+ 
+All bug fixes and smaller improvements are found in the release notes.
+See the release notes here
+
+[Back to what's new](/platform/whats-new)

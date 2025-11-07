@@ -1,0 +1,49 @@
+---
+title: "Trouble shooting"
+description: "All complex projects will likely run in to problems eventually, use this guide as a checklist when you have run out of ideas to try."
+---
+All complex projects will likely run in to problems eventually, use this guide as a checklist when you have run out of ideas to try.
+
+## Isolate the problem
+
+Often it feels like looking for needle in a haystack, but there are some steps you can do to isolate the area of the problem.
+
+1.  The first thing you should do is to check the log, most of the time you will find an error with a stacktrace. Remember to check the log messages leading up to the error as well.
+    
+2.  Sometimes you have the problem at the startup of the application and you do not see any errors in the log files. For Litium 8 versions you can change an attribute called stdoutLogEnabled in the web.config and if you set it to true, console output is logged to the file specified in stdoutLogFile (Change the path of the file with .. (dot dot) instead of . ( period), otherwise the files end up in the approot directory).
+    
+3.  Does the problem occur in all environments (Production/Test/Local)? If not it is likely related to the environment:
+    
+    1.  Different server load? Perhaps the problem only shows with many simultaneous requests?
+    2.  Are you using a load balancer in production only?
+    3.  Integrations might be configured to run differently in production and towards different targets than test environments
+    4.  Compare configuration files between the environments
+    5.  Using automated deploy? Perhaps a manual deploy works and indicates a problem in your automation setup?
+    6.  Download and use the database from the environment that display the problem. If you get the error locally it is probably related to the data and you will be able to debug the solution.
+4.  Errors that only occur in Production are hard to fix, in general try to add a lot of logging in your code but use the `Trace` and `Debug` levels. Log method calls with input and result to trace the code execution flow to the source of your problem. This is also a good strategy for those errors that occur randomly but cannot be reproduced on demand. 
+    
+5.  Disable features to see if that solves the problem, remove features such as Redis/Elastic/Apps/Custom code/Integrations and see if that solves the problem to isolate which feature that cause the problem.
+    
+6.  Can your problem be reproduced in a clean Litium installation? And can it be reproduced in the _latest version_ of a clean Litium installation?
+    
+    1.  If not it is likely related to custom code that has been added, check your version control for clues.
+    2.  If it can be reproduced then it could be an already known bug? Search for your problem in the [list of reported bugs](/) or report it as a new one.
+7.  Has this problem always been there, or when did it start to occur? Check your version control around that time for clues.
+    
+
+## Performance problems
+
+A common problem is that the site works but some areas are slow or give timeouts. As the amount of data and number of users increase you might start to have problems in areas that worked fine before.
+
+1.  A very quick way to find the source of server side performance bottlenecks is to use a performance profiler like [dotTrace](https://www.jetbrains.com/profiler/) and just measure your page load or integration that is slow. It will give you details on exactly which methods that takes time to execute.
+    
+2.  Use a tool like [Google lighthouse](https://developer.chrome.com/docs/lighthouse/overview/) to check client side page performance.
+    
+3.  Remember that if you use the [data service](https://start.litium.dev/en/develop#querying-data) you bypass the built in cache when accessing the database which will give performance problems on frequent access.
+    
+
+## Resolving the problem
+
+1.  Try to reproduce the problem in an automated test if possible, this will help you isolate and understand the problem and the created [regression test](https://en.wikipedia.org/wiki/Regression_testing) will prevent the problem from reoccuring in the future. Test projet setup is **[part of the Installation tutorial](https://start.litium.dev/tutorials/installation/setup/test).**
+    
+2.  Cache is king when it comes to performance problems. Make use of [Litium distributed cache](/platform/architecture/distributed-caching), you can find an **[implementation example](https://start.litium.dev/tutorials/installation/customize/price-calculator#cache-the-external-price)** in the installation tutorial.

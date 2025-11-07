@@ -1,0 +1,87 @@
+---
+title: "What's new 8.8"
+description: "Highlights in this version are a new Storefront API (beta), structures that are moved from the MVC accelerator to the platform to be able to be used via the Storefront API and new field to manage links. Headless react accelerator (beta) The new react accelerator (beta) has its own description and release notes."
+---
+
+Highlights in this version are a new Storefront API (beta), structures that are moved from the MVC accelerator to the platform to be able to be used via the Storefront API and new field to manage links. Headless react accelerator (beta) The new react accelerator (beta) has its own description and release notes.
+
+Highlights in this version are a new Storefront API (beta), structures that are moved from the MVC accelerator to the platform to be able to be used via the Storefront API and new field to manage links. 
+ 
+Headless react accelerator (beta)
+The new react accelerator (beta) has its own description and release notes.
+Litium Storefront API (beta)
+
+Storefront API foundation
+
+Structures moved from MVC accelerator to platform
+
+Ability to point out an icon for the website
+Ability to manage variant groupings as part of field templates instead of in the MVC accelerator
+Ability to set field indexing on field level instead of in the accelerator
+
+Back office
+
+Ability to link to several entity types using one field
+Ability to display the shipping option selected in widget in backoffice order detail view
+Ability to use Inter as font in the back office
+Ability to use Font Awesome version 6.2.1 instead of version 5.6.3. 
+
+Payments API 1.1
+
+Ability to send shipping option name and description to payment apps
+Ability to handle shipping method information and additional customer information in payment apps
+
+Other
+
+Ability to support image transformation on ARM
+Ability for async event subscription
+
+ 
+Litium Storefront API (beta)
+For headless set ups
+The purpose of the API is to be used in by any external presentation layer like a headless storefront. Together with the new react accelerator it forms the Litium headless commerce stack.
+GraphQL
+The Storefront API is a GraphQL API with the flexibibility that comes with the GraphQL technology.
+Extensibility
+GraphQL is a technology that allows flexibility, but to take a step further we also support extensibility using GraphQL Federation.
+ 
+Read more about the Storefront API
+ 
+Structures moved from MVC accelerator to platform
+To be able to use some of the abilities that previously existed in the MVC accelerator with the Storefront API, the abilities needed to become platform abilities. In this release we moved these:
+
+Ability to point out an icon for the website
+Ability to manage variant groupings as part of field templates instead of in the MVC accelerator
+Ability to set field indexing on field level instead of in the accelerator
+
+The abilities are still also part of the MVC accelerator just as before.
+ 
+Payments API 1.1
+Ability to send shipping option name and description to payment apps
+As a payment app I need to include the name and description set in BO for the shipping options when sending them to the payment app.
+Ability to handle shipping method information and additional customer information in payment apps
+When the shipping method selection is done in a payment widget, Litium need to be able to receive information about the shipping method that the buyer selected, to properly display in the order detail view in BO.
+ 
+Back office
+Ability to link to several entity types using one field
+In the idea portal it had the wonderful name One link fieldType to rule them all. We completely agree that it is a good idea, and so we built it.
+With this ability as an editor I can manage linking to products, categories, internal and external pages with the same field, and there is no need to define one pointer field for each entity type. The pointer field types are still there, and can be used when you think it is appropriate.
+
+Ability to display the shipping option selected in widget in backoffice order detail view
+When viewing an order in back office where the shipping options selection was done in a payment widget, the shipment fee is labeled with the name of the shipping option on the order, which is the option with integrationType=paymentCheckout. It is valuable to the administrator to instead see the name of the shipping option that the buyer selected in the payment checkout iframe.
+ 
+Ability to use Inter as font in the back office
+Maybe not a big thing for some, but we care about constantly improving the back office user experience. Inter is a font that was carefully designed and crafted for computer screens with high readability.
+ 
+Other
+
+Ability to support image transformation on ARM
+Ability for async event subscription
+
+ 
+Bug fixes and improvements
+All bug fixes and smaller improvements are found in the release notes.
+ 
+See the release notes here
+
+[Back to what's new](/platform/whats-new)

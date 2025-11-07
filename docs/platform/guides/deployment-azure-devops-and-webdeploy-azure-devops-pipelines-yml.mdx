@@ -1,0 +1,99 @@
+---
+title: "Azure Devops Pipelines YML"
+description: "Azure Devops Pipelines YML"
+---
+Azure DevOps Pipelines YML
+
+trigger:
+  branches:
+    include:
+    - master
+variables:
+- name: solution
+  value: '\*\*/\*.sln'
+- name: buildPlatform
+  value: 'Any CPU'
+- name: buildConfiguration
+  value: 'Release'
+stages:
+- stage: \_\_default
+  jobs:
+  - job: Job
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: DotNetCoreCLI@2
+      displayName: Add nuget source file
+      inputs:
+        command: 'custom'
+        custom: 'new'
+        arguments: 'nugetconfig'
+
+    - task: DotNetCoreCLI@2
+      displayName: Add Litium nuget source
+      inputs:
+        command: 'custom'
+        custom: 'nuget'
+        arguments: 'add source https://nuget.litium.com/nuget/ --name Litium'
+
+    - task: NuGetAuthenticate@1
+      displayName: 'Authenticate to NuGet feeds'
+      inputs:
+        nuGetServiceConnections: 'Litium'
+        forceReinstallCredentialProvider: true
+
+    - task: DotNetCoreCLI@2
+      displayName: Clear nuget http cache
+      inputs:
+        command: 'custom'
+        custom: 'nuget'
+        arguments: 'locals -c http-cache'
+
+    - task: DotNetCoreCLI@2
+      displayName: Restore packages
+      inputs:
+        command: 'restore'
+        projects: '\*.sln'
+        feedsToUse: 'config'
+        nugetConfigPath: 'nuget.config'
+        verbosityRestore: minimal
+        externalFeedCredentials: 'Litium'
+        workingDirectory: '$(Build.SourcesDirectory)'
+    - pwsh: |
+        yarn install
+        yarn run prod
+      displayName: ""
+      workingDirectory: 'Src/'
+
+    - pwsh: |
+        yarn install
+        yarn run prod
+      workingDirectory: 'Src/Litium.Accelerator.Mvc'
+
+    - pwsh: |
+        yarn install
+        yarn run prod
+      displayName: 'Yarn dir Src/Litium.Accelerator.Email'
+      workingDirectory: 'Src/Litium.Accelerator.Email'
+
+    - task: DotNetCoreCLI@2
+      displayName: Build
+      inputs:
+        command: 'build'
+        projects: '\*.sln'
+        arguments: '-c Release --no-restore'
+        workingDirectory: '$(Build.SourcesDirectory)'
+  
+    - task: DotNetCoreCLI@2
+      displayName: Publish
+      inputs:
+        command: 'publish'
+        projects: '\*.sln'
+        arguments: '-c Release --no-build --no-restore -o builds/publish'
+        workingDirectory: '$(Build.SourcesDirectory)'
+
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish webapp artifact'
+      inputs:
+        PathtoPublish: '$(Build.SourcesDirectory)/builds/publish'
+        ArtifactName: LitiumBuildArtifact

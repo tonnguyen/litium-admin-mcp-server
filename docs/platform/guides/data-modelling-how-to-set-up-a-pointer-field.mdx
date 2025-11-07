@@ -1,0 +1,109 @@
+---
+title: "How to set up a pointer field"
+description: "In the field definition setting screen, we can create a new field definition with type = Pointer."
+---
+In this guide we show how to set up and a pointer field in the backoffice as well as in code.
+
+In the field definition setting screen, we can create a new field definition with _type = Pointer._ 
+
+Then we can define the entity type of that pointer in the **Entity** section.
+
+![Pointerr 2.PNG](./media/Pointerr%202.PNG)
+
+In this sample pointer, **Pages** have been selected as **Entity** and the **Multi-select** option has been ticked. This is what it looks like after we add it to the article-page template:
+
+![Pointer 1_1.PNG](./media/Pointer%201_1.PNG)
+
+If we click **Add** we'll see the page-selection dialog. This dialog will list all the pages that we have in the system, under each channel:
+
+![Pointer 4.PNG](./media/Pointer%204.PNG)
+
+Then we can select multiple alternatives and click **OK.** The selection will be stored in that field's value: 
+
+![Pointer 5.PNG](./media/Pointer%205.PNG)
+
+There're two types of _PointerItem:_
+
+- _PointerPageItem_ which has both _EntitySystemId_ and _ChannelSystemId_ that link to a page on the website.
+- The normal _PointerItem_ which has only _EntitySystemId._
+
+This is an example where we create two pointer fields with both types of _PointerItem_:
+
+public void PoiterFieldTest()
+{
+    //Create pointer-field definition
+    var pointerFieldDefinition =
+        new FieldDefinition<CustomerArea>(this.UniqueString(), SystemFieldTypeConstants.Pointer)
+        {
+            Option =  new PointerOption()
+            {
+                EntityType = PointerTypeConstants.CustomersGroup,
+                MultiSelect = true
+            }
+        };
+    \_fieldDefinitionService.Create(pointerFieldDefinition);
+
+    //Create pointer-field definition
+    var pagePointerFieldDefinition =
+        new FieldDefinition<CustomerArea>(this.UniqueString(), SystemFieldTypeConstants.Pointer)
+        {
+            Option = new PointerOption()
+            {
+                EntityType = PointerTypeConstants.WebsitesPage,
+                MultiSelect = true
+            }
+        };
+    \_fieldDefinitionService.Create(pagePointerFieldDefinition);
+
+    // Create group field template
+    var sampleGroupFieldTemplate = new GroupFieldTemplate(this.UniqueString())
+    {
+        FieldGroups = new\[\]
+        {
+            new FieldTemplateFieldGroup()
+            {
+                Id = "General",
+                Collapsed = false,
+                Fields =
+                {
+                    pointerFieldDefinition.Id,
+                    pagePointerFieldDefinition.Id
+                }
+            }
+        }
+    };
+    \_fieldTemplateService.Create(sampleGroupFieldTemplate);
+    
+    //prepare pointer field data 
+    var innerData1 = new PointerItem { EntitySystemId = Guid.NewGuid()};
+    var innerData2 = new PointerItem { EntitySystemId = Guid.NewGuid() };
+    var innerData3 = new PointerPageItem { EntitySystemId = Guid.NewGuid(), ChannelSystemId = Guid.NewGuid()};
+    var innerData4 = new PointerPageItem { EntitySystemId = Guid.NewGuid(), ChannelSystemId = Guid.NewGuid() };
+
+    //Create a sample static group and assign pointer field value to it:
+    var sampleGroup = new StaticGroup(sampleGroupFieldTemplate.SystemId, this.UniqueString());
+    sampleGroup.Fields.AddOrUpdateValue(pointerFieldDefinition.Id, new\[\] { innerData1, innerData2 });
+    sampleGroup.Fields.AddOrUpdateValue(pagePointerFieldDefinition.Id, new\[\] { innerData3, innerData4 });
+    \_groupService.Create(sampleGroup);
+
+    //Retrieve the group we've created and extract the multifield value
+    var savedGroup = \_groupService.Get<StaticGroup>(sampleGroup.SystemId);
+    var pointerFieldValue = savedGroup.Fields.GetValue<IList<PointerItem>>(pointerFieldDefinition.Id);
+    var pagePointerFieldValue = savedGroup.Fields.GetValue<IList<PointerItem>>(pagePointerFieldDefinition.Id).OfType<PointerPageItem>().ToList();
+
+    //Asserts
+    if(pointerFieldValue != null) 
+    {
+        var count = pointerFieldValue.Count; //Should be 2
+        var entityId1 =  pointerFieldValue.First().EntitySystemId; // Should equal innerData1.EntitySystemId
+        var entityId2 =  pointerFieldValue.Last().EntitySystemId;  // Should equal innerData2.EntitySystemId  
+    }
+    if(pagePointerFieldValue != null)
+    {
+        var count = pointerFieldValue.Count; //Should be 2
+        var entityId1 =  pagePointerFieldValue.First().EntitySystemId; // Should equal innerData3.EntitySystemId
+        var channelId1 =  pagePointerFieldValue.First().ChannelSystemId; // Should equal innerData3.ChannelSystemId
+        var entityId2 =  pagePointerFieldValue.Last().EntitySystemId;  // Should equal innerData4.EntitySystemId
+        var channelId2 =  pagePointerFieldValue.Last().ChannelSystemId;  // Should equal innerData4.ChannelSystemId  
+    }
+}

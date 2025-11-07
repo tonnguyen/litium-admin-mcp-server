@@ -1,0 +1,31 @@
+---
+title: "Integrations"
+description: "For an overview of the upgrade procedure, please see how to upgrade to Litium 8."
+---
+General considerations when upgrading a solution that has integrations, including add-ons.
+
+For an overview of the upgrade procedure, please see [how to upgrade to Litium 8](https://docs.litium.com/!b4353f6c-fc24-4afb-8a66-7a7e77fff13c/documentation/upgrade-to-litium-8). 
+
+### General considerations
+
+Consider the following when upgrading a solution that has integrations:
+
+❗️ Stop all integrations that populate data into the Litium database, as well as outbound integration, for example, exports of orders to the ERP, in order to avoid these being exported several times. Do this before making the database backups. 
+
+❗️ Ensure that the job can restart from the beginning, or continue from the last point when deploying new versions of the integration code to the Windows Service or the website. Otherwise, you may lose work when the Windows Service or website restarts. 
+
+❗️ Ensure that all jobs finish before new code can be deployed if the integration job cannot handle restarts. It is generally recommended to wait until any current integration job has finished, before interrupting the service or website. 
+
+❗️ Note that since the integrations are not running during the service window, any changes to the data in the source system during the service window must be re-populated to Litium before the site is brought back online. The source system is normally an ERP or PIM system. 
+
+### Add-ons and other compiled components dependent on Litium
+
+Verify that there is an upgraded version of the [add-on](/add-ons/add-ons-as-extensions) or an [app](/add-ons/litium-apps) that supports the new Litium version. The supported version information is displayed in the documentation for [Litium add-ons](/add-ons/add-ons-as-extensions) and [Litium apps](/add-ons/litium-apps).
+
+When there is an upgraded version of the add-on or an app that supports Litium 8, please check the functionality that is being used, and compare it to the functionality in the upgraded version. For example, there are more abilities included in the Klarna add-on for previous versions of Litium, than in the Klarna app for Litium 8. 
+
+If an add-on or ability is not supported yet, or if you require more information regarding differences in functionality, please contact [Litium support](/resources/support) to get information about add-on compatibility and upgrade options.
+
+### Litium App proxy for payments
+
+For payments that are already created through a Payment Service Provider (PSP) before sales data was migrated from earlier Litium versions to Litium 8. Please see [how to configure the Litium app proxy when upgrading the solution](/platform/guides/upgrade-to-litium-8-upgrade-the-platform-solution-litium-app-proxy).

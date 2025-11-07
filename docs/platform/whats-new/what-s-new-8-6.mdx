@@ -1,0 +1,117 @@
+---
+title: "What's new 8.6"
+description: "Litium 8.6 is a minor version of the Litium commerce platform."
+---
+
+Litium 8.6 is a minor version of the Litium commerce platform.
+
+Litium 8.6 is a minor version of the Litium commerce platform. It contains minor features and bug fixes.
+ 
+Litium Connect ERP API
+
+Ability to cancel the remaining part of an order from Connect ERP API
+Ability to update a shipment with tracking information from Connect ERP API
+Ability to send webhooks for additional events in Connect ERP API
+
+ 
+Litium Connect Payments API
+
+Unified Connect Payments API operations for stability 
+Litium Connect Payments API 1.0 generally available
+
+ 
+Litium back office
+
+Ability to cancel remaining order rows of an order from admin UI
+Ability to search for customer number in Customers module
+Ability for our 3 GA widgets in Dashboard to show data as in Litium 7
+
+ 
+Litium discounts and campaigns
+
+Ability for system to allow only one product discount for the same product
+Ability to see which discounts are used in an order
+Ability to add product selection to cart amount for a discount
+Ability for admin to remove items added to a campaign
+Ability for administrator to add existing discount to a campaign
+
+ 
+Litium Accelerator
+
+Ability to show orders and customers in demo site
+Removal of the ability to install the Accelerator multiple times
+
+ 
+ 
+Litium Connect ERP API
+Ability to cancel the remaining part of an order from Connect ERP API
+The purpose is to support the scenarios where the ERP system is the first to know when an order needs to be cancelled, for example if the WMS notifies the ERP that a product is out of stock. 
+Ability to update a shipment with tracking information from Connect ERP API
+The ERP system usually get information about tracking numbers for shipments from a TA system. This information should also be available in Litium, as the merchant might want to send these tracking numbers to the buyer.
+Ability to send webhooks for additional events in Connect ERP API
+With this ability the Litium Connect ERP API provides webhooks for some additional events like for example OrderProcessing, OrderCompleted, PaymentRefunded and PaymentCancelFailed.
+ 
+Litium Connect Payments API 
+Unified Connect Payment API operations for stability
+General improvements in the payment communication between Litium and payment apps. The Litium Connect Payment API is now generally available as a version 1.0.
+ 
+Litium back office
+Ability to cancel remaining order rows of an order from admin UI
+The purpose of this feature is to provide the ability for merchants to cancel the remaining part of an order from admin UI. Such cancellation may be used by the merchant to manually resolve situations where an order or a part of an order cannot or should not be fulfilled for some reason. Cancellation can only be done once per order and only be performed at the end of processing the order, i.e. when cancellation is done the remaining part of the order will be cancelled and the order will be set to completed.
+
+ 
+Ability to search for customer number in Customers module
+This ability makes it possible for administrators to to search for persons and organizations using customer number in the back office.
+
+ 
+ 
+Ability for our 3 GA widgets in Dashboard to show data as in Litium 7
+This ability assures the existing 3 GA widgets fetch data from Google and show it as in Litium 7. The 3 widgets are "Commerce analytics", "Site analytics" and "Pages top list".
+ 
+Litium discounts and campaigns
+Ability to allow only one product discount for the same product
+With this ability Litium allows only one product discount for the same product, with the purpose of avoiding situations where two product discounts are applied on a product.
+ 
+Ability to see which discounts are used in an order
+Also added, is the ability for an administrator or a visitor on the site to see which product discounts are used in an order. The modified views are the cart in the checkout, the confirmation page, the confirmation email and the order details view in the back office.
+ 
+ 
+
+The cart in the checkout page.
+ 
+
+The confirmation page.
+ 
+ 
+
+The back office page.
+ 
+ 
+Ability to add product selection to cart amount for a discount
+With this ability the administrator is able to offer a discount when a visitor buys products for a certain amount from a specific set of products. There is already a "Cart amount" field on discounts. The value of the cart amount need to be exceeded in the cart for the discount to be valid. With this ability we add the possibility for the administrator to specify that the cart amount is only based upon a selection of products. This aims at giving the administrator a possibility to have a discount like: "Buy products for 100 USD from Hugo Boss, and get a free gift".
+
+ 
+Ability for administrator to remove items added to a campaign
+As an administrator you are now able to remove pages, blocks and discounts from a campaign. This can be done from the Plan tab when editing a campaign.
+
+ 
+Ability for administrator to add existing discount to a campaign
+As an administrator you can now add existing discounts to a campaign, to facilitate if you want to extend an existing discount into a campaign, or simply started the process by setting up a discount first and realized later it should be part of a campaign.
+
+ 
+Litium Accelerator
+Ability to show orders and customers in demo site
+The demo site and the default Accelerator now includes a basic set of data of orders, persons, organizations and roles. This makes it easier to demo the capabilities of both the order management in the Sales module of back office, as well as the functionality of the My pages section in the Accelerator.
+
+ 
+
+Removal of the ability to install the Accelerator multiple times
+The ability to install the Litium Accelerator multiple times has been removed to avoid having to handle duplicate system IDs for several entities.
+ 
+ 
+Bug fixes and improvements
+Around 40 bug fixes and smaller improvements.
+ 
+See the release notes here
+
+[Back to what's new](/platform/whats-new)
