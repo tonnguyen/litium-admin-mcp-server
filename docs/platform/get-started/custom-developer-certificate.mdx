@@ -1,0 +1,232 @@
+---
+title: "Custom developer certificate"
+description: "How to generate a custom certificate that dotnet core recognizes as a valid certificate on Windows."
+---
+How to generate a custom certificate that dotnet core recognizes as a valid certificate on Windows.
+
+**Note**: This is an updated version that generates valid certificates on Windows, if using other OS the steps in this guide can be used down to question "Install as dev cert?", the installation of certificate need to be handle different on each OS. [Use the original guide for generating certs with dotnet devcerts.](/platform/get-started/custom-developer-certificate-custom-developer-certificate-non-windows)
+
+When running Litium Apps in containers (docker) the _localhost_ domain will always point to the container itself and can't be used in the communication between the app and Litium. To solve the communication between the app and Litium, we will use a custom domain that resolves to the host of the container, see [dns-resolver on shared dependencies](/platform/get-started/shared-dependencies).
+
+To be able to use custom domain names with dotnet core's inbuilt webserver; Kestrel, you must generate your own certificate. In this article, we will use the testing domain name _localtest.me_. What is special with _localtest.me_ domain is that all sub-domains will point to your local machine.
+
+Before starting ensure that the following is installed:
+
+- Docker client
+- Powershell or Powershell Core
+
+To be able to generate your own certificate you need to create two different templates, one for your local CA and one for the certificate.
+
+Prepared files can be downloaded and are prefered to use, when copying from the browser sometimes the formatting of the content will be wrong that will make the generation to fail:
+
+- [ca.txt](./files/ca.txt)
+- [localhost.txt](./files/localhost.txt)
+- [generate.ps1](./files/generate.ps1)
+
+Create a file with the name _ca.txt_ with the following content, this will be used as the input to the certificate generation. The content in the template can be changed to make it work for other domains that you want to use.
+
+\[ req \]
+distinguished\_name = req\_distinguished\_name
+x509\_extensions    = v3\_ca
+
+\[ req\_distinguished\_name \]
+commonName                  = Common Name (e.g. server FQDN or YOUR name)
+commonName\_default          = Dev CA
+commonName\_max              = 64
+
+\[ v3\_ca \]
+subjectKeyIdentifier        = hash
+authorityKeyIdentifier      = keyid:always,issuer
+basicConstraints            = critical,CA:true
+nsComment                   = "Dev CA"
+
+Create a file with the name _localhost.txt_ with the following content, this will be used as the input to the certificate generation. The content in the template can be changed to make it work for other domains that you want to use.
+
+\[ req \]
+distinguished\_name = req\_distinguished\_name
+x509\_extensions     = user\_crt
+req\_extensions      = v3\_req
+
+\[ req\_distinguished\_name \]
+commonName              = Common Name (e.g. server FQDN or YOUR name)
+commonName\_default      = localhost
+commonName\_max          = 64
+
+\[ v3\_req \]
+subjectAltName          = @alt\_names
+basicConstraints        = critical, CA:false
+keyUsage                = nonRepudiation, digitalSignature, keyEncipherment
+extendedKeyUsage        = serverAuth
+1.3.6.1.4.1.311.84.1.1  = DER:04
+
+\[ user\_crt \]
+nsCertType              = client, email, objsign
+nsComment               = "dotnet DevCert"
+subjectKeyIdentifier    = hash
+authorityKeyIdentifier  = keyid,issuer
+subjectAltName          = @alt\_names
+extendedKeyUsage        = serverAuth
+1.3.6.1.4.1.311.84.1.1  = DER:04
+
+\[ alt\_names \]
+DNS.1   = localhost
+DNS.2   = 127.0.0.1
+DNS.3   = \*.docker.internal
+DNS.4   = \*.dev.localhost
+DNS.5   = \*.dev.internal
+DNS.6   = host.docker.internal
+DNS.7   = host.containers.internal
+DNS.8   = \*.localtest.me
+
+When we have the certificate template we will use OpenSSL to generate the certificate, we will run the certificate generation inside docker and export the generated certificate.
+
+Execute the following commands to generate the certificate and installing that as a developing certificate with the dev-certs tool. To succeed you need to accept the confirmation dialogs. If you want to use the certificate with IIS, run the scripts as administrator.
+
+$p = $PSScriptRoot; if ("" -eq $p) { $p = (Get-Location) };
+$s = \[System.Guid\]::NewGuid()
+
+Write-Host "Generated password: $s" -ForegroundColor DarkGreen
+Set-Content $p -Path $p/generated-secret.txt -NoNewline | Out-Null
+
+Write-Host "Generating CA Key" -ForegroundColor DarkGreen
+docker run --rm -t -it -v "$($p):/data:rw" alpine/openssl \`
+    genrsa \`
+    -des3  \`
+    -out /data/generated-ca.key \`
+    -passout pass:$s \`
+    2048
+if ($LASTEXITCODE -ne 0) { return; }
+
+Write-Host "Generating CA cert" -ForegroundColor DarkGreen
+docker run --rm -t -it -v "$($p):/data:rw" alpine/openssl \`
+    req \`
+    -x509 \`
+    -new \`
+    -nodes \`
+    -key /data/generated-ca.key \`
+    -sha256 \`
+    -days 3650 \`
+    -out /data/generated-ca.pem \`
+    -subj "/CN=Dev CA" \`
+    -config /data/ca.txt \`
+    -passin pass:$s 
+if ($LASTEXITCODE -ne 0) { return; }
+
+if ($DebugPreference -eq "Continue") {
+    Write-Host "Display CA cert" -ForegroundColor DarkGreen
+    docker run --rm -t -it -v "$($p):/data:rw" alpine/openssl \`
+        x509 -text -noout -in /data/generated-ca.pem
+    if ($LASTEXITCODE -ne 0) { return; }
+}
+
+Write-Host "Generating dev key" -ForegroundColor DarkGreen
+docker run --rm -t -it -v "$($p):/data:rw" alpine/openssl \`
+    genrsa \`
+    -out /data/generated-localhost.key \`
+    -passout pass:$s \`
+    2048
+if ($LASTEXITCODE -ne 0) { return; }
+
+Write-Host "Generating dev cert" -ForegroundColor DarkGreen
+docker run --rm -t -it -v "$($p):/data:rw" alpine/openssl \`
+    req \`
+    -new \`
+    -key /data/generated-localhost.key \`
+    -out /data/generated-localhost.csr \`
+    -config /data/localhost.txt \`
+    -subj "/CN=localhost"
+if ($LASTEXITCODE -ne 0) { return; }
+
+if ($DebugPreference -eq "Continue") {
+    Write-Host "Display dev csr" -ForegroundColor DarkGreen
+    docker run --rm -t -it -v "$($p):/data:rw" alpine/openssl \`
+        req -text -noout -verify -in /data/generated-localhost.csr
+    if ($LASTEXITCODE -ne 0) { return; }
+}
+
+Write-Host "Signing dev cert" -ForegroundColor DarkGreen
+docker run --rm -t -it -v "$($p):/data:rw" alpine/openssl \`
+    x509 \`
+    -req \`
+    -days 3650 \`
+    -CA /data/generated-ca.pem \`
+    -CAkey /data/generated-ca.key \`
+    -CAcreateserial \`
+    -in  /data/generated-localhost.csr \`
+    -out /data/generated-localhost.crt \`
+    -extensions user\_crt \`
+    -extfile /data/localhost.txt \`
+    -passin pass:$s
+if ($LASTEXITCODE -ne 0) { return; }
+
+if ($DebugPreference -eq "Continue") {
+    Write-Host "Display dev cert" -ForegroundColor DarkGreen
+    docker run --rm -t -it -v "$($p):/data:rw" alpine/openssl \`
+        x509 -text -noout -in /data/generated-localhost.crt
+    if ($LASTEXITCODE -ne 0) { return; }
+}
+
+Write-Host "Exporting dev cert" -ForegroundColor DarkGreen
+docker run --rm -t -it -v "$($p):/data:rw" alpine/openssl \`
+    pkcs12 -export \`
+    -out /data/generated-localhost.pfx \`
+    -inkey /data/generated-localhost.key \`
+    -in /data/generated-localhost.crt \`
+    -name "ASP.NET Core HTTPS development certificate" \`
+    -passout pass:$s
+if ($LASTEXITCODE -ne 0) { return; }
+
+if ($DebugPreference -eq "Continue") {
+    Write-Host "Display dev pfx" -ForegroundColor DarkGreen
+    docker run --rm -t -it -v "$($p):/data:rw" alpine/openssl \`
+        pkcs12 -info -in /data/generated-localhost.pfx -passin pass:$s -nokeys -nocerts
+    if ($LASTEXITCODE -ne 0) { return; }
+}
+    
+if ($env:Os -eq "Windows\_NT" -or $IsWindows) {
+    $r = (Read-Host -Prompt "Install as dev cert? \[Y/n\]")
+    if ("" -eq $r -or "y" -eq $r -or "Y" -eq $r) {
+        $sp = (ConvertTo-SecureString $s -AsPlainText -Force)
+
+        Import-Certificate \`
+            -FilePath $p/generated-ca.pem \`
+            -CertStoreLocation cert:\\CurrentUser\\Root
+        if ($LASTEXITCODE -ne 0) { return; }
+
+        Import-PfxCertificate \`
+            -FilePath $p/generated-localhost.pfx \`
+            -Password $sp \`
+            -Exportable \`
+            -CertStoreLocation cert:\\CurrentUser\\My
+        if ($LASTEXITCODE -ne 0) { return; }
+
+        dotnet dev-certs https --trust
+        if ($LASTEXITCODE -ne 0) { return; }
+
+        if (Test-Path "$Env:APPDATA\\ASP.NET\\Https") {
+            Remove-Item "$Env:APPDATA\\ASP.NET\\Https\\\*"
+            if ($LASTEXITCODE -ne 0) { return; }
+        }
+
+        $myWindowsID = \[System.Security.Principal.WindowsIdentity\]::GetCurrent();
+        $myWindowsPrincipal = New-Object System.Security.Principal.WindowsPrincipal($myWindowsID);
+        $adminRole = \[System.Security.Principal.WindowsBuiltInRole\]::Administrator;
+        if ($myWindowsPrincipal.IsInRole($adminRole)) {
+            $r = (Read-Host -Prompt "Install machine wide to be used with IIS? \[Y/n\]")
+            if ("" -eq $r -or "y" -eq $r -or "Y" -eq $r) {
+                $sp = (ConvertTo-SecureString $s -AsPlainText -Force)
+                Import-Certificate \`
+                    -FilePath ./generated-ca.pem \`
+                    -CertStoreLocation cert:\\LocalMachine\\Root
+                if ($LASTEXITCODE -ne 0) { return; }
+
+                Import-PfxCertificate \`
+                    -FilePath ./generated-localhost.pfx \`
+                    -Password $sp \`
+                    -CertStoreLocation cert:\\LocalMachine\\My
+                if ($LASTEXITCODE -ne 0) { return; }
+            }
+        }
+    }
+    Remove-Item -Path "$($p)/generated-\*" -Recurse -Force | Out-Null
+}

@@ -1,0 +1,19 @@
+---
+title: "Litium search"
+description: "Instructions on how to setup and configure Litium search, as well as how to add a search index."
+---
+Get started with Litium search, and add a search index.
+
+Instructions on how to setup and configure Litium search, as well as how to add a search index. 
+
+### Litium search is powered by Elasticsearch
+
+Litium search uses Elasticsearch as the search engine for searching Litium entities. 
+
+[Elasticsearch](https://www.elastic.co/) is a third-party product that is specialized in fast distributed searches.
+
+In the Accelerator deafult implementation, the search returns hits for products, categories and pages. Content of a blocks are treated as parts of the page they reside in, so if there is a search match in the block of a page, that page will be returned as a search hit.
+
+Litium search is used as a centralized search index for multiple web fronts in a multi-server environment, which generates the same result for the same search request for a site. 
+
+For more information, please see the documentation pages for [.NET clients for Elasticsearch](https://www.elastic.co/guide/en/elasticsearch/client/net-api/current/index.html).

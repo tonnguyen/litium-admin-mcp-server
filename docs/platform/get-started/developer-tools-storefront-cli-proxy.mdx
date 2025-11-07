@@ -1,0 +1,29 @@
+---
+title: "Proxy"
+description: "Storefront proxy is a tool makes it easier to build headless storefronts with Litium. The proxy will help with authentication, cart, checkout, and storage to avoid cross domain request. Cross domain request can be used with Litium but the authentication header need to be explicitly included in all requests and restricted storage requires that the authentication information is included in the request that makes regular usage of image markup to be used."
+---
+Storefront proxy is a tool makes it easier to build headless storefronts with Litium. The proxy will help with authentication, cart, checkout, and storage to avoid cross domain request. Cross domain request can be used with Litium but the authentication header need to be explicitly included in all requests and restricted storage requires that the authentication information is included in the request that makes regular usage of image markup to be used.
+
+When starting the storefront proxy is started the output includes the address and port that you should use, for example, Now listening on: [https://localhost:3001](https://localhost:3001)
+
+Even that the “Now listening on” says _localhost_, every domain name that is pointing to the local computer can be used. If the [developer certificate with custom domain name is created](/platform/get-started/custom-developer-certificate), we can directly use the _mycustomer-frontend.localtest.me_ domain name, but we need to specify the schema and use the port number from the “Now listening on” information, example; https://mycustomer-frontend.localtest.me:3001
+
+To configure Litium to access the storefront, the domain name needs to be added to the channel, in the above case the domain name that should be added to the channel is _mycustomer-frontend.localtest.me_.
+
+**Example**
+
+The below example describes how to start the storefront proxy for the local Litium installation on _[https://litium.localtest.me:5001](https://litium.localtest.me:5001)_ and local headless storefront on _[http://localhost:3000](http://localhost:3000)_.
+
+litium-storefront proxy --litium https://litium.localtest.me:5001 --storefront http://localhost:3000
+
+**Example**
+
+The example below describes hoe to start the storefront proxy for the remote Litium installation on _[https://demo.litium.com](https://demo.litium.com)_ and local headless storefront on _[http://localhost:3000](http://localhost:3000)_.
+
+litium-storefront proxy --litium https://demo.litium.com --storefront http://localhost:3000
+
+Command line options:
+
+- port - represents the port the proxy should listen to, default to 3001
+- litium - url to the litium installation, i.e. remote or local Litium installation
+- storefront - url to the storefront application, i.e. nextjs application

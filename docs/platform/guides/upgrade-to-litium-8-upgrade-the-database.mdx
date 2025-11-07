@@ -1,0 +1,91 @@
+---
+title: "Upgrade the database"
+description: "Export migration scripts from solution with Litium DB tools."
+---
+A step-by-step guide to upgrading the database.
+
+Export migration scripts from solution with Litium DB tools.
+
+For an overview of the upgrade procedure, please see [how to upgrade to Litium 8](https://docs.litium.com/!b4353f6c-fc24-4afb-8a66-7a7e77fff13c/documentation/upgrade-to-litium-8). 
+
+❗️ Make sure that you have a backup of your database and any other files. 
+
+❗️ Make sure that you have taken all precautions necessary to be able to roll back the upgrade procedure.
+
+1\. [System requirements](#1. system requirements)
+
+2\. [Run the Litium State mapping scripts](#2. run the litium state mapping scripts)
+
+3\. [Upgrade the database](#3. upgrade the database)
+
+4\. [Update the exchange rates on already placed orders](#4. update the exchange rates on already placed orders)
+
+### 1\. System requirements
+
+Please find the [pre-requisites for Litium 8 here](/platform/guides/upgrade-to-litium-8-upgrade-the-platform-solution-dotnet-upgrade).
+
+### 2\. Run the Litium State mapping scripts
+
+Please find the [scripts and the mapping of state transitions here](/platform/guides/upgrade-to-litium-8-state-mapping). 
+
+### 3\. Upgrade the database
+
+To manage the upgrade of the Litium platform database the _litium-db_ dotnet tool is used.
+
+This is a command-line tool that can migrate the database from the previous version or generate a script that can be executed later. 
+
+In the below examples the connection string is in the following format
+
+"Pooling=true;User Id=user;Password=secret;Database=litium;Server=127.0.0.1;TrustServerCertificate=True"
+
+### \- Manual installation of the db tool
+
+Configure the Litium NuGet feed [Litium packages](/platform/get-started/litium-packages). 
+
+Manual installation of the _litium-db_ dotnet tool as a local tool:
+
+dotnet new tool-manifest
+dotnet tool install Litium.Application.Migrations \[--version (Litium version)\]
+
+The _tool-manifest_ need to be created in the folder before a local tool can be installed.
+
+The _\--version_ can be added to point for a specific version of the _litium-db_ tool. We do not recommend installing the _litium-db_ tool as a global tool because you can only have one version installed.
+
+### \- Execute the database upgrade
+
+With the _update_ command, you can execute the database upgrade.
+
+dotnet litium-db update --connection \[connectionstring\]
+
+if you have the connection string in your json-config file you can directly use that for migration
+
+dotnet litium-db update --file \[path to the config.json file\]
+
+### \- Manual upgrade: Generate script
+
+With the _pre-script_ and _script_ command, you can create the database script that is needed for the manual upgrade of the database. For example, if the scripts should be sent to Litium Support for applying to the customer database.
+
+dotnet litium-db pre-script -o prerequisite.sql
+dotnet litium-db script -o upgrade.sql
+
+The _pre-script_ is used to validate the information in the database before starting the migration. If the validation script is failing with an error message the upgrade should be aborted and the database needs to be corrected regarding the instructions in the error.
+
+### 4\. Update the exchange rates on already placed orders
+
+Not all orders have base currencies and exchange rates. This script will fill in that data, and update the exchange rate value on historical orders. Updating the exchange rates on already placed orders may provide improved statistical reports.
+
+\--Finds and updates historical Orders that are missing BaseCurrencyCode and ExchangeRate.
+--Defines the Base currency code to set for historical Orders
+DECLARE @baseCurrencyCode nvarchar(5) = 'SEK'
+--Defines the Currency code which Orders were paid with
+DECLARE @currencyCode nvarchar(5) = 'USD'
+--Defines the exchange rate, to convert from @currencyCode to @baseCurrencyCode
+DECLARE @exchangeRate decimal(18,8) = 9.87
+--Defines from date, to get orders in the specific date range
+DECLARE @fromDate datetimeoffset(7) = '2022/04/25'
+--Defines to date, to get orders in the specific date range
+DECLARE @toDate datetimeoffset(7) = '2022/05/27'
+
+UPDATE \[Sales\].\[Order\]
+SET BaseCurrencyCode = @baseCurrencyCode, ExchangeRate = @exchangeRate
+WHERE BaseCurrencyCode IS NULL AND CurrencyCode = @currencyCode AND OrderDate >= @fromDate AND OrderDate <= @toDate

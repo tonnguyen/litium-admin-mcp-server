@@ -1,0 +1,60 @@
+---
+title: "Data service"
+description: "DataService gives developers direct access to the Litium database, to query or modify data."
+---
+`DataService` gives developers direct access to the Litium database, to query or modify data.
+
+Try the [data service task in the customization guide](/platform/get-started/customization-guide-data-service) to learn more.
+
+## Batching data
+
+Use `Litium.Data.DataService.CreateBatch` to modify data. `CreateBatch` can be used to do multiple modifications in a single database transaction. If any part of the trancaction scope fail the entire transaction is rolled back making `CreateBatch` ideal for dependent modifications.
+
+As an example, the code below replaces a _BaseProduct_, but the old _BaseProduct_ will not be deleted unless the new _BaseProduct_ is created without errors:
+
+// (code below is simplified for readability)
+
+var baseProductToDelete = \_baseProductService.Get("BP1");
+var replacementBaseProduct = new BaseProduct("BP2");
+
+using (var db = \_dataService.CreateBatch())
+{
+    db.Delete(baseProductToDelete);
+    db.Create(replacementBaseProduct);
+
+    // Nothing is persisted in DB until Commit finalizes the transaction.
+    // If an exception is thrown in Create() the entire transaction
+    // is rolled back.
+
+    db.Commit();
+}
+
+## Querying data
+
+Use `Litium.Data.DataService.CreateQuery` to query data directly from the database.
+
+**IMPORTANT** - Never use `CreateQuery` on a public site without also adding a [cache](/platform/architecture/distributed-caching). When you use `DataService` to retreive data you bypass the built in Litium cache.
+
+Example:
+
+using (var query = \_dataService.CreateQuery<BaseProduct>(opt => opt.IncludeVariants()))
+{
+    var q = query.Filter(filter => filter
+        .Bool(boolFilter => boolFilter
+            .Must(boolFilterMust => boolFilterMust
+                .Field("MyField", "eq", "MyValue")
+                .Field("MyField2", "neq", "MyValue"))
+            .MustNot(boolFilterMustNot => boolFilterMustNot
+                .Id("neq", "my\_new\_articlenumber"))))
+        .Sort(sorting => sorting
+            .Field("MyField3", CultureInfo.CurrentCulture, SortDirection.Descending));
+
+    int totalRecords = q.Count();
+
+    List<BaseProduct> result = q
+        .Skip(25)
+        .Take(20)
+        .ToList();
+}
+
+There is also a [dedicated page on the data service](/platform/architecture/data-service) in the documentation.

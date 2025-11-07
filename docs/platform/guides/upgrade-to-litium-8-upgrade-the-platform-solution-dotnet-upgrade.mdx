@@ -1,0 +1,52 @@
+---
+title: "Upgrade to .Net 7 or later"
+description: "Before upgrading the packages for Litium 8.13 or later that using .NET 7, the projects target framework need to be updated to NET7.0, otherwise package installation or upgrade will fail."
+---
+These are some important points when upgrading the project to .NET 7 or .NET 8.
+
+## Target framework
+
+Before upgrading the packages for Litium 8.13 or later that using .NET 7, the projects target framework need to be updated to **_NET7.0_**, otherwise package installation or upgrade will fail.
+
+Before upgrading the packages for Litium 8.14 or later that using .NET 8, the projects target framework need to be updated to **_NET8.0_**, otherwise package installation or upgrade will fail.
+
+## AutoMapper
+
+The AutoMapper in the Litium project has been updated to version 12 in Litium 8.13. There's a breaking change about [AutoMapper no longer creates maps automatically](https://docs.automapper.org/en/latest/9.0-Upgrade-Guide.html) - CreateMissingTypeMaps setting is now no longer supported. You now need to define the mapping rules specifically instead of letting automapper create missing mapping types automatically.
+
+Let's look at an example: 
+
+IQueryable<object> source = \_myRepo.GetResult();
+List<myObject> dest = mapper.MapTo<myObject>(source).ToList();
+
+We have the automapping rule between object and myObject, and we're trying to map a List<object> to List<myObject>. From Automapper 9 we'll get  the error "Missing type map configuration or unsupported mapping."
+
+A quick work around for this is changing the .ToList() line to something like this: 
+
+List<myObject> dest = source.Select(src => src.MapTo<MyObject>()).ToList();
+
+We'll need to do the mapping for each single object, using linq to create a collection and return.
+
+### Read-only collection with AutoMapper
+
+After upgrading to .NET 7 and the new version of AutoMapper, collection can be read-only and should not be assigned directly inside your _AutoMapper.ITypeConverter_'s, instead a new instance should be created. If the source dictionary is read-only, then also the target dictionary will be the same read-only instance and you will not be able to modify the dictionary inside the target object.
+
+To make a clone of the dictionary the easiest way is to use the extension method _ToDictionary(s => s.Key, s => s.Value)_, that will assign _null_ or an new dictionary with the same values to the target object. If the dictionary key or values are an complex object a clone of that need to be done as well.
+
+Example in a _AutoMapper.ITypeConverter_
+
+From
+
+ return new Connect.Payments.PaymentInfo
+            {
+                Id = source.Id,
+                AdditionalInfo = source.AdditionalInfo,
+            };
+
+To 
+
+return new Connect.Payments.PaymentInfo
+            {
+                Id = source.Id,
+                AdditionalInfo = source.AdditionalInfo?.ToDictionary(s => s.Key, s => s.Value),
+            };

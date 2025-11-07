@@ -1,0 +1,102 @@
+---
+title: "Calculated tax response"
+description: "To return the results of the tax calculation, CalculateSalesOrderTaxResponse and CalculateShipmentTaxResponse is used."
+---
+Calculated tax obtained from the tax calculation provider need to be provided in the response object to Litium. This section explains how.
+
+To return the results of the tax calculation, CalculateSalesOrderTaxResponse and CalculateShipmentTaxResponse is used. 
+
+![tax response.png](./media/tax%20response.png)
+
+The response contains a collection of TaxRow entities.
+
+- Each TaxRow would add a new order row of type Tax into the Litium sales order when included in CalculateSalesOrderTaxResponse.
+- Each TaxRow would add a new order row of type Tax into the Litium shipment when included in CalculateShipmentTaxResponse.
+
+Each tax row in an order should correspond to the type of tax that it represents. For example, US sales tax would be represented by a single tax order row. This means, that if the tax app is responding with US sales tax the response should contain a single tax row object, which represent the US sales tax.
+
+### TaxDetail entity
+
+Each TaxRow contains the details about the tax in a collection of TaxDetail entities. For example, US sales tax may contain state tax, county tax and city tax as well as other special taxes. These taxes all adds up to the final sales tax amount, and therefore should be recorded in TaxRow.TaxDetails.
+
+TaxRow.OrderRowTaxDetails is a Dictionary<OrderRowId, List<TaxDetails> where the dictionary key is the OrderRowId. It records how much tax is allocated at order row level. The items in this TaxDetails (in the dictionary values) are recorded into the OrderRow.TaxDetails collection in Litium.
+
+Following example show a demonstration of how a response is constructed. (Note that, demo code below is not taking the taxes from a external service, but calculating demo values for unit testing.)
+
+        public async Task<CalculateShipmentTaxResponse> CalculateShipmentTaxAsync(CalculateShipmentTaxRequest request)
+        { 
+           //We calculate more taxes for shipment, to simulate scenario where, when the shipment is made the taxes becomming different from original.
+            var response = new CalculateShipmentTaxResponse()
+            {
+                TaxRows = new List<TaxRow>()
+            };
+
+            foreach (var shippingGroup in request.ShippingGroups)
+            {
+                var taxRow = new TaxRow()
+                {
+                    Id = "SalesTax",
+                    Description = "Sales tax",
+                    OrderRowTaxDetails = new Dictionary<string, ICollection<TaxDetail>>(),
+                    TaxDetails = new List<TaxDetail>()
+                };
+
+                var totalCityTax = 0d;
+                var totalStateTax = 0d;
+                foreach (var row in shippingGroup.Rows)
+                {
+                    if (row.IsTaxable(request.DiscountInfo))
+                    {
+                        if (!taxRow.OrderRowTaxDetails.ContainsKey(row.Id))
+                        {
+                            taxRow.OrderRowTaxDetails.Add(row.Id, new List<TaxDetail>());
+                        }
+
+                        var stateTax = row.TotalExcludingTax \* GetTaxRate(shippingGroup.ShippingAddress);
+                        taxRow.TotalTax += stateTax;
+                        totalStateTax += stateTax;
+
+                        var cityTax = row.TotalExcludingTax \* GetTaxRate(shippingGroup.ShippingAddress, true);
+                        taxRow.TotalTax += cityTax;
+                        totalCityTax += cityTax;
+
+                        taxRow.TaxableAmount += row.TotalExcludingTax;
+
+
+                        var stateTaxDetail = new TaxDetail()
+                        {
+                            Name = "Colorado State Tax",
+                            Tax = stateTax,
+                            TaxableAmount = row.TotalExcludingTax,
+                            TaxRate = GetTaxRate(shippingGroup.ShippingAddress),
+                            Type = "StateTax"
+                        };
+                        taxRow.OrderRowTaxDetails\[row.Id\].Add(stateTaxDetail);
+
+                        var cityTaxDetail = new TaxDetail()
+                        {
+                            Name = "Denver City Sales Tax",
+                            Tax = cityTax,
+                            TaxableAmount = row.TotalExcludingTax,
+                            TaxRate = GetTaxRate(shippingGroup.ShippingAddress, true),
+                            Type = "CityTax"
+                        };
+                        taxRow.OrderRowTaxDetails\[row.Id\].Add(cityTaxDetail);
+                    }
+                }
+
+                taxRow.TaxDetails = new List<TaxDetail>()
+                {
+                    new TaxDetail(){Name = "Colorado State tax", Tax = totalStateTax, TaxRate = StateTaxRateEstimate, TaxableAmount = taxRow.TaxableAmount, Type = "StateTax"},
+                    new TaxDetail(){Name = "Denver City Sales tax", Tax = totalCityTax, TaxRate = CitySalesTaxRateEstimate, TaxableAmount = taxRow.TaxableAmount, Type = "CityTax"}
+                };
+
+                taxRow.TaxRate = (taxRow.TaxableAmount != 0) ? taxRow.TotalTax / taxRow.TaxableAmount : 0;
+
+                response.TaxRows.Add(taxRow);
+            }
+
+            return response;
+        }
+
+See how the TaxRow.TaxDetails is constructed and how TaxRow.OrderRowTaxDetails is populated in the above example. Also note that each ShippingGroup only resulted in a single TaxRow added to the response.TaxRows collection.

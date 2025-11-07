@@ -1,0 +1,163 @@
+---
+title: "Requesting tax from external web-api"
+description: "Implement the following web API endpoint in your app:"
+---
+This section presents guidelines on implementing the endpoint to calculate sales order tax, and explains how you would start on converting data from Litium to call a third-party tax web API.
+
+Implement the following web API endpoint in your app:
+
+HTTP POST: <appurl>/api/tax/calculateSalesOrder
+
+Example:
+
+        /// <summary>
+        /// Calculate the sales order tax.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        \[ProducesResponseType(typeof(CalculateSalesOrderTaxResponse), StatusCodes.Status200OK)\]
+        \[HttpPost\]
+        \[Route("api/tax/calculateSalesOrder")\]
+        public async Task<ActionResult<CalculateSalesOrderTaxResponse>> CalculateSalesOrderTax(CalculateSalesOrderTaxRequest request)
+        {
+            var response = new CalculateSalesOrderTaxResponse();
+            //TODO: populate the response with calculated tax.
+            return Ok(response);
+        }
+
+## Requesting tax from external web API
+
+CalculateSalesOrderTaxRequest object contains the information to calculate tax. The sales order being placed is grouped by the ShippingInfo in Litium, and inside this object, a collection of ShippingGroup objects would contain the order rows.
+
+You need to use the information in CalculateSalesOrderTaxRequest object and construct the object model needed by your tax calculation service (such as Avalara or TaxJar).
+
+Example code:
+
+        private async Task<CalculateSalesOrderTaxResponse> CalculateSalesOrderTax(CalculateSalesOrderTaxRequest request)
+        {
+            var response = new CalculateSalesOrderTaxResponse()
+            {
+                TaxRows = new List<TaxRow>()
+            };
+            foreach (var shippingGroup in request.ShippingGroups)
+            {
+                //...call the tax calculation service, such as Avalara and obtain the calculated tax.
+
+                
+                var taxRow = new TaxRow();
+
+                //... construct a taxRow for each shipping group, using tax data received from the tax calculation service.
+
+                response.TaxRows.Add(taxRow);
+            }
+            return response; 
+        }
+
+As of Litium 8.22, the system supports one shippingInfo per order, which means you should expect only one ShippingGroup in CalculateSalesOrderTaxRequest.ShippingGroup property. This is subject to change in future version of Litium.
+
+Some shippingGroup.Rows corresponds to products, but there are rows here for discounts, fees and shipping fees as well.  
+Depending on the tax calculation service you are using, you might need to find the product discounts and reduce product prices based on product specific discounts, and also pro-rata apportion the order level discounts to product rows.
+
+Sample code:
+
+ private async Task<CalculateSalesOrderTaxResponse> CalculateSalesOrderTax(CalculateSalesOrderTaxRequest request)
+ {
+     var response = new CalculateSalesOrderTaxResponse()
+     {
+         TaxRows = new List<TaxRow>()
+     };
+     foreach (var shippingGroup in request.ShippingGroups)
+     {
+         //...call the tax calculation service, such as Avalara and obtain the calculated tax.
+
+         foreach (var orderRow in shippingGroup.Rows)
+         {
+             //.. convert this orderRow to the tax calculation service order rows.
+
+             //Note: Not all order rows are products. Apart from product rows, there are discounts, fees and shipping fees.
+             // Depending on the tax calculation service you are using, you might need to find the product discounts, and pro-rata apportion the order level discounts to product rows.
+             switch (orderRow.OrderRowType)
+             {
+                 case OrderRowType.Product:
+                     break;
+                 case OrderRowType.Fee:
+                     break;
+                 case OrderRowType.ShippingFee:
+                     break;
+                 case OrderRowType.Discount:
+                     break;
+             }
+         }
+
+         var taxRow = new TaxRow();
+         //... construct a taxRow for each shipping group, using tax data received from the tax calculation service.
+
+         response.TaxRows.Add(taxRow);
+     }
+     return response; 
+ }
+
+Let's assume that the external tax service line item class looks as follows. This is typically the row level data you will need to pass to the tax service.
+
+/// <summary>
+/// Example class representing a taxable line item row that should be sent to the external service to get tax calculated.
+/// </summary>
+public class TaxServiceLineItem
+{
+    public string Id { get; set; }
+    public double Amount { get; set; }
+    public string TaxCode { get; set; }
+    public int Quantity { get; set; }
+}
+
+Following code shows how a line item is populated for a product, and the call to the external tax api.
+
+ private async Task<CalculateSalesOrderTaxResponse> CalculateSalesOrderTax(CalculateSalesOrderTaxRequest request)
+ {
+     var response = new CalculateSalesOrderTaxResponse()
+     {
+         TaxRows = new List<TaxRow>()
+     };
+     foreach (var shippingGroup in request.ShippingGroups)
+     {
+        
+         var lineItems = new Dictionary<string, TaxServiceLineItem>();
+
+         foreach (var orderRow in shippingGroup.Rows)
+         {
+             //.. convert this orderRow to the tax calculation service order rows.
+
+             //Note: Not all order rows are products. Apart from product rows, there are discounts, fees and shipping fees.
+             // Depending on the tax calculation service you are using, you might need to find the product discounts, and pro-rata apportion the order level discounts to product rows.
+             switch (orderRow.OrderRowType)
+             {
+                 case OrderRowType.Product:
+                     lineItems.Add(orderRow.Id, new TaxServiceLineItem()
+                     {
+                         Id = orderRow.Id,
+                         Amount = orderRow.TotalExcludingTax,
+                         Quantity = (int)orderRow.Quantity,
+                         TaxCode = orderRow.TaxData?.TaxCode
+                     });
+                     break;
+                 case OrderRowType.Fee:
+                     break;
+                 case OrderRowType.ShippingFee:
+                     break;
+                 case OrderRowType.Discount:
+                     break;
+             }
+         }
+
+         //...call the tax calculation service, such as Avalara and obtain the calculated tax.
+         var taxServiceResponse = ExternalTaxAPI.SimulateCallToExternalTaxService(new TaxServiceRequest() { Items = lineItems.Values.ToList() });
+
+         var taxRow = new TaxRow();
+         //... construct a taxRow for each shipping group, using tax data received from the tax calculation service.
+
+         response.TaxRows.Add(taxRow);
+     }
+     return response;            
+ }
+
+In the sample code above, ExternalTaxAPI.SimulateCallToExternalTaxService would implement the call to the external tax service.

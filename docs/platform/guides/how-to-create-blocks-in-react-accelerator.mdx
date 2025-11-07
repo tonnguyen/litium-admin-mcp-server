@@ -1,0 +1,148 @@
+---
+title: "How to create blocks in the React accelerator"
+description: "Are you using MVC accelerator? Then please checkout How to create blocks in MVC accelerator."
+---
+A guide to create and render blocks and nested blocks in the React accelerator.
+
+Are you using MVC accelerator? Then please checkout [How to create blocks in MVC accelerator](/platform/guides/how-to-create-custom-blocks-in-mvc-accelerator).
+
+- Create a text block: how to create and render a text block which renders a text.
+- Create a two columns block: how to create a block which renders text blocks in two columns layout.
+
+## Create a text block
+
+Creating a block consists of a few steps:
+
+1.  Create a block template
+2.  Add the block to a page
+3.  Create a component to render the block and register it in BlockContainer.tsx
+4.  Create a [GraphQL fragment](https://www.apollographql.com/docs/react/data/fragments/) to query the block's data and register it in allBlockTypes.ts
+
+The step of creating a new block template is identical in both MVC and React accelerator. Please follow the [Create a block template section](/platform/guides/how-to-create-custom-blocks-in-mvc-accelerator) to create a Text block template.
+
+After following the previous step to create a Text block template, we should have a new block template with _Text_ as Id and a field named _Text_ to hold a text value. Note these Id values as we will use it in our code to query and to render the text. Now let's add a Text block to a page and enter a text "Hello world":
+
+![Screenshot 2023-03-27 at 18.53.39.png](./media/Screenshot%202023-03-27%20at%2018.53.39.png)
+
+Now we should have a page with our _Text_ block. Let's move on to the next step to create a _TextBlock_ component to render the _Text_ block. By executing _yarn run generate-block-components_ command, it will generate _components/blocks/TextBlock.tsx_ and also update _services/blockService.ts_ to add the newly generated _TextBlock_ component to a Component mapping. Now let's go ahead and modify components/blocks/TextBlock.tsx to be:
+
+// components/blocks/TextBlock.tsx
+import { Block } from 'models/block';
+import { ContentFieldType } from 'models/content';
+
+interface TextField extends ContentFieldType {
+  text: string;
+}
+
+interface TextBlockProps extends Block {
+  fields: TextField;
+}
+
+export default function TextBlock(props: TextBlockProps) {
+  const { text } = props.fields;
+  return <span>{text}</span>;
+}
+
+The component simply receives and render a Text string in a Span tag. In order to query data for the block, we should create a [GraphQL fragment](https://www.apollographql.com/docs/react/data/fragments/), which is used in allBlockTypes.ts:
+
+// operations/fragments/blocks/text.ts
+import { gql } from '@apollo/client';
+
+export const TEXT\_BLOCK\_FRAGMENT = gql\`
+  fragment TextBlock on TextBlock {
+    fields {
+      text
+    }
+  }
+\`;
+
+// operations/fragments/blocks/allBlockTypes.ts
+import { gql } from '@apollo/client';
+import { BANNER\_BLOCK\_FRAGMENT } from './banner';
+import { TEXT\_BLOCK\_FRAGMENT } from './text';
+
+export const ALL\_BLOCK\_TYPES\_FRAGMENT = gql\`
+  fragment AllBlockTypes on IBlock {
+    ... on IBlockItem {
+      systemId
+    }
+
+    ...BannerBlock
+    ...TextBlock
+  }
+  ${BANNER\_BLOCK\_FRAGMENT}
+  ${TEXT\_BLOCK\_FRAGMENT}
+\`;
+
+Now let's execute _yarn run dev_ to run the project in development mode. The browser should render a "Hello world" text.
+
+## Create a two columns layout block
+
+Nested blocks feature was introduced in Litium 8.9, which allows editors to add block to a block. We will create a layout block which renders blocks in a two columns layout, for example, one Text block on left column and another Text block on right column. We follow same steps as creating a Text block:
+
+Create a _TwoColumns_ block template:
+
+- Id: _TwoColumns_
+- Icon: _table-columns_
+- Include selected: _Text_ as we will allow to add Text block as children
+
+Edit the page we added Text block in previous step to add a _TwoColumns_ block. Then execute _yarn run generate-block-components_ command so it creates a TwoColumnsBlock component and register it in blockService.ts. Modify TwoColumnsBlock.tsx to contain the following code. Note we are using the same _BlockContainer_ component, which is used in pages to render blocks, to render nested blocks.
+
+// components/blocks/TwoColumnsBlock.tsx
+import { Block } from 'models/block';
+import BlockContainer from './BlockContainer';
+
+export default function TwoColumnsBlock({ children }: { children: Block\[\] }) {
+  return (
+    <div className="grid grid-cols-2">
+      <BlockContainer blocks={children}></BlockContainer>
+    </div>
+  );
+}
+
+And the GraphQL fragment:
+
+// operations/fragments/blocks/twoColumns.ts
+import { gql } from '@apollo/client';
+import { TEXT\_BLOCK\_FRAGMENT } from './text';
+
+export const TWO\_COLUMNS\_FRAGMENT = gql\`
+  fragment TwoColumnsBlock on TwoColumnsBlock {
+    children {
+      ... on IBlockItem {
+        systemId
+      }
+      ...TextBlock
+    }
+  }
+  ${TEXT\_BLOCK\_FRAGMENT}
+\`;
+
+// operations/fragments/blocks/allBlockTypes.ts
+import { gql } from '@apollo/client';
+import { BANNER\_BLOCK\_FRAGMENT } from './banner';
+import { TEXT\_BLOCK\_FRAGMENT } from './text';
+import { TWO\_COLUMNS\_FRAGMENT } from './twoColumns';
+
+export const ALL\_BLOCK\_TYPES\_FRAGMENT = gql\`
+  fragment AllBlockTypes on IBlock {
+    ... on IBlockItem {
+      systemId
+    }
+
+    ...BannerBlock
+    ...TextBlock
+    ...TwoColumnsBlock
+  }
+  ${BANNER\_BLOCK\_FRAGMENT}
+  ${TEXT\_BLOCK\_FRAGMENT}
+  ${TWO\_COLUMNS\_FRAGMENT}
+\`;
+
+Note that in twoColumns.ts, we add only _TextBlock_ fragment because we allow only _Text_ block template to be added as children block. If any other block template should be added to _TwoColumns_ block template, it should be added here. Note that we can't use _AllBlockTypes_ fragment in _TwoColumnsBlock_ fragment as it will form an [infinitely spread](http://spec.graphql.org/October2021/#sec-Fragment-spreads-must-not-form-cycles).
+
+Executing _yarn run dev_ now and the page should render a Two columns layout block with its Text blocks inside.
+
+## Related
+
+- [How to create pages in React accelerator](/platform/guides/how-to-create-pages-in-react-accelerator)

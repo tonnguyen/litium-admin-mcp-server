@@ -1,0 +1,91 @@
+---
+title: "How to add an edge ngram analyzer to Litium Search"
+description: "If you need more information you can read more in the docs for Elasticsearch here"
+---
+## N-gram settings in Elasticsearch
+
+1.  **Edge n-gram tokenizer​**
+    - The `edge_ngram` tokenizer first breaks text down into words whenever it encounters one of a list of specified characters, then it emits [N-grams](https://en.wikipedia.org/wiki/N-gram) of each word where the start of the N-gram is anchored to the beginning of the word.
+    - Edge N-Grams are useful for _search-as-you-type_ queries.
+
+If you need more information you can read more in the docs for Elasticsearch [here](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-edgengram-tokenizer.html)
+
+1.  **Boosting**
+    - `_Boosting_` is the process by which you can modify the relevance of a document. There are two different types of boosting. You can boost a document while you are indexing it or when you query for the document.
+
+## **Default N-Gram implementation in Litium Search**
+
+- We added a custom analyzer in _ProductIndexConfiguration_
+
+        protected override void Configure(CultureInfo cultureInfo, IndexConfigurationBuilder builder)
+        {
+                builder
+                .Setting(UpdatableIndexSettings.MaxNGramDiff, 3)
+                .Analysis(a => a
+                .Analyzers(az => az
+                        .Custom("custom\_ngram\_analyzer", c => c
+                        .Tokenizer("custom\_ngram\_tokenizer")
+                        .Filters(new string\[\] { "lowercase", "truncate"})))
+                .Tokenizers(t => t
+                        .EdgeNGram("custom\_ngram\_tokenizer", ng => ng
+                        .MinGram(2)
+                        .MaxGram(5)
+                        .TokenChars(new TokenChar\[\] { TokenChar.Letter, TokenChar.Digit })
+                        )
+                )
+                )
+                .Map(m => m
+                .Properties(p => p
+                        .Text(k => k
+                        .Name(n => n.Name)
+                        .Fields(ff => ff
+                                .Keyword(tk => tk
+                                .Name("keyword")
+                                .IgnoreAbove(256))
+                                .Text(tt => tt
+                                .Name("ngram")
+                                .Analyzer("custom\_ngram\_analyzer")
+                                )
+                        )
+                        )
+                )
+                );
+
+                base.Configure(cultureInfo, builder);
+        }
+
+- After adding the configuration, we use it in a query defined in _SearchQueryBuilder_
+
+        allQueries.Add((qc.Match(x => x.Field(z => z.Name).Query(searchQuery.Text).Fuzziness(Fuzziness.Auto).Boost(10).SynonymAnalyzer())
+                                 || qc.Match(x => x.Field(z => z.Name.Suffix("ngram")).Query(searchQuery.Text).Boost(20).SynonymAnalyzer())
+                                 || qc.Match(x => x.Field(z => z.ArticleNumber).Query(searchQuery.Text.ToLower()).Boost(2))
+                                 || qc.Match(x => x.Field(z => z.Content).Query(searchQuery.Text).Fuzziness(Fuzziness.Auto).SynonymAnalyzer())));
+
+## Configuration
+
+The `edge_ngram` tokenizer accepts the following parameters:
+
+- `min_gram`: Minimum length of characters in a gram. Defaults to `1`.
+- `max_gram`: Maximum length of characters in a gram. Defaults to `2`.
+- `token_chars`
+
+- `custom_token_chars`
+
+Character classes that should be included in a token. Elasticsearch will split on characters that don’t belong to the classes specified. Defaults to `[]` (keep all characters).
+
+Character classes may be any of the following:
+
+- `letter` —  for example `a`, `b`, `ï` or `京`
+- `digit` —  for example `3` or `7`
+- `whitespace` —  for example `" "` or `"\n"`
+- `punctuation` — for example `!` or `"`
+- `symbol` —  for example `$` or `√`
+- `custom` —  custom characters which need to be set using the `custom_token_chars` setting.
+
+Custom characters that should be treated as part of a token. For example, setting this to `+-_` will make the tokenizer treat the plus, minus and underscore sign as part of a token.
+
+## Limitations of the `max_gram` parameter 
+
+The `edge_ngram` tokenizer’s `max_gram` value limits the character length of tokens. When the `edge_ngram` tokenizer is used with an index analyzer, this means search terms longer than the `max_gram` length may not match any indexed terms.
+
+For example, if the `max_gram` is `3`, searches for `apple` won’t match the indexed term `app`.

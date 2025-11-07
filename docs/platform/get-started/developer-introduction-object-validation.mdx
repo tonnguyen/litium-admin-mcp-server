@@ -1,0 +1,25 @@
+---
+title: "Object validation"
+description: "You can validate updates to all entities in Litium with custom validations:"
+---
+You can validate updates to all entities in Litium with custom validations:
+
+- Implement the general `IValidationRule`\-interface to trigger a validation on all entity updates
+    
+- An easier way is to inherit `ValidationRuleBase<>` (that implements the interface) to trigger your validation only when a specific type changes, for example `Currency` in this example:
+    
+
+public class ValidationExample : ValidationRuleBase<Currency>
+{
+    public override ValidationResult Validate(Currency entity, ValidationMode validationMode, CultureInfo culture)
+    {
+        var result = new ValidationResult();
+        if(entity.TextFormat != "C0")
+        {
+            result.AddError("TextFormat", "Need to be C0")
+        }
+        return result;
+    }
+}
+
+You can do the [validation task in the customization guide](/platform/get-started/customization-guide-field-and-validation) to implement a custom validation, or check how to [create validation rule for MultiField](/platform/guides/data-modelling/how-to-set-up-a-multi-field).

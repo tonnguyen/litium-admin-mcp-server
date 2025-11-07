@@ -1,0 +1,43 @@
+---
+title: "Custom pre-order validation rule"
+description: "Example: we need to validate if the product is available for Sales"
+---
+Example: we need to validate if the product is available for Sales
+
+Create class _ProductIsAvailableForSale_ inherited from class _ValidationRuleBase<ValidateCartContextArgs>_ and implement the logic of validating in the method _Validate_
+
+using Litium.Sales;
+using Litium.Validations;
+using Litium.Web;
+
+namespace Litium.Accelerator.ValidationRules
+{
+    /// <summary>
+    /// Validates whether product is still available to buy, since it was last put to cart.
+    /// </summary>
+    public class ProductIsAvailableForSale : ValidationRuleBase<ValidateCartContextArgs>
+    {
+        public ProductIsAvailableForSale()
+        {
+        }
+
+        public override ValidationResult Validate(ValidateCartContextArgs entity, ValidationMode validationMode)
+        {
+            var result = new ValidationResult();
+            //implement logic for validating
+            result.AddError("Cart", "sales.validation.product.nolongeravailableforsale".AsWebsiteText());
+
+            return result;
+        }
+    }
+}
+
+_**NOTE**_:
+
+If the _ValidateCartContextArgs.ConfirmedCart_ property is not null, it contains the information from the payment app about the _Cart_ which the payment app has.
+
+This is usally the last validation call coming from the payment app.
+
+The _Cart_ in Litum should match the _ConfirmedCart_ in article quantities and prices, otherwise it should be treated as a validation failure.
+
+The _ConfirmedCart_ may have additional payment fees rows, which is ok.

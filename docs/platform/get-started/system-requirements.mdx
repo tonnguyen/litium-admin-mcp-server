@@ -1,0 +1,38 @@
+---
+title: "System requirements"
+description: "See Microsoft reference documentation on .NET 9 for different ways to run web apps"
+---
+## Developer tools
+
+- .NET 9 SDK, which can be [downloaded here](https://dotnet.microsoft.com/en-us/download/dotnet/9.0).
+- Configuration for [Litium packages](/platform/get-started/litium-packages)
+- [NodeJS](https://nodejs.org/en/) 20 or later minor version
+
+## Centralized developer environment
+
+See [Microsoft reference documentation on .NET 9 for different ways to run web apps](https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/?view=aspnetcore-9.0) 
+
+## Required dependencies
+
+From Litium 8 it is mandatory with the following services. This to always ensure that the solution is compliant with Litium serverless cloud.
+
+- Microsoft SQL Server 2019 with minimum [database compatibility level 150](https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-database-transact-sql-compatibility-level). Needed for hosting the Litium database.
+- Storage (UNC or local) - Used for storing platforms files, like media.
+- [Redis](/platform/get-started/multi-server-installation-redis) - used for multiple functions in Litium.
+- [Litium Search](/platform/guides/litiumsearch) - used for search index and synonyms. For hosting in Litium LOD environment API version of Elasticsearch is 7.6.2 version, otherwise the 7.17.9 version. For local development use the 7.17.9 version but ensure that no functions that come after 7.6.2 is used if your project is hosted on LOD.
+- Requires the site to have HTTPS for login to work (also required for test environments).
+
+## Client requirements
+
+### Public site browsing
+
+Litium supports all major browsers. However, the support depends on how the presentation templates are constructed in the implementation project.
+
+### **Back office administration**
+
+Back office is tested with the latest versions of the following browsers. Other browsers and versions are not tested but may work.
+
+- Edge (PC).
+- Firefox (PC and Mac).
+- Chrome (PC and Mac).
+- Safari (Mac).

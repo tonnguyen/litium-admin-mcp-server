@@ -1,0 +1,77 @@
+---
+title: "Dependency injection"
+description: "Using dependency injection in Litium is simple, all you need to to is add an attribute to an object and Litium will automatically register all instances of that object making it available for constructor injection."
+---
+Using dependency injection in Litium is simple, all you need to to is add an attribute to an object and Litium will automatically register all instances of that object making it available for constructor injection.
+
+## Abstraction vs. implementation
+
+The Litium platform separates abstractions (interfaces/abstract classes) from implementations in different assemblies. The `IPriceCalculator`\-interface is for example located in the `Litium.Abstractions` assembly:
+
+\[Service(ServiceType = typeof (IPriceCalculator))\]
+\[RequireServiceImplementation\]
+public interface IPriceCalculator
+
+But its implementation is in the `Litium.Application` assembly:
+
+\[Service(FallbackService = true)\]
+public class PriceCalculatorImpl : IPriceCalculator
+
+- Litium provides default implementations for all abstractions configured as `FallbackService`
+    - All default implementations have a `Impl`\-suffix and the fallback-attribute
+    - By adding your own implementation of an abstraction you replace the default Litium Fallback-implementation
+- The `RequireServiceImplementation`\-attribute on the interface prevents developers from adding a reference to the _Abstraction_ without also referencing an _Implementation_ (Litium will not start if an abstraction with this attribute is missing implementations).
+- During development you should always reference the abstractions, never the implementations directly
+
+## Service registration
+
+Say that you have an interface called `IDessert` that has the `Service`\-attribute, any class that implements this interface will be automatically registered:
+
+\[Service(ServiceType = typeof(IDessert), Lifetime = DependencyLifetime.Singleton)\]
+public interface IDessert
+{
+    void Serve();
+}
+
+The implementation may be placed anywhere in the solution (if there are multiple implementations you can use [service factory](/platform/architecture/dependency-injection/service-factory) or [named service](/platform/architecture/dependency-injection/named-service) to instruct Litium on which implementation to resolve):
+
+public class IceCream : IDessert
+{
+    public void Serve()
+    {
+        // Serve some ice cream
+    }
+}
+
+Example on injecting the abstraction in a class constructor:
+
+public class Waiter
+{
+    public Waiter(IDessert dessert)
+    {
+        dessert.Serve();
+    }
+}
+
+The `Service`\-attribute of the `IDessert`\-interface above also has a `Lifetime`\-parameter (if not specified it will default to `DependencyLifetime.Singleton`), available options are:
+
+- `DependencyLifetime.Singleton`: All users will receive the same single instance from the container for the lifetime of the Litium application
+- `DependencyLifetime.Scoped`: The same instance is used within the current _scope_:
+    - The entire web request
+    - The execution of a scheduled task
+- `DependencyLifetime.Transient`: A new instance will be created each time the service is requested from the container
+
+## Service decorator
+
+In many cases you do not want to replace a class or interface entirely, perhaps you only need to modify input or output of a single method, then you can use a _service decorator_.
+
+Using a _service decorator_ could be described as getting the benefits of inheritance but at the same time the benefits of only referencing abstractions.
+
+You can read more about [service decorator](/platform/architecture/dependency-injection/service-decorator) but the best way to really understand the service decorator is to complete the [service decorator development task on GitHub](https://github.com/LitiumAB/Education/tree/main/Developer%20Education/Tasks/Author%20service%20decorator).
+
+## Risks with dependency injection
+
+- It may not be obvious to others if you implement and override functionality. Use clear project structures and naming to avoid confusion
+- When data is stored in a class registered as `DependencyLifetime.Singleton` this data is only instanciated once and then re-used until Litium restarts. This is a big risk if the data need to be fresh (as with user data). This is also a risk if you use `Scoped` or `Transient` since another developer may inject and store your `Transient`\-class in their `Singleton`, so try to keep your code stateless to minimize risk.
+
+[Read more about service registration](/platform/architecture/dependency-injection/service-registration)

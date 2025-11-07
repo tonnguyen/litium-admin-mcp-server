@@ -1,0 +1,31 @@
+---
+title: "Upgrade alternatives"
+description: "Please see what to consider before upgrading if you need additional information on ability changes in order to choose an alternative."
+---
+There are three upgrade alternatives to choose from.
+
+Please see [what to consider before upgrading](/platform/guides/upgrade-to-litium-8-before-upgrading) if you need additional information on ability changes in order to choose an alternative. 
+
+For an overview of the upgrade procedure, please see [how to upgrade to Litium 8](https://docs.litium.com/!b4353f6c-fc24-4afb-8a66-7a7e77fff13c/documentation/upgrade-to-litium-8). 
+
+### Alternative A
+
+### Upgrade the platform solution. Use the current database.
+
+All custom functionality that references parts of the Litium API that is no longer available, needs to be re-written.
+
+### Alternative B
+
+### Make a clean install of Litium. Discard the current solution. Keep the current database.
+
+Only code in use will be moved to the new solution, making this a good opportunity to clean an existing solution of all unused code.
+
+Platform solution: The existing layout and functionality in the old solution that you want to keep, need to be migrated and adapted into the new templates.
+
+### Alternative C
+
+### Make a clean install of Litium. Discard the current solution and the current database.
+
+Platform solution: The existing layout and functionality in the old solution that you want to keep, need to be migrated and adapted into the new templates.
+
+Database: You must use the database migration scripts to migrate data from the old database.

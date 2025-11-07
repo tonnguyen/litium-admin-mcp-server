@@ -1,0 +1,44 @@
+---
+title: "How to read and write data from an object type"
+description: "Create a class to use as object type ​"
+---
+In this guide we show how to read and write data from an Object type
+
+Create a class to use as object type  
+​
+
+public class MyFieldData : ObjectBase
+{
+    private string name;
+
+    public string Name
+    {
+        get => name;
+        set => name = this.ThrowIfReadOnly(value);
+    }
+}
+
+Example on how to use the class when creating the field definition:
+
+var fieldDefinition = new FieldDefinition<ProductArea>("MyObjectFieldId", SystemFieldTypeConstants.Object)
+{
+    MultiCulture = false,
+    Option = new ObjectOption
+    {
+        EntityType = typeof(MyFieldData)
+    }
+};
+
+\_fieldDefinitionService.Create(fieldDefinition);
+
+Example on how to use the class to read field data:
+
+var baseProduct = new BaseProduct("my-id", \_productFieldTemplate.SystemId);
+
+baseProduct.Fields.AddOrUpdateValue("MyObjectFieldId", new MyFieldData
+{
+    Name = "My name"
+});
+
+var myField = baseProduct.Fields.GetValue<MyFieldData>("MyObjectFieldId");
+myField.Name = "My updated name";

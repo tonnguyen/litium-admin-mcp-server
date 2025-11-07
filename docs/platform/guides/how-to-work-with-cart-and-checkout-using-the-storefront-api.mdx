@@ -1,0 +1,480 @@
+---
+title: "How to work with cart and checkout using the Storefront API"
+description: "In this article, you'll learn how to:"
+---
+A guide to work with cart and checkout using the Storefront API
+
+In this article, you'll learn how to:
+
+- Work with the cart
+- Work with the checkout
+- Place an order
+- Query to get data from the cart, checkout, and receipt
+- Receive notification when order is confirmed.
+
+## Prerequisites
+
+- GraphQL
+- Storefront API knowledge. If you are new, please read this [article](/platform/apis/storefront-api).
+- Storefront API playground. If you are new, please read this [article](/platform/apis/storefront-api).
+
+## Work with the Cart
+
+### Create a cart
+
+First of all, we need to create a cart to get a cart identifer. This value will be stored in the Cookies storage.
+
+In order to create a cart, we use the mutation _createCart._ The query should be
+
+mutation {
+  createCart {
+    cart {
+      rows {
+        articleNumber
+        quantity
+      }
+      country {
+        name
+        code
+      }
+      currency {
+        code
+        minorCurrencyUnit
+      }
+      discountCodes
+      showPricesIncludingVat
+    }
+  }
+}
+
+### Add a variant to the cart
+
+Now we can add a variant to the cart through the query.
+
+mutation  {
+  addVariantToCart (input: {
+    articleNumber: "courtdress-l-002-638084429722135317"
+    quantity: 2
+    additionalInfo: {key: "key", value: "valuetest"}
+  })  {
+    cart {
+      rows {
+        rowId
+        articleNumber
+        quantity
+        additionalInfo {key value}
+      }
+    }
+  }
+}
+
+### Update and remove a variant
+
+In the preceding query, the server will return the _rowId_. We use the value of _rowId_ to remove or update the quantity.
+
+To update the quantity of variant, we use the query
+
+mutation {
+  updateVariantInCart(
+    input: {
+      id: "1"
+      quantity: 1
+      additionalInfo: { key: "item1", value: "1" }
+    }
+  ) {
+    cart {
+      rows {
+        rowId
+        articleNumber
+        quantity
+      }
+      grandTotal
+    }
+  }
+}
+
+Or we can remove it by using the query
+
+mutation {
+  removeVariantFromCart(
+    input: {
+      id: "1"
+    }
+  ) {
+    cart {
+      rows {
+        rowId
+        articleNumber
+        quantity
+      }
+      grandTotal
+    }
+  }
+}
+
+### Add and remove a discount code
+
+If you want to add a discount code you can do so from Litium backoffice, and we can use the query
+
+mutation {
+  addDiscountCodesToCart(input: { codes: \["code"\] }) {
+    cart {
+        discountCodes
+    }
+  }
+}
+
+We remove this code by using the query
+
+mutation {
+  removeDiscountCodesFromCart(input: { codes: \["code"\] }) {
+    cart {
+      discountCodes
+    }
+  }
+}
+
+## Work with the Checkout
+
+### Create a checkout session
+
+After adding variants to the cart, we need to create a checkout session by using the query
+
+mutation {
+  createCheckoutSession(
+    input: {
+      checkoutFlowInfo: {
+        checkoutPageUrl: "dummy.com/checkout"
+        receiptPageUrl: "dummy.com/receipt"
+        cancelPageUrl: "dummy.com/cancel"
+        termUrl: "dummy.com/term"
+        allowSeparateShippingAddress: true
+        customerType: PERSON
+        shippingTags: \["shipping free"\]
+        disablePaymentShippingOptions: false
+        additionalInfo: { key: "test", value: "test" }
+      },
+      notifications:{
+        orderConfirmedUrl: "https://dummy.com/OrderConfirmedNotificationUrl"
+      }
+    }
+  ) {
+    checkout {
+      checkoutFlowInfo {
+        checkoutPageUrl
+        receiptPageUrl
+        cancelPageUrl
+        termUrl
+        allowSeparateShippingAddress
+        customerType
+        shippingTags
+        disablePaymentShippingOptions
+        additionalInfo {
+          key
+          value
+        }
+      }
+    }
+  }
+}
+
+In the preceding mutation, we also input the URL to the \`orderConfirmedUrl\` field. The URL has to be an absolute URL and the domain has to be registered to Litium BO. When the order is confirmed, system will send a webhook \`SalesOrderConfirmed\` event to this URL. This URL can be used for example, send order confirmation email.
+
+### Update checkout details
+
+Then, we add checkout details by using the query
+
+mutation (
+  $address: OrderAddressInput
+  $note: String
+  $additionalInfo: \[KeyValuePairOfStringAndStringInput!\]
+  $customer: OrderCustomerDetailsInput
+) {
+  updateCheckoutDetails(
+    input: {
+      billingAddress: $address
+      shippingAddress: $address
+      note: $note
+      additionalInfo: $additionalInfo
+      customer: $customer
+    }
+  ) {
+    checkout {
+      customerDetails {
+        firstName
+        lastName
+        title
+        email
+        phone
+        businessRegistrationNumber
+        nationalIdentificationNumber
+        vatRegistrationNumber
+        customerType
+        customerNumber
+      }
+      billingAddress {
+        ...Address
+      }
+      shippingAddress {
+        ...Address
+      }
+      note
+      additionalInfo {
+        key
+        value
+      }
+    }
+  }
+}
+fragment Address on OrderAddress {
+  firstName
+  lastName
+  title
+  email
+  mobilePhone
+  fax
+  organizationName
+  reference
+  address1
+  address2
+  careOf
+  city
+  country
+  houseExtension
+  houseNumber
+  state
+  phoneNumber
+  zipCode
+}
+
+In the preceding query, there are _$address, $note​, $additionalInfo​, $customer​_ variables, which are defined in the variables window of the Storefront playground
+
+{
+    "address": {
+        "firstName": "Sonja",
+        "lastName": "Åberg",
+        "title": "Dr.",
+        "email": "Magnus69@gmail.com",
+        "mobilePhone": "59-749549-082573-5",
+        "fax": "48044",
+        "organizationName": "Cameron Cormier",
+        "reference": null,
+        "address1": "45769",
+        "address2": "712",
+        "careOf": "Jakob Martinsson",
+        "city": "Kungmora",
+        "country": "Belize",
+        "houseExtension": "56",
+        "houseNumber": "11",
+        "state": "Älvsborg",
+        "phoneNumber": "0024-437322",
+        "zipCode": "31649"
+    },
+    "note": "South asynchronous primary",
+    "customer": {
+        "firstName": "Malin",
+        "lastName": "Ström",
+        "title": "PhD.",
+        "email": "Caroline\_Bjrklund@gmail.com",
+        "phone": "28-987660-450958-3",
+        "businessRegistrationNumber": "l",
+        "nationalIdentificationNumber": "11234",
+        "vatRegistrationNumber": "11234",
+        "customerType": "PERSON",
+        "customerNumber": "12345"
+    },
+    "additionalInfo": {
+        "key": "KeyOne",
+        "value": "blanditiis"
+    }
+}
+
+### Update checkout options
+
+In this step, we will select the payment option and shipping option by using the query
+
+mutation {
+  updateCheckoutOptions(
+    input: {
+      shippingOptionId: "directshipment:expressPackage"
+      paymentOptionId: "directpayment:DirectPay"
+    }
+  ) {
+    checkout {
+      shippingOptions {
+        ...CheckoutOption
+      }
+      paymentOptions {
+        ...CheckoutOption
+      }
+      paymentHtmlSnippet
+    }
+  }
+}
+
+fragment CheckoutOption on CheckoutOption {
+  id
+  name
+  description
+  price
+  selected
+}
+
+If you want to find the _shippingOptionId_, and _paymentOptionId_, you can query the data of checkout, it contains a list of options that were set up in Litium backoffice
+
+query {
+  checkout {
+    shippingOptions {
+      ...CheckoutOption
+    }
+    paymentOptions {
+      ...CheckoutOption
+    }
+    paymentHtmlSnippet
+  }
+}
+fragment CheckoutOption on CheckoutOption {
+  id
+  name
+  description
+  price
+  selected
+}
+
+If you select DirectPay payment app, you can move to the next step to place an order.
+
+If you select other payments such as Klarna or Adyen, they have their own widget. It will be populated into _paymentHtmlSnippet_ field. Read this [article](/accelerators/react-accelerator/working-with-shopping-cart-and-checkout) to see how React Accelerator renders the widget.
+
+### Place an Order
+
+Now all data is entered, we use _placeOrder_ mutation to place the order
+
+mutation  {
+  placeOrder   {
+    receipt { 
+      order {
+    
+      country {
+        name
+        code
+      }
+      currency {
+        code
+        minorCurrencyUnit
+      }
+      rows {
+        articleNumber
+        quantity
+        totalIncludingVat
+        additionalInfo {key value}
+      }, 
+        customerDetails {
+        firstName
+        lastName
+        # more fields...
+      },
+      billingAddress {
+        ...Address
+      }
+      shippingAddress {
+        ...Address
+      },
+      additionalInfo {key value},
+      additionalShippingInfo {key value}
+    },
+    htmlSnippet
+    }
+  }
+}
+
+fragment Address on OrderAddress {
+  firstName
+  # more fields...
+}
+
+Finally, since the order is placed, we need to clear the cart
+
+mutation {
+  clearCart {
+    cart {
+      rows {
+        rowId
+        articleNumber
+        quantity
+      }
+      grandTotal
+    }
+  }
+}
+
+## Query the cart, checkout, and receipt
+
+In the Storefront API, there are three queries to help us get data on the cart, checkout, and receipt.
+
+### Query to get the cart
+
+query {
+  cart {
+    rows {
+      rowId
+      articleNumber
+      quantity
+      description
+    }
+    grandTotal
+    totalVat
+    productCount
+    # more fields...
+  }
+}
+
+### Query to get checkout details
+
+query {
+  checkout {
+    shippingOptions {
+      ...CheckoutOption
+    }
+    paymentOptions {
+      ...CheckoutOption
+    }
+    paymentHtmlSnippet
+    # more fields...
+}
+
+### Query to get receipt
+
+query {
+  receipt {
+    order {
+      country {
+        name
+        code
+      }
+      currency {
+        code
+        minorCurrencyUnit
+      }
+      rows {
+        articleNumber
+        quantity
+      }
+      customerDetails {
+        firstName
+        lastName
+        # more fields...
+      }
+      additionalInfo {
+        key
+        value
+      }
+      additionalShippingInfo {
+        key
+        value
+      }
+    }
+    htmlSnippet
+  }
+}
+
+In case of the payment providers having their own receipt page, it will be populated in _htmlSnippet_ field. Read this [article](/accelerators/react-accelerator/working-with-shopping-cart-and-checkout) to see how React Accelerator uses this property.

@@ -1,0 +1,37 @@
+---
+title: "What's new 8.2"
+description: "Litium 8.2 is a minor version of the Litium commerce platform."
+---
+
+Litium 8.2 is a minor version of the Litium commerce platform.
+
+Litium 8.2 is a minor version of the Litium commerce platform. It contains minor features and bug fixes.
+ 
+Highlights
+
+Order approval flow in Accelerator
+Tags on orders, payments, shipments, and transactions
+Single discount codes
+Refund and cancel payments from API
+Payment details in order view
+Angular 13 in administration
+.NET 6
+
+Order approval flow in Accelerator 
+The ability to use persons, organizations and roles to define purchasing flows. The Accelerator uses the predefined roles OrderPlacer and OrderApprover, and the underlying logic is defined in a new tags framework for the order entity. The flow can be modified in customer projects according to needs.
+Tags on orders, payments, shipments, and transactions
+This feature provides the base framework to use tags on order, shipment, payment, and transaction entities. Tags can be used in different scenarios to interrupt or in other ways alter a business process. In the Litium Accelerator, it is used as the infrastructure to support order approval flows. 
+Single discount codes
+The ability to use single codes for activation of discounts. In this feature, we implement the scenario for using single discount codes that are named by the merchant manually and that can be used one or many times.
+Refund and cancel payments from API
+The ability to cancel or refund payments to customers. The process starts when a cancel or refund transaction is initiated. The transaction may be initiated either from a sales return order or through an API call from external systems. The system initiates a refund and utilizes previously used payment transactions to do a return to the proper payment type for the order. A payment app refunds the money and updates the payment status in the system. 
+Payment details in order view
+To be able as a merchant to get summary information about the payment in the different states, authorized, captured, refunded, cancelled, reserved etc. This facilitates identifying if there are any issue with the payment that needs attention.
+Angular 13 in administration
+The Litium administration UI is updated to run Angular 13. 
+.NET 6
+With the update to the latest version of .NET, you get access to all new features, improvements and fixes in the .NET framework from Microsoft. Notable is the overall performance improvements, which all our customers running this version will benefit from.
+Bug fixes and improvements
+See the release notes here
+
+[Back to what's new](/platform/whats-new)

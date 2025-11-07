@@ -1,0 +1,31 @@
+---
+title: "Litium packages"
+description: "How to set up packages for NuGet and container images"
+---
+How to set up packages for NuGet and container images
+
+## NuGet
+
+Packages for the Litium platform are distributed through the Litium NuGet repository. Litium NuGet repository is a private package repository that needs authentication with your Litium Docs credentials.
+
+To set up your system and be able to use packages from Litium NuGet repository you must add the repository with the following command:
+
+dotnet nuget add source https://nuget.litium.com/nuget/ -n Litium -u username -p password
+
+**Note!** The username should be replaced with your Litium Docs username and password.
+
+**Note 2!** Remember to escape the control characters, i.e. $ if you using powershell, or using single quotes (') around the values.
+
+### Workaround for recent issue
+
+If the error message ["Password decryption is not supported on .NET Core for this platform" is displayed, please see workaround here](https://github.com/LitiumAB/Education/issues/120). 
+
+## Container images
+
+Litium apps will be distributed as container images from Litium Container Registry. Litium Container Registry is a private container registry that needs authentication with your Litium Docs credentials.
+
+To set up your system to be able to use container images from Litium Container Registry you must run the following command and provide the password.
+
+docker login registry.litium.cloud -u username
+
+**Note!** The username should be replaced with your Litium Docs username.

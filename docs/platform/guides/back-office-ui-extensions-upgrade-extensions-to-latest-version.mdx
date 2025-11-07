@@ -1,0 +1,91 @@
+---
+title: "Upgrade extensions to latest version"
+description: "When upgrading Litium platform, it is recommended to upgrade the extension projects to the latest version. This page explains how to upgrade the extension projects to latest version."
+---
+When upgrading Litium platform, it is recommended to upgrade the extension projects to the latest version. This page explains how to upgrade the extension projects to latest version.
+
+When installing [Litium Accelerator](/accelerators/mvc-accelerator/install-litium-accelerator), extensions projects like _Litium.Accelerator.Administration.Extensions_ and _Litium.Accelerator.FieldTypes_ are included. When a new version of the Accelerator is released, new versions of extension projects are realsed to. In order to get the latest version of extension projects, an upgrade is recommended.
+
+## If you don't modify extension projects
+
+Simply copy and overwrite extension projects and execute _yarn run prod_ or _npm run prod_ to build production builds.
+
+## If you have modified extension projects
+
+First of all, please check the [Maintenance and upgrade](/accelerators/mvc-accelerator/upgrade-and-maintenance) guideline to use source control to track changes to make it easier to merge changes from new versions of extension projects. Then follow the guideline to upgrade and merge changes to your extension projects. After the merge is done, execute _yarn run prod_ or _npm run prod_ to build production builds.
+
+## Change log
+
+### 8.15
+
+In version 8.15, we upgraded Angular from 13.2 to 17.0. Make sure you follow the steps on [https://update.angular.io/](https://update.angular.io/) to upgrade your custom code to Angular 17.
+
+Another change in 8.15 is to use [@angular-redux3/store](https://www.npmjs.com/package/@angular-redux3/store) package as a replacement of @angular-redux/store as it is no longer maintain and does not comply with Angular 17. All import statements from @angular-redux/store should be updated to use the new library. For example, the following code:
+
+import { NgRedux } from '@angular-redux/store';
+
+Should be updated to:
+
+import { NgRedux } from '@angular-redux3/store';
+
+Also the shared libraries registration of Module Federation in webpack.js should also be updated from:
+
+"@angular-redux/store": { eager: false, singleton: true, requiredVersion: angularReduxPkJson.version },
+
+to:
+
+'@angular-redux3/store': { eager: false, singleton: true, requiredVersion: angularReduxPkJson.version },
+
+### 8.24
+
+In version 8.24, we upgraded Angular from 17.0  to 20.0. Make sure you follow steps on [https://update.angular.io/](https://update.angular.io/) to upgrade your custom code to Angular 20. Ensure version compatibility with:
+
+- Nodejs: ^20.19.0 || ^22.12.0 || ^24.0.0
+- Typescript: >=5.8.0 <5.9.0
+- RxJS: ^6.5.3 || ^7.4.0
+
+Another significant change in version 8.24 is the migration to standalone components. To convert an existing "classic" component (previously declared in a module) to a standalone component:
+
+**Before**
+
+// example.component.ts
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-example',
+  template: \`\`,
+})
+export class ExampleComponent { }
+ 
+// In the module:
+import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
+import { ExampleComponent} from './components/example.component';
+
+@NgModule({
+  declarations: \[ExampleComponent\],
+  imports: \[CommonModule\],
+})
+export class ExampleModule {}
+
+**After**
+
+// example.component.ts
+import { Component } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
+ 
+@Component({
+  selector: 'app-example',
+  standalone: true, // may be omitted (true by default)
+  imports: \[CommonModule, DatePipe\],
+  template: \`\`
+})
+export class ExampleComponent {
+  value = new Date();
+}
+
+This migration simplifies your component architecture by making components self-contained and reducing NgModule dependencies.
+
+**References**
+
+- [Angular Standalone API Docs](https://https://angular.dev/reference/migrations/standalone)

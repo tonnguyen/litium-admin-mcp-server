@@ -1,0 +1,59 @@
+---
+title: "Configure SMTP"
+description: "Configure Litium to use the test tool MailHog to test e-mail"
+---
+Configure Litium to use the test tool MailHog to test e-mail
+
+To do this task you first need to complete the [Setup Litium MVC Accelerator](/platform/get-started/local-installation-guide-setup-litium-mvc-accelerator) task.
+
+## Setup
+
+In the previous Docker task a container was started with the SMTP test application [MailHog](https://github.com/mailhog/MailHog), adjust your applications SMTP setting to connect to it:
+
+1.  Find the _Litium:Accelerator:Smtp_ setting in `appsettings.json` and change it to:
+    
+    "Accelerator": {
+        "Smtp": {
+            "Host": "localhost",
+            "Port": 1025,
+            "Password": "",
+            "Username": "",
+            "EnableSecureCommunication": false
+        }
+    }
+    
+2.  Rebuild the application (`ctrl+F5`) to deploy the change
+    
+3.  A sender email address is required to send mail from the application
+    
+    1.  In Litium backoffice, go to _Settings > Website > Websites_ and double-click your _Bookstore_ website
+    2.  Find the _Sender email address_ setting and add a valid email as value
+    3.  Click _Save_
+
+## Test
+
+1.  Create new user in the Customers area in Litium backoffice with:
+    1.  An email address so we can test the email sending.
+    2.  Use the _Person B2B_ template
+2.  Click the login link **on the public site**
+    1.  Click _Forgot password?_ and request a password to be sent to the email you set for the user above.
+3.  Open MailHog in your browser at [http://localhost:8025/](http://localhost:8025/) where you should have received a mail with instructions on how to reset your password.
+
+## Order confirmation
+
+If you have done the setup of [payment and shipping apps](/platform/get-started/local-installation-guide-configure-payment-and-shipment-apps) you can also test the the order confirmation e-mail.
+
+1.  The Litium application will send a request to itself to render the order confirmation email. For this request to work some additional configuration is required.
+    
+    1.  In _Backoffice > Settings > Globalization > Domain names_ double-click to edit the `bookstore.localtest.me`\-domain.
+    2.  Set a value for the _HSTS max age setting_ (for example 100) to force requests to use `https`, otherwise the order confirmation mail will try using `http` and fail (in a production environment [this setting should be set to at least a year](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security))
+2.  Place an order and confirm that the order confirmation mail is received in MailHog.
+    
+
+## Troubleshooting
+
+If no mails are received you will likely find errors in the `litium.log` file.
+
+## Next step
+
+[Setup automated tests](/platform/get-started/local-installation-guide-configure-test-project)

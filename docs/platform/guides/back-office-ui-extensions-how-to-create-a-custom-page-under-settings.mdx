@@ -1,0 +1,128 @@
+---
+title: "How to create a custom page under Settings"
+description: "In Litium, the backoffice can be extended to display custom components to serve customer needs. A custom field type can be created to fulfill the need of entering custom data, using a custom component. A custom widget can be created to show information, or a custom panel can be created in case people want to display information in a shape of a page."
+---
+In this article we explain how to create a custom page in the backoffice Settings section.
+
+In Litium, the backoffice can be extended to display custom components to serve customer needs. A [custom field type](/platform/guides/data-modelling-how-to-create-custom-field-types) can be created to fulfill the need of entering custom data, using a custom component. A [custom widget](/platform/areas/dashboard/how-to-create-custom-dashboard-widgets) can be created to show information, or a [custom panel](/platform/guides/back-office-ui-extensions-how-to-create-a-custom-panel) can be created in case people want to display information in a shape of a page.
+
+Since Litium 8, you can also create custom pages in Settings. In this example, we will create two pages in Settings and demonstrate the ability to navigate between them.
+
+![custom-setting-pages.JPG](./media/custom-setting-pages.JPG)
+
+1.  [Create Sample A and Sample B components](#create sample a and sample b components)
+2.  [Register components and routes](#register components and routes)
+3.  [Register menu items](#register menu items)
+4.  [Translation](#translation)
+5.  [Build and run](#build and run)
+6.  [Link to external page](#link to external page)
+
+## Create sample A and Sample B components
+
+Let us start by creating sample components. They contain a heading text and a link to each other component. Please note, for the sake of simplicity, component templates are inlined in the .ts file. In production, it is recommended to have a template in a separated .html file.
+
+// File path: Litium.Accelerator.Administration.Extensions\\src\\AcceleratorExtensions\\components\\sample\\samplea.component.ts
+import {
+    ChangeDetectionStrategy,
+    Component,
+} from '@angular/core';
+
+@Component({
+    selector: 'samplea',
+    template: \`<h1>Sample A</h1>
+                <a \[routerLink\]="\['../sampleb'\]">To sample B<a>\`,
+    changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class SampleComponentA { }
+
+// File path: Litium.Accelerator.Administration.Extensions\\src\\AcceleratorExtensions\\components\\sample\\sampleb.component.ts
+import {
+    ChangeDetectionStrategy,
+    Component,
+} from '@angular/core';
+
+@Component({
+    selector: 'sampleb',
+    template: \`<h1>Sample B</h1>
+                <a \[routerLink\]="\['../samplea'\]">To sample A<a>\`,
+    changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class SampleComponentB { }
+
+## Register components and routes
+
+After creating components, we should register them in an Angular module, and register the routes to assign an Url to a component. Let us modify _Litium.Accelerator.Administration.Extensions\\src\\AcceleratorExtensions\\extensions.ts_ to add routes into _appRoutes_ and register components in _declarations._
+
+import { SampleComponentA } from './components/sample/samplea.component';
+import { SampleComponentB } from './components/sample/sampleb.component';
+
+const appRoutes = \[
+    {
+        path: '',
+        children: \[
+            { path: 'samplea', component: SampleComponentA },
+            { path: 'sampleb', component: SampleComponentB },
+        \]
+    }
+\];
+
+@NgModule({
+    declarations: \[
+        SampleComponentA,
+        SampleComponentB,
+    \],
+
+That is all we need to do at the client code. Let us move to the next step to register menu items in the left menu of the Settings.
+
+## Register menu items
+
+Under _Litium.Accelerator.Administration.Extensions_, there is a file named _SettingsMenuProvider.cs_. This file defines a list of menus to be added to the left menu in Settings. We should modify the _Children_ field of _MenuModel_ to return our two new pages:
+
+Children = new\[\]
+{
+    ("/Litium/UI/settings/extensions/AcceleratorExtensions/samplea", "accelerator.setting.search.samplea", true),
+    ("/Litium/UI/settings/extensions/AcceleratorExtensions/sampleb", "accelerator.setting.search.sampleb", true),
+}
+
+Note:
+
+- The prefix "/Litium/UI/settings/extensions/" is required and should not be changed.
+- The next segment, "AcceleratorExtensions" is the module name, which was defined in _Litium.Accelerator.Administration.Extensions\\src\\AcceleratorExtensions\\extensions.ts_, as the class name. The module is registered to Litium using _AngularModuleAttribute_ in _Litium.Accelerator.Administration.Extensions\\Properties\\AssemblyInfo.cs_ and is exposed in _webpack.js_, via _ModuleFederationPlugin_ so it can be accessed by the platform. More information regarding ModuleFederationPlugin: [https://webpack.js.org/concepts/module-federation/](https://webpack.js.org/concepts/module-federation/).
+- The last segment, samplea and sampleb, are the paths to components which we have added to _Litium.Accelerator.Administration.Extensions\\src\\AcceleratorExtensions\\extensions.ts_ in [the second step](#register components and routes).
+- The second parameter is the translation key, which will be translated to the name of the menu item. We will register the translation keys in the next step.
+- The last parameter is the boolean flag to indicate if the menu item should be visible or not.
+
+## Translation
+
+Add these translation keys to _Litium.Accelerator.Administration.Extensions\\Resources\\Administration.resx_ to show the correct text in the menu. Remember to add them to other files to translate them into other languages.
+
+  <data name="accelerator.setting.search.samplea" xml:space="preserve">
+    <value>Sample A</value>
+  </data>
+  <data name="accelerator.setting.search.sampleb" xml:space="preserve">
+    <value>Sample B</value>
+  </data>
+
+## Build and run
+
+Open your favorite command prompt, navigate to the _Src_ folder and execute:
+
+- _yarn run build-extensions:w_ or _npm run build-extensions:w_ to build the client code in watch mode, which does incremental build when code changes. Do this while developing to reduce the build time.
+- In production, execute _yarn run prod_ or _npm run prod_.
+- Build the solution _Accelerator.sln_.
+
+Now open your browser, navigate to the Settings, you would see two new pages under _Accelerator_. Each page has its own Url, and has links to each other. Try to click on the link to check if the navigation works.
+
+![custom-setting-pages-in-action.JPG](./media/custom-setting-pages-in-action.JPG)
+
+## Link to external page
+
+To add menu items that contain external links, the following items can be added to the _SettingsMenuProvider_:
+
+Children = new\[\]
+{
+    ("https://www.litium.com", "External link", true),
+    ("settings/iframe/" + 
+        HttpUtility.UrlEncode(new Uri("https://www.litium.com").AbsoluteUri), 
+        "Open in iFrame", true),
+}

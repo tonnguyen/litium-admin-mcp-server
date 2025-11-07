@@ -1,0 +1,39 @@
+---
+title: "Db tool"
+description: "Manage upgrades of the Litium platform database with the db tool."
+---
+Manage upgrades of the Litium platform database with the db tool.
+
+To manage the upgrade of the Litium platform database the _litium-db_ dotnet tool is used. This is a command-line tool that can migrate the database from the previous version or generate a script that can be executed later. 
+
+In the below examples the connection string is in the following format
+
+"Pooling=true;User Id=user;Password=secret;Database=litium;Server=127.0.0.1;TrustServerCertificate=True"
+
+## Installation
+
+The _litium-db_ tool is automatic installed with Litium Accelerator. To manually install as a local tool use the following command:
+
+dotnet new tool-manifest
+dotnet tool install Litium.Application.Migrations --local \[--version (Litium version)\]
+
+The _tool-manifest_ need to be created in the folder before a local tool can be installed. The _\--version_ an be added to point for a specific version of the _litium-db_ tool. We do not recommend installing the _litium-db_ tool as a global tool because you can only have one version installed.
+
+## Upgrade a database
+
+With the _update_ command you can execute the database upgrade.
+
+dotnet litium-db update --connection \[connectionstring\]
+
+if you have the connection string in your json-config file you can directly use that for migration
+
+dotnet litium-db update --file \[path to the config.json file\]
+
+## Generate script
+
+With the _pre-script_ and _script_ command, you can create the database script that is needed for the manual upgrade of the database. For example, if the scripts should be sent to Litium Support for applying to the customer database.
+
+dotnet litium-db pre-script -o prerequisite.sql
+dotnet litium-db script -o upgrade.sql
+
+The _pre-script_ is used to validate the information in the database before starting the migration. If the validation script is failing with an error message the upgrade should be aborted and the database needs to be corrected regarding the instructions in the error.

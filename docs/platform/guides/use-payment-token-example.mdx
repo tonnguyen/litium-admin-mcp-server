@@ -1,0 +1,434 @@
+---
+title: "How to use a payment token"
+description: "This example uses Litium MVC Accelerator 8.17.3 version. It does not assume a particular payment provider app, but the code is tested using the Qliro payment app."
+---
+This example shows how to use a payment token to pay for an order. The order is programmatically created through a Web API call.
+
+This example uses Litium MVC Accelerator 8.17.3 version. It does not assume a particular payment provider app, but the code is tested using the [Qliro payment app](/add-ons/litium-apps/qliro-payment).
+
+Following are the steps in creating an order using a payment token.
+
+1.  An order should be created with a payment provider that supports payment tokens, that initializes recurring/subscription payments and returns back the token to the payment app. This order is paid using a credit card or invoice, and the payment token returned will be tied to the credit card or invoice used. Let us call this order as "Init Order".
+2.  The payment.systemId of the above "Init Order" should be used when creating orders to use the payment token (The actual payment token received from the payment service provider is not available through any API due to security reasons)
+3.  You can use a web-api endpoint to create an order programatically and use payment token functionality to process its payment.
+
+Following code example demostrates the above steps.
+
+## Initial order to get payment token for recurring payments
+
+When creating the initial order to get a payment token, the payment app should be informed to initialize recurring payments. To initialize recurring payments, an order should be placed with CheckoutFlowInfo.InitializePaymentToken set to "true". 
+
+#### Example code using Litium Accelerator:
+
+This method GetCheckoutFlowInfo() is at: _\\Src\\Litium.Accelerator.Mvc\\Controllers\\Checkout\\CheckoutController.cs_
+
+private CheckoutFlowInfo GetCheckoutFlowInfo()
+    {
+        //...other code
+            
+        return new CheckoutFlowInfo
+        {
+           //..Other code
+
+           //Enable Recurring payment.
+           InitializePaymentToken = true,
+        };
+    }
+
+Once you have created an order with the InitializePaymentToken set, you can use its payment.SystemId to create subsequent orders and pay with the payment token as shown below.
+
+### Creating and paying for order programatically:
+
+Following is code for a Web API method called "subscriptionOrder".
+
+Once it is added, the webapi url will be: 
+
+https://mysite.localtest.me/api/subscriptionOrder/createFrom/<externalOrderId>
+
+You need to replace the mysite.localtest.me and <externalOrderId> above.
+
+Code to create the above endpoint is below, and it should be placed in following location:
+
+..\\Src\\Litium.Accelerator.Mvc\\Controllers\\Api\\SubscriptionOrderController.cs
+
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Litium.Accelerator.Utilities;
+using Litium.Accelerator.ViewModels.Checkout;
+using Litium.Common;
+using Litium.Customers;
+using Litium.Events;
+using Litium.GDPR;
+using Litium.Globalization;
+using Litium.Runtime.DependencyInjection;
+using Litium.Runtime.DistributedLock;
+using Litium.Sales;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Litium.Accelerator.Mvc.Controllers.Api
+{
+    \[Authorize\]
+    \[Route("api/subscriptionOrder")\]
+    public class SubscriptionOrderController : ApiControllerBase
+    {
+        private readonly SubscriptionService \_subscriptionService;
+
+        public SubscriptionOrderController(SubscriptionService subscriptionService)
+        {
+            \_subscriptionService = subscriptionService;
+        }
+        /// <summary>
+        /// Creates a subscription order.
+        /// </summary>
+        /// <param name="srcOrderId"> Original order id of the subscription.</param>
+        /// <returns></returns>
+        \[HttpPost\]
+        \[Route("createFrom/{srcOrderId}")\]
+        public async Task<IActionResult> CreateFrom(string srcOrderId)
+        {
+            try
+            {
+                var cartContext = await HttpContext.GetCartContextAsync();
+                //await HttpContext.SwitchCartContextAsync(cartContext.Cart.SystemId);
+
+                var subscriptionOrder = await \_subscriptionService.CreateSubscriptionOrder(cartContext, srcOrderId);
+                return (subscriptionOrder != null)
+                    ? Ok(subscriptionOrder)
+                    : NotFound($"Order {srcOrderId} not found");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
+    }
+
+    \[Service(ServiceType = typeof(SubscriptionService), Lifetime = DependencyLifetime.Singleton)\]
+    public class SubscriptionService
+    {
+        private readonly PaymentService \_paymentService;
+        private readonly PaymentProviderService \_paymentProviderService;
+        private readonly OrderOverviewService \_orderOverviewService;
+        private readonly DistributedLockService \_distributedLockService;
+        private readonly ChannelService \_channelService;
+        private readonly KeyLookupService \_keyLookupService;
+        private readonly PersonService \_personService;
+        private readonly EventBroker \_eventBroker;
+
+        public SubscriptionService(PaymentService paymentService,
+            PaymentProviderService paymentProviderService,
+            OrderOverviewService orderOverviewService,
+            DistributedLockService distributedLockService,
+            ChannelService channelService,
+            KeyLookupService keyLookupService,
+            PersonService personService,
+            EventBroker eventBroker)
+        {
+            \_paymentService = paymentService;
+            \_paymentProviderService = paymentProviderService;
+            \_orderOverviewService = orderOverviewService;
+            \_distributedLockService = distributedLockService;
+            \_channelService = channelService;
+            \_keyLookupService = keyLookupService;
+            \_personService = personService;
+            \_eventBroker = eventBroker;
+        }
+        public async Task<OrderOverview> CreateSubscriptionOrder(CartContext cartContext, string srcOrderId)
+        {
+            //Note: Following code can be used as a starting point of creating an order and making a payment using a PaymentToken.
+            //The code is tested using Qliro payment app.
+            //For this to work, your payment account should be enabled to use recurring/subscription payments. Contact payment provider customer service to enable it.
+            using (\_distributedLockService.AcquireLock(srcOrderId, TimeSpan.FromSeconds(5)))
+            {
+                //Makesure we have a totally new cart context.
+                await cartContext.ClearCartContextAsync();
+                if (await cartContext.TryInitializeCheckoutFlowAsync(() => new CheckoutFlowInfoArgs() { CheckoutFlowInfo = new CheckoutFlowInfo() }))
+                {
+                    var srcOrderOverview = \_orderOverviewService.Get(srcOrderId);
+                    if (srcOrderOverview != null)
+                    {
+                        var srcOrder = srcOrderOverview.SalesOrder;
+                        //Following methods sets the channel and country, and internally selects the currency for the order.
+                        //These methods need not be called, because the CartContextDefaultFactoryDecorator is setting them. 
+                        //await cartContext.SelectChannelAsync(new SelectChannelArgs() { ChannelSystemId = srcOrder.ChannelSystemId.Value });
+                        //await cartContext.SelectCountryAsync(new SelectCountryArgs() { CountryCode = srcOrder.CountryCode });
+
+                        //prepare a new order with same items as the src order.
+                        foreach (var item in srcOrder.Rows.Where(x => x.OrderRowType == OrderRowType.Product))
+                        {
+                            var addOrUpdateItemArgs = new AddOrUpdateCartItemArgs()
+                            {
+                                ArticleNumber = item.ArticleNumber,
+                                Quantity = item.Quantity,
+                            };
+                            await cartContext.AddOrUpdateItemAsync(addOrUpdateItemArgs);
+                        }
+
+                        await AddCustomerInfoAsync(cartContext, srcOrder.CustomerInfo);
+                        await AddShippingDetailsAsync(cartContext, srcOrder);
+
+                        await cartContext.AddOrUpdateBillingAddressAsync(srcOrder.BillingAddress);
+                        await AddPaymentDetails(cartContext, srcOrderOverview);
+
+                        //if a paymentToken is found in the original order, we try to use it with calling SetPaymentTokenAsync method.
+                        //Some payment apps (e.g. Qliro) allows to create a order using Invoice method, even without payment tokens for credit accepted buyers.
+                        //So, following call is not necessary to create invoice payments in certain payment apps when using invoice methods. Note that, CustomerInfo.NationalIdentificationNumber is required to create invoice payments.
+                                                //if (srcOrder.AdditionalInfo.TryGetValue("PaymentToken", out object tokenObj)) //Note: Following code assumes that payment token is saved with the original order additionalInfo.
+                        //{
+                        //    if (Guid.TryParse(tokenObj as string, out Guid token))
+                        //    {
+                        //        await cartContext.SetPaymentTokenAsync(new SetPaymentTokenArgs() { PaymentToken = token });
+                        //    }
+                        //}
+
+                        var paymentToken = srcOrderOverview.PaymentOverviews.FirstOrDefault().Payment.SystemId;
+                        await cartContext.SetPaymentTokenAsync(new SetPaymentTokenArgs() { PaymentToken = paymentToken });
+
+                        //await cartContext.ConfirmOrderAsync();
+
+                        //we should get a confirmed order.
+                        var result = await \_eventBroker.WaitForEventAsync<Sales.Events.SalesOrderConfirmed>(
+                           x => Task.FromResult(x.Item.SystemId == cartContext.Cart.Order.SystemId),
+                           async () => await cartContext.ConfirmOrderAsync());
+
+                        var subscriptionOrderOverview = \_orderOverviewService.Get(cartContext.Cart.Order.SystemId);
+                        return subscriptionOrderOverview;
+                    }
+                    else
+                    {
+                        throw new Exception($"Order {srcOrderId} not found.");
+                    }
+                }
+                else
+                {
+                    throw new Exception($"Could not initialize cart context.");
+                }
+            }
+        }
+
+        private async Task AddPaymentDetails(CartContext cartContext, OrderOverview srcOrderOverview)
+        {
+            var channel = \_channelService.Get(srcOrderOverview.SalesOrder.ChannelSystemId.Value);
+            \_keyLookupService.TryGetSystemId<Country>(srcOrderOverview.SalesOrder.CountryCode, out var countrySystemId);
+            var srcPaymentOverview = srcOrderOverview.PaymentOverviews.FirstOrDefault();
+
+            //This is the list of all the options supported by the payment provider service.
+            var paymentTokenPaymentOptions = \_paymentProviderService.Get(srcPaymentOverview.Payment.PaymentOption.ProviderId)?.Options.Where(x => x.IntegrationType == Sales.Payments.PaymentIntegrationType.PaymentToken);
+            if (!paymentTokenPaymentOptions.Any())
+            {
+                throw new Exception($"Paymentprovider {srcPaymentOverview.Payment.PaymentOption.ProviderId} does not support PaymentTokens");
+            }
+
+            //we need to find the PaymentToken option available for the channel.
+            var paymentTokenPaymentOption = channel.CountryLinks.FirstOrDefault(x => x.CountrySystemId == countrySystemId)?.PaymentOptions.FirstOrDefault(x => paymentTokenPaymentOptions.Any(k => k.Id == x.Id.OptionId));
+            if (paymentTokenPaymentOption == null)
+            {
+                throw new Exception($"PaymentToken option is not added to the channel {channel.Id}");
+            }
+
+            await cartContext.SelectPaymentOptionAsync(new SelectPaymentOptionArgs
+            {
+                PaymentOptionId = paymentTokenPaymentOption.Id
+            });
+        }
+
+        private static async Task AddShippingDetailsAsync(CartContext cartContext, SalesOrder srcOrder)
+        {
+            var srcShippingInfo = srcOrder.ShippingInfo.FirstOrDefault();
+            if (srcShippingInfo != null)
+            {
+                //Note: Here we assume that the shipping option is not using a delivery checkout.
+                //Since there will not be end customer input here, you cannot use a delivery checkout.
+                await cartContext.SelectShippingOptionAsync(
+                    new SelectShippingOptionArgs()
+                    {
+                        ShippingOptionId = srcShippingInfo.ShippingOption //TODO: It is assumed that the shipping option is still awailable.
+                    });
+                await cartContext.AddOrUpdateDeliveryAddressAsync(srcShippingInfo.ShippingAddress);
+            }
+        }
+
+        private async Task AddCustomerInfoAsync(CartContext cartContext, CustomerInfo customerInfoFromOriginalOrder)
+        {
+            var ssn = customerInfoFromOriginalOrder.NationalIdentificationNumber;
+            if (string.IsNullOrEmpty(ssn) && customerInfoFromOriginalOrder.PersonSystemId != null && customerInfoFromOriginalOrder.PersonSystemId != Guid.Empty)
+            {
+                var person = \_personService.Get(customerInfoFromOriginalOrder.PersonSystemId.Value);
+                if (person != null)
+                {
+                    ssn = person.Fields.GetValue<string>("SocialSecurityNumber");
+                }
+            }
+
+            var addOrUpdateCustomerInfoArgs = new AddOrUpdateCustomerInfoArgs
+            {
+                CustomerInfo = new CustomerInfo
+                {
+                    CustomerNumber = customerInfoFromOriginalOrder.CustomerNumber,
+                    CustomerType = customerInfoFromOriginalOrder.CustomerType,
+                    PersonSystemId = customerInfoFromOriginalOrder.PersonSystemId,
+                    OrganizationSystemId = customerInfoFromOriginalOrder.OrganizationSystemId,
+                    FirstName = customerInfoFromOriginalOrder.FirstName,
+                    LastName = customerInfoFromOriginalOrder.LastName,
+                    Email = customerInfoFromOriginalOrder.Email,
+                    Phone = customerInfoFromOriginalOrder.Phone,
+                    NationalIdentificationNumber = ssn,
+                }
+            };
+
+            await cartContext.AddOrUpdateCustomerInfoAsync(addOrUpdateCustomerInfoArgs);
+        }
+
+       
+    }
+
+    public static class EventBrokerExtensions
+    {
+        public static async Task<T?> WaitForEventAsync<T>(this EventBroker eventBroker, Func<T, Task<bool>>? predicate, Func<Task>? action, int maxWaitTimeMilleseconds = 20000, EventScope? eventScope = default)
+          where T : class, IMessage
+        {
+            var evt = default(T);
+            using var waiter = new SemaphoreSlim(0, 1);
+            using (eventBroker.Subscribe<T>(eventScope ?? EventScope.Local, async x =>
+            {
+                var task = predicate?.Invoke(x);
+                if (task is not null)
+                {
+                    var result = await task;
+                    if (result)
+                    {
+                        evt = x;
+                        waiter.Release();
+                    }
+                }
+            }))
+            {
+                if (action is not null)
+                {
+                    await action.Invoke();
+                }
+                if (!await waiter.WaitAsync(TimeSpan.FromMilliseconds(maxWaitTimeMilleseconds)))
+                {
+                    //TODO: you may enable the following line to get a error, if the order does not get confirmed withing the specified time limit.
+                    //throw new TimeoutException($"Timed out waiting for event of type {typeof(T).FullName} after {maxWaitTimeMilleseconds} milliseconds.");
+                }
+                return evt;
+            }
+        }
+    }
+}
+
+### Initializing CartContext:
+
+The above method causes the CartContext to be initialized. Since we are calling this from a Web API, the Accelerator as run in a website is not initialized. Therefore, we need to modify the CartContextDefaultFactoryDecorator to match our requirements.
+
+Code is in: ..\\Src\\Litium.Accelerator\\Services\\CartContextDefaultFactoryDecorator.cs
+
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Litium.Accelerator.Routing;
+using Litium.Accelerator.Utilities;
+using Litium.Common;
+using Litium.Globalization;
+using Litium.Runtime.DependencyInjection;
+using Litium.Sales;
+using Litium.Security;
+using Microsoft.AspNetCore.Http;
+
+namespace Litium.Accelerator.Services
+{
+    \[ServiceDecorator(typeof(CartContextDefaultFactory))\]
+    public class CartContextDefaultFactoryDecorator : CartContextDefaultFactory
+    {
+        private readonly CartContextDefaultFactory \_parent;
+        private readonly RequestModelAccessor \_requestModelAccessor;
+        private readonly PersonStorage \_personStorage;
+        private readonly KeyLookupService \_keyLookupService;
+        private readonly SecurityContextService \_securityContextService;
+        private readonly OrderOverviewService \_orderOverviewService;
+        private readonly ChannelService \_channelService;
+        private readonly IHttpContextAccessor \_httpContextAccessor;
+
+        public CartContextDefaultFactoryDecorator(
+            CartContextDefaultFactory parent,
+            RequestModelAccessor requestModelAccessor,
+            PersonStorage personStorage,
+            KeyLookupService keyLookupService,
+            SecurityContextService securityContextService,
+            OrderOverviewService orderOverviewService,
+            ChannelService channelService,
+            IHttpContextAccessor httpContextAccessor)
+        {
+            \_parent = parent;
+            \_requestModelAccessor = requestModelAccessor;
+            \_personStorage = personStorage;
+            \_keyLookupService = keyLookupService;
+            \_securityContextService = securityContextService;
+            \_orderOverviewService = orderOverviewService;
+            \_channelService = channelService;
+            \_httpContextAccessor = httpContextAccessor;
+        }
+
+        public override Task<CreateCartContextArgs> CreateAsync(CancellationToken cancellationToken = default)
+        {
+            var requestModel = \_requestModelAccessor.RequestModel;
+            if (requestModel != null)
+            {
+                return Task.FromResult(new CreateCartContextArgs
+                {
+                    ChannelSystemId = requestModel.ChannelModel.SystemId,
+                    MarketSystemId = requestModel.ChannelModel.Channel.MarketSystemId ?? Guid.Empty,
+                    CountryCode = requestModel.CountryModel.Country.Id,
+                    CurrencyCode = \_keyLookupService.TryGetId<Currency>(requestModel.CountryModel.Country.CurrencySystemId, out var currencyCode) ? currencyCode : null,
+                    PersonSystemId = \_securityContextService.GetIdentityUserSystemId() ?? null,
+                    OrganizationSystemId = \_personStorage.CurrentSelectedOrganizationSystemId,
+                    ClientIp = \_httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString(),
+                    ClientBrowser = \_httpContextAccessor.HttpContext?.Request.Headers\["User-Agent"\].ToString(),
+                    ShowPricesWithVat = requestModel.ChannelModel.Channel.ShowPricesWithVat
+                });
+            }
+            //Start Code added to support PaymentToken example.
+            else if (\_httpContextAccessor.HttpContext != null && \_httpContextAccessor.HttpContext.Request.Path.Value.StartsWith("/api/subscriptionOrder/createFrom/"))
+            {
+                var orderId = \_httpContextAccessor.HttpContext.Request.Path.Value.Replace("/api/subscriptionOrder/createFrom/", string.Empty);
+                if (!string.IsNullOrEmpty(orderId))
+                {
+                    var orderOverview = \_orderOverviewService.Get(orderId);
+                    if (orderOverview != null)
+                    {
+                        var salesOrder = orderOverview.SalesOrder;
+                        var channel = \_channelService.Get(salesOrder.ChannelSystemId.Value);
+                        return Task.FromResult(new CreateCartContextArgs
+                        {
+                            ChannelSystemId = salesOrder.ChannelSystemId.Value,
+                            MarketSystemId = salesOrder.MarketSystemId ?? Guid.Empty,
+                            CountryCode = salesOrder.CountryCode,
+                            CurrencyCode = salesOrder.CurrencyCode,
+                            PersonSystemId = salesOrder.CustomerInfo.PersonSystemId,
+                            OrganizationSystemId = salesOrder.CustomerInfo.OrganizationSystemId,
+                            ClientIp = \_httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString(),
+                            ClientBrowser = \_httpContextAccessor.HttpContext?.Request.Headers\["User-Agent"\].ToString(),
+                            ShowPricesWithVat = channel.ShowPricesWithVat
+                        });
+                    }
+                }
+            }
+            //End Code added to support PaymentToken example.
+            return \_parent.CreateAsync(cancellationToken);
+        }
+    }
+}
+
+## Using the Web API
+
+To create a order using the payment token, first you need to create a normal order, so that the payment token is initialized from that order. Suppose this order id is LS\_00001
+
+Then, you should call the Web API method: /api/subscriptionOrder/createFrom/{srcOrderId}, where {srcOrderId} is the order that is used to initialize the payment token. So, the api call would look like:
+
+https://mysite.localtest.me/api/subscriptionOrder/createFrom/LS\_00001
+
+Note that, to call a Web API method, you need to create a service account in Backoffice and [use it for authentication as shown here >>](/platform/architecture/web-api/security)

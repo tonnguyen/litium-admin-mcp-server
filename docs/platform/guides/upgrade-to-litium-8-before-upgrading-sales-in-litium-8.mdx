@@ -1,0 +1,135 @@
+---
+title: "Sales in Litium 8"
+description: "The Sales area has been completely re-written in Litium 8:"
+---
+Things to consider before an upgrade, regarding discounts, orders, payments, and shipments.
+
+The Sales area has been completely re-written in Litium 8:
+
+- Some things are [not supported or removed](#not supported in litium 8).
+- There are differences in [state transition](#state transitions) functionality.  
+- Campaigns have become discounts with [some differences in how conditions are applied](#discounts), as well as some [additional changes](#discounts: additional changes).
+
+For an overview of the upgrade procedure, please see [how to upgrade to Litium 8](https://docs.litium.com/!b4353f6c-fc24-4afb-8a66-7a7e77fff13c/documentation/upgrade-to-litium-8). 
+
+* * *
+
+## Not supported in Litium 8
+
+### Removed and not supported discount types
+
+The exact behavior of most of the [discount types](/platform/areas/sales/order-placement/discounts) has been examined and changed to be improved to better meet customer needs. The only discount type that is planned to be removed entirely is the Free fee discount.
+
+Discount types that are not supported during migration:
+
+- Buy X of the same product Pay for Y
+- Reduce order value by a percentage
+- Free shipping for delivery methods
+
+### Product from assortment condition is removed
+
+In Litium 8, there is nothing similar to the "Cart contains product from assortment" condition, and it will be skipped during migration. 
+
+### Discount and campaign logic extensibility
+
+When campaigns become discounts in Litium, they can no longer be extended to build your own discount logic.
+
+When several active discounts can be applied to a customer's order, [Litium will instead apply these in a pre-determined order](/platform/areas/sales/order-placement/discounts#Discount%20types%20and%20priority), which prioritizes the best discount value for the customer. 
+
+### Inactive and archived discounts
+
+Discounts in previous versions of Litium that are not active or are archived will not be migrated to Litium 8. 
+
+### No flagging of active/ inactive discounts
+
+The active/inactive flag is not available on discounts in Litium 8. You can inactivate at the channel level, but when you save you will lose the discount start and end date for that channel. Other discount settings that are channel-dependent may be lost as well. If you inactivate all channels in the discount settings in Litium 8, you will not be able to save the discount. 
+
+### The number of times a discount has been used is not included
+
+This information regarding the number of times a discount has been used is not saved in previous versions of Litium and it will not be included in the upgrade for discounts. 
+
+### The maximum number of times the discount is given is not supported
+
+For the campaign types that applied "maximum number of times the discount is given", this will no longer be supported in Litium 8 and is ignored during migration. 
+
+### Carts will not be migrated
+
+Customer carts containing items will not be migrated.
+
+### Multiple payments for the same order are not supported
+
+When you have more than one payment it is not supported to upgrade. 
+
+* * *
+
+## State transitions
+
+How to handle [order states](#custom states) in Litium 8, and [state transition events and conditions](#state transition events and conditions). 
+
+Please read [more under upgrading state transitions](https://docs.litium.com/documentation/upgrade-to-litium-8/upgrade-the-database/upgrading-state-transitions) on how to map order states, payments, and shipments.
+
+### Fixed order states
+
+Litium 8.2 includes a framework to mark orders with different tags in order to adapt Litium to custom business logic. 
+
+The order states are fixed in Litium 8. Custom states cannot be added. 
+
+If your project has custom states and has defined transitions between them, you can use the [tagging feature in Litium 8](/platform/architecture/tagging) to achieve similar functionality as in previous versions of Litium. Custom states cannot be added to state transitions in Litium 8, and existing states cannot be removed. 
+
+### State transition events and conditions
+
+Projects can listen to state transition events and take some actions when a state is reached, as well as add or modify state transition conditions in Litium 8. When you [upgrade from previous versions of Litium to Litium 8, you can run scripts to create a state mapping table](/platform/guides/upgrade-to-litium-8-state-mapping). 
+
+* * *
+
+## Discount conditions
+
+Changes in conditions applied to discounts in Litium 8, compared to campaigns in previous versions of Litium.
+
+### User belongs to conditions 
+
+This condition existed in previous versions of Litium and could be added to a campaign. The conditions meant that a customer had to belong to a specific organization, target group, or user group to get a discount.  
+
+In Litium 8, these conditions correspond to [target audience settings](https://docs.litium.com/help/litium-8/sales/campaigns/discounts/offer-discount-to-a-selected-group) applicable directly to the discount. 
+
+### Order total condition
+
+The order total condition indicated the sum of an order that needed to be exceeded for a discount to be valid in previous versions of Litium.
+
+In Litium 8 a [threshold setting applicable directly to the discount](/platform/areas/sales/order-placement/discounts) is the corresponding concept. 
+
+### Target group conditions for discounts
+
+The conditions for discounts are upgraded to include target group conditions when you [upgrade the database with the database tool](/platform/guides/upgrade-to-litium-8-upgrade-the-database). 
+
+### Cart contains product conditions
+
+This condition existed in previous versions of Litium and could be added to a campaign. The conditions indicated what products needed to be in the cart for the discount to be valid, for example, a certain product or a product that could be found in a certain category or product list. 
+
+In Litium 8, you add the conditions to a [target group](https://docs.litium.com/help/litium-8/customers/organize-platform-users/target-groups) instead, and then [use a connection to that target group for the conditions to apply to a discount](#). 
+
+* * *
+
+## Discounts: Additional changes
+
+Other changes from campaigns in previous versions of Litium to discounts in Litium 8.
+
+### Voucher codes are now discount codes
+
+What were named voucher codes in previous versions of Litium is called discount codes in Litium 8. 
+
+In Litium 8, [discount codes are a setting when creating a discount](/platform/areas/sales/order-placement/discounts). 
+
+### Generated codes can only be used once
+
+In Litium 8, [generated codes can only be used once](https://docs.litium.com/help/litium-8/sales/campaigns/discounts/use-discount-codes#Generate%20discount%20codes%20to%20activate%20discounts). 
+
+In previous versions of Litium, generated codes could be used several times. When discounts using generated codes are upgraded, the old setup can still be used. However, it will not be visible in the UI that multiple uses are allowed for migrated generated codes, only in the Excel file that can be downloaded. 
+
+### Currency for discounts is determined by the channel
+
+Litium 8 applies currency from a channel for discounts, and not by setting the currency on an individual campaign.
+
+### The percentage applied to discounts
+
+In previous versions of Litium it was possible to add a decimal. In Litium 8 it will be rounded off to an integer in the UI, although in the API the decimal remains and will be applied.

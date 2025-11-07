@@ -1,0 +1,33 @@
+---
+title: "Create admin user and log in"
+description: "When running Litium in a non-windows environment you cannot use the windows credentials to log in. Instead, you need to create an admin user directly in the database. Use the user command from litium-db to create the admin user."
+---
+Accounts for admin pages and public site.
+
+## Adding admin user
+
+When running Litium in a non-windows environment you cannot use the windows credentials to log in. Instead, you need to create an admin user directly in the database. Use the _user_ command from _litium-db_ to create the admin user.
+
+dotnet litium-db user --connection \[connectionstring\] --login username --password pasword
+
+if you have the connection string in your json-config file you can directly use that to add the admin user
+
+dotnet litium-db user --file \[path to the config.json file\] --login username --password password
+
+## Administration login
+
+The Windows account login works for the Litium administration login page.
+
+Login with Windows accounts belonging to the administrator group on the server or the developer machine, if you are working in projects on Windows OS. 
+
+No accounts will be created in Litium for this login. Technically, you will be logged in as _System_ with full permissions. 
+
+## Log in to the public site
+
+To log in on the public site, you need a regular Litium account.
+
+This means that the administration login page handles login both with Windows credentials and Litium credentials.
+
+To know when a Windows account should be used, the username should contain a backslash (\\) to separate the domain and the username in a Windows pre-2000 mode.
+
+To be able to log in you need to access your site over encrypted communication (https).

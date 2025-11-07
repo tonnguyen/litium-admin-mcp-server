@@ -1,0 +1,26 @@
+---
+title: "Configure automated tests"
+description: "Configure the XUnit test project to automatically test Litium business logic."
+---
+Configure the XUnit test project to automatically test Litium business logic.
+
+To do this task you first need to complete the [Setup Litium MVC Accelerator](/platform/get-started/local-installation-guide-setup-litium-mvc-accelerator) task.
+
+## Setup
+
+A test-project is included in the Accelerator solution, follow the steps below to configure and add tests.
+
+1.  Copy the database connectionstring from `appsettings.json` of the MVC-project to `appsettings.json` in the test project
+    
+2.  Open the _Test Explorer_ window in _Visual Studio_ and click _Run all tests_
+    
+3.  Log files that get updated during test runs are available in folder: `\Test\Litium.Accelerator.Test\bin\Debug\`
+    
+4.  Detailed information about test project setup is available on the [Setting up a test project](https://docs.litium.com/documentation/get-started/setting_up_a_test_project) page.
+    
+
+## Next step
+
+This was the last step of the installation, you will be writing some tests in the customization guide.
+
+[Start the customization by creating a custom template to display Authors](https://start.litium.dev/tutorials/installation/customize/author-page)

@@ -1,0 +1,133 @@
+---
+title: "What's new March 2025"
+description: "Enhancing your daily tasks In the Litium March release, we are introducing several enhancements to improve usability for administrators, making daily tasks easier and more efficient."
+---
+
+Enhancing your daily tasks In the Litium March release, we are introducing several enhancements to improve usability for administrators, making daily tasks easier and more efficient.
+
+Enhancing your daily tasks
+In the Litium March release, we are introducing several enhancements to improve usability for administrators, making daily tasks easier and more efficient. We've launched a new page editing feature in beta, added a new discount type and upgraded the person search functionality.
+The calculation of the cart threshold for discounts has been adjusted to better meet our customers' needs. Please note that this new calculation is a functional breaking change, and you should verify that your discounts are working as expected before deploying this change to a live site.
+For developers, we are introducing a new method to extend the backoffice UI from an app. 
+ 
+Litium 8.21
+Sales
+
+Ability for cart amount threshold of a discount to only apply to the whole cart - Functional breaking change
+Buy x, get discount on the most expensive
+Ability to save payment method information for a payment
+
+ 
+CMS
+
+New page editing (beta)
+
+ 
+Improved backoffice search
+
+Improved persons search in administration
+Ability for administrators to save searches as views for persons
+Improved ability for users to manage large volumes in the person search result
+
+ 
+Media
+
+Ability to support additional media types
+
+ 
+Extend backoffice
+
+Ability to extend Litium backoffice UI from an app
+
+ 
+Other
+
+Ability to preview thumbnails for blocks that are not part of a page
+
+ 
+React accelerator 1.6
+
+Ability to use display template for page, category and product templates
+Enhanced client information forwarding in GraphQL requests
+
+ 
+Connect Payments API
+
+Ability to record payment method details for payments
+Ability to return payment method information for payments
+
+ 
+Ability for cart amount threshold of a discount to only apply to the whole cart - functional breaking change
+If there is a cart amount threshold configured for a discount, the discount engine will evaluate the threshold condition before applying the discount to each row. If the total cart amount drops below the threshold after the discount has been applied for a row, no further discount will be given even if there are additional eligible rows in the cart. With this feature, this behavior is changed so that the discount engine instead only evaluates the cart amount threshold to decide if the discount should be applied or not. If yes, all eligible rows will receive the discount.
+ 
+Buy x, get discount on the most expensive
+To increase flexibility in discounts we have added a new discount type "Buy X get discount on the most expensive" discount type. 
+ 
+Ability to save payment method information for a payment
+When working with payments in Litium the administrator can currently only see which payment option that was selected when placing the order. The payment option in Litium is often only connected to a payment service provider checkout (eg Kustom Checkout), not the actual payment method selected by the user (eg Swish or Klarna Pay Later). With this feature we enable the payment app to also save information about the payment method used on the payment in Litium.
+ 
+New page editing (beta)
+As an administrator working with editing pages it would be helpful to be able to edit the page's content directly in the preview mode, without having to go into the edit mode called Blocks or click Edit to edit the page's properties in a form.
+With this beta feature, the user can edit the page directly in the preview mode. When hovering the content, editable blocks are highlighted. A simple click opens a form to edit the content in a sidepanel. You will need to click save to see your changes take effect in the preview.
+You can also add new blocks between existing blocks or drag and drop blocks to alter the position in the page. 
+If you like this new way of working, you can set it as your default editing mode. 
+This is a beta feature, and we encourage you to give feedback to help us improve it further. Please provide your feedback in our idea portal https://ideas.litium.com/ideas?category=7485315221114248317
+To make this feature work, you need to ask your partner to do some smaller changes in your storefront code. Please see the technical documentation: https://docs.litium.com/platform/areas/websites-cms/new-page-editing
+ 
+
+ 
+
+ 
+ 
+Improved persons search in administration
+As an administrator managing a large number of persons, it is crucial to quickly locate the relevant persons for your tasks.
+With this improvement, you are taken to the person list directly when entering the Customers module, where you can search for persons immediately. Less clicks, faster and more efficient.
+ 
+Ability for administrators to save searches as views for persons
+As an administrator you commonly have a need to repeat the same search or filtering many times. These repeated searches are commonly related to a recurring task that needs to be done, sometimes by multiple people. 
+To save time and foster collaboration, users can now save person searches as reusable views for future use.
+ 
+
+You can now save searches as views for persons
+ 
+Improved ability for users to manage large volumes in the person search result
+Displaying large datasets at once overwhelms users, increases load times, and creates a cluttered experience. Endless scrolling can make navigation uncontrolled and inefficient, and lead to frustration.
+To manage high volumes we are introducing paginated lists.  Pagination organizes data into manageable chunks, improving performance, usability, and scalability. It reduces cognitive load, provides clear navigation controls, and supports accessibility. By structuring content into pages, pagination ensures the interface remains fast, intuitive, and user-friendly, delivering a better experience for users managing large datasets.
+ 
+
+Pagination organizes data into manageable chunks, improving performance, usability, and scalability 
+ 
+Ability to support additional media types
+As an administrator working with media it can be useful to be able to add media of additional types. With this feature you can upload media of types 3Ds/max (.3ds), Archicad (.lcf) and Revit (.rfa).
+ 
+Ability to extend Litium backoffice UI from an app
+Currently, to extend Litium's backoffice with your custom UI, partners are required to integrate extensions directly into the Litium platform's codebase. This approach complicates smooth installation processes, especially when dealing with UI changes related to external apps.
+With this new feature, you can package your UI extensions with your public app and automatically and have them installed upon app registration with Litium. Decoupled extensions simplify distribution by enabling extensions to function independently from the Litium platform codebase. 
+ 
+Ability to preview thumbnails for blocks that are not part of a page
+Before this feature, it was not possible to preview blocks that were not part of a page in Litium CMS.
+With this new feature, you can preview blocks as thumbnails even when they are part of for example a Category or a Website.
+ 
+ 
+The React accelerator is only available to customers running Litium Commerce Cloud and note that you can run it locally and in Litium serverless cloud.
+The headless React accelerator is built on React and Next.JS and has all the tools and frameworks you would expect from a modern single page application. It is designed mobile first for a better and updated user experience.
+The new react accelerator has its own description and release notes, but here are some of the new things delivered in this release.
+React accelerator roadmap
+ 
+Ability to use display template for page, category and product templates
+In previous release (8.19) the ability to set a specific display template for a field template was added in the Storefront API. With this feature we introduce the ability to configure display template for pages, categories and product field templates in the React accelerator.
+ 
+Enhanced client information forwarding in GraphQL requests
+In distributed systems, it's crucial to accurately forward client information to backend systems for proper usage and analysis. At Litium, we store the client IP and user-agent information on orders to aid in fraud detection. However, this data can sometimes be incorrect, capturing internal IPs from other systems instead of the actual client information.
+This feature update improves the logic to ensure that the information received from the connected client is accurately included in the requests between systems. This enhancement aims to provide more reliable data for fraud detection and other critical analyses.
+ 
+Ability to record payment method details for payments
+When working with iframe checkouts there is a need to know the details of the payment method that the buyer selected. With this feature it is possible to record this information on the payment in Litium.
+ 
+Ability to return payment method information for payments
+When exporting a order to the ERP system, it can be useful to include information about the payment method used to place the order. With this feature we update the order object in the Connect ERP API to include this information.
+ 
+All bug fixes and smaller improvements are found in the release notes.
+See the release notes here
+
+[Back to what's new](/platform/whats-new)

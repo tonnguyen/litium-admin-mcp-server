@@ -1,0 +1,33 @@
+---
+title: "CustomerSubType"
+description: "CustomerSubType should be set during your checkout flow process in Litium, to be available to the tax app. Some example values for customer sub-type can be:"
+---
+The CustomerInfo object has the CustomerSubType which shows whether the customer is a company, a non-profit or a government body in case the CustomerType is an organization. CustomerSubType property is a string, that can be set to a value to communicate with the tax app of the expected customer subtype. This section shows how to populate it.
+
+CustomerSubType should be set during your checkout flow process in Litium, to be available to the tax app. Some example values for customer sub-type can be:
+
+- NonProfit
+- GovernmentAuthority
+
+Litium does not define the available customer sub-types, so this needs to be setup through code in your Litium solution. You should refer the documentation of your tax service provider for possible values that should be available for this property.
+
+Following code is in Litium side, which shows how the CustomerSubType is added.
+
+            await cartContext.AddOrUpdateCustomerInfoAsync(new()
+            {
+                CustomerInfo = new CustomerInfo()
+                {
+                    CustomerSubType = "NonProfit"
+                }
+            });
+            await cartContext.CalculateTaxAsync();
+
+In the above code the following line makes Litium contact the tax app to calculate the tax.
+
+            await cartContext.CalculateTaxAsync();
+
+In the tax app, the customer sub-type is available in
+
+request.CustomerInfo?.CustomerSubType
+
+where request is a CalculateSalesOrderTaxRequest or a CalculateShipmentTaxRequest.

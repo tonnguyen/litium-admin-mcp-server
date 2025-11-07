@@ -1,0 +1,17 @@
+---
+title: ".NET Upgrade Assistant"
+description: "The Microsoft .NET Upgrade Assistant is a migration tool from ASP.NET to ASP.NET Core. It automates tasks related to migrating ASP.NET MVC and WebAPI projects to ASP.NET Core. Please find more information and the .NET Upgrade Assistant here."
+---
+Information about using the .NET tool Upgrade Assistant.
+
+The Microsoft .NET Upgrade Assistant is a migration tool from ASP.NET to ASP.NET Core. It automates tasks related to migrating ASP.NET MVC and WebAPI projects to ASP.NET Core. Please find [more information and the](http://github.com/dotnet/upgrade-assistant) [.NET Upgrade Assistant here](https://github.com/dotnet/upgrade-assistant). 
+
+The Upgrade Assistant has an extension system allowing you to customize many of the upgrade steps without having to rebuild the tool. Please see [how to extend the tool here](http://github.com/dotnet/upgrade-assistant/blob/main/docs/extensibility.md).  
+
+After running the .NET Upgrade Assistant you will have to carry out additional migration tasks to complete the migration. The project will not build until you complete the migration. Analyzers added to the project will highlight some of the remaining changes needed after the tool runs.
+
+### NuGet packages
+
+A Microsoft .NET tool is a NuGet package that contains a console application. When you use the Microsoft .NET tool Upgrade Assistant, it needs to restore the NuGet packages. It also has to restore the query configured NuGet sources for information on updated packages. 
+
+If there are dependencies on authenticated NuGet sources, a v2 .NET Core-compatible NuGet credential provider needs to be installed, and the .NET Upgrade Assistant may need to run in the interactive mode in order to authenticate the NuGet sources.
