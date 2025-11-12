@@ -1,0 +1,32 @@
+---
+title: Reading data that Briqpay collects
+description: Briqpay will gather more information that is normally stored on a Litium order. These details are saved on the Payment.AdditionalInfo object of the order.
+---
+
+# Reading data that Briqpay collects
+
+*   Litium 8
+
+Briqpay will gather more information that is normally stored on a Litium order. These details are saved on the Payment.AdditionalInfo object of the order.
+
+Some keys are specific to certain customer types, other keys are only populated if the relevant module has been set up on your merchant account at briqpay.
+
+If valuable keys are missing or empty, please reach out to your briqpay representative.
+
+## Details
+
+- Key | Description | Example
+- BriqpayOrderNote | If you have the order note module enabled and the customer enters something into it, it will be saved here. | No orderNote data entered for 70790750-ed24-4510-9865-9fb42d958b0c
+- BriqpayPspInformation | Underlying IDs from the PSP and relevant settings | aaabc-1234-ab13-12 34-9abhsa13j
+- BriqpaySessionId | Session ID of the purchase, relevant for troubleshooting | 70790750-ed24-4510-9865-9fb42d958b0c
+- Briqpay_session | Stores the session ID | 70790750-ed24-4510-9865-9fb42d958b0c
+- Briqpay_selected_payment_method | Customer-facing name of the payment method that was selected | “Invoice”/”Card”
+- Briqpay_order_for_manual_review | Should this order be manually reviewed by store staff? (Defined by Briqpay rule engine and only happens if defined together with the store) | true
+- Briqpay_order_prepaid_invoice | Is this order subject to pre-payment by the customer?(Defined by Briqpay rule engine and only happens if defined together with the store) | true
+- CompanyIdentificationNumber(Only b2b checkout) | What was the company identification number used in the purchase? | 5523423222
+- Briqpay_payment_subscription_token(only if pay_and_tokenize intent is used) | Token ID for payment subscription | 
+- Briqpay_payment_vatvalidation_valid(only b2b checkout and if configured) | Indicates if VAT validation is valid | 
+- Briqpay_payment_vatvalidation_vatNo(only b2b checkout and if configured) | VAT number | 
+- Briqpay_payment_ordernote(only if ordernote module is used) | Order note in serialized JSON format | 
+- Briqpay_payment_extra_companydata(only b2b checkout) | Extra company data fields in serialized JSON format | 
+- Briqpay_payment_custom_form_data(only if module is configured) | Custom form data in serialized JSON format |

@@ -1,0 +1,101 @@
+---
+title: Direct Shipment
+description: Direct Shipment is a pseudo delivery provider, developed in Litium for testing and direct shipment handling tasks.
+---
+
+# Direct Shipment
+
+*   Litium 8
+
+Direct Shipment is a pseudo delivery provider, developed in Litium for testing and direct shipment handling tasks.
+
+Direct Shipment can be used for:
+
+1.  Simulating a delivery provider, without having to configure a real one! This could be useful, until you get your accounts configured from a real delivery provider.
+2.  Allowing the placement of e-commerce orders and handle shipments manually.
+3.  Testing a delivery checkout widget on the checkout page.
+4.  Custom implementation, for example, to place the purchase order into your ERP system.
+
+## Version dependencies
+
+*   Direct shipment app 1.4.0
+    
+    *   Supports Connect Shipments API 1.1
+        
+    *   Requires Litium 8.19 or later.
+        
+    *   Requires Litium Serverless Cloud.
+        
+*   Direct shipment app 1.3.0
+    
+    *   Supports Connect Shipments API 1.0
+        
+    *   Requires Litium 8.18 or later.
+        
+
+## Installation
+
+Litium serverless cloud - Use the [Cloud CLI](https://docs.litium.com/!b4353f6c-fc24-4afb-8a66-7a7e77fff13c/cloud/serverless/get-started/install-payment-and-delivery-apps) to install the app.
+
+Litium legacy cloud - Contact [support](mailto:support@litium.com) to install the app in your test and/or production environment.
+
+Local environment - A [Docker compose template](/add-ons/litium-apps/direct-shipment/docker-template) is available for local installation. 
+
+## App configuration file
+
+```json
+{
+  "ShippingConfig": {
+    "ShippingOptions": [
+      {
+        "Id": "integratedShipping",
+        "MerchantAccountId": "",
+        "DeliveryCountries": null,
+        "DeliveryTimeInDays": 0,
+        "ShippingMethod": "other",
+        "IntegrationType": "PaymentCheckout",
+        "FeeType": "Calculated"
+      },
+      {
+        "Id": "standardPackage",
+        "MerchantAccountId": "",
+        "DeliveryCountries": null,
+        "DeliveryTimeInDays": 0,
+        "ShippingMethod": "NormalPost",
+        "IntegrationType": "inline",
+        "FeeType": "Calculated"
+      },
+      {
+        "Id": "expressPackage",
+        "MerchantAccountId": "",
+        "DeliveryCountries": null,
+        "DeliveryTimeInDays": 0,
+        "ShippingMethod": "NormalPost",
+        "IntegrationType": "inline",
+        "FeeType": "Calculated"
+      },
+      {
+        "Id": "deliveryOptions",
+        "MerchantAccountId": "",
+        "DeliveryCountries": null,
+        "DeliveryTimeInDays": 0,
+        "ShippingMethod": "Other",
+        "IntegrationType": "deliveryOptions",
+        "FeeType": "Calculated"
+      }
+    ]
+  }
+}
+```
+
+*   Id: The shipping option identifier.
+*   MerchantAccountId: the merchant account identifier
+*   DeliveryCountries:Placeholder for delivery countries config (string array) in shipment/payment apps integration. The country code is based on ISO 3166. Currently not being used in Direct Shipment.
+*   DeliveryTimeInDays: Placeholder for delivery time config in shipment/payment apps integration. Currently not being used in Direct Shipment.
+*   ShippingMethod: The type of the shipping method. It should be one of these values: "DeliverToDoorStep", "PickUpStore", "PickUpPoint", "AutomatedPickupStation", "DigitalDelivery", "NormalPost", "RegisteredPost", "Other".
+*   IntegrationType: The type of the shipping integration. It should be "Inline", "DeliveryCheckout" or "PaymentCheckout". 
+    *   "Inline" : Shipping Option with be handled by Litium.
+    *   "DeliveryCheckout" : Shipping Option will be handled by Delivery provider. If a shipping option is configured with this IntegrationType, the Direct Shipment app will display a delivery checkout widget on the checkout page. This widget can be used for testing.
+    *   "PaymentCheckout" : Shipping Option will be handled by Payment provider.
+    *   "DeliveryOptions": Shipping options will be sent from the delivery provider and presented by the project in the UI.
+*   FeeType: The type of the shipping fee. It should be "Fixed" or "Calculated".

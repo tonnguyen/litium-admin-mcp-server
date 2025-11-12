@@ -1,0 +1,176 @@
+---
+title: Using the app management package
+description: Litium provides a pre-built package that handles the app management API functions that is required to install, configure and uninstall an app.
+---
+
+# Using the app management package
+
+*   Litium 8
+
+Litium provides a pre-built package that handles the app management API functions that is required to install, configure and uninstall an app.
+
+This package, _Litium.AppManagement_ is distributed via Litium NuGet, to install Litium.AppManagement, we can find it in Litium Nuget source : 
+
+![LitiumAppMng.png](/images/apps/development-guide/LitiumAppMng.png)
+
+Adding config files :
+
+## AppSetting.json
+
+The _AppSetting.json_ contains various info on the app, including metata section which is used to provide the information about your app that Litium requires to be able to install your app in Litium. A sample file looks like this:
+
+```json
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning",
+      "Microsoft.Hosting.Lifetime": "Information"
+    }
+  },
+
+  "ConnectionStrings": {
+    // "Database": "" // Need to be commented out to avoid problem in production
+  },
+
+  "AllowedHosts": "*",
+
+  "AppMetadata": {
+    "Id": "SampleApp",
+    "DisplayName": "Sample Litium app",
+    "RequestedPermissions": [
+      "Function/Connect/"
+    ],
+    "Subscribers": [
+      {
+        "Url": "/api/webhook/capturetransaction",
+        "Event": "Litium.Connect.Payments.Events.CaptureTransaction"
+      },
+      {
+        "Url": "/api/webhook/canceltransaction",
+        "Event": "Litium.Connect.Payments.Events.CancelTransaction"
+      },
+      {
+        "Url": "/api/webhook/refundtransaction",
+        "Event": "Litium.Connect.Payments.Events.RefundTransaction"
+      }
+    ],
+    "ConfigFiles": [
+      {
+        "Id": "AppConfiguration.json",
+        "DisplayName": "Configuration file",
+        "Description": "configuration for the Sample app."
+      }
+    ]
+  },
+
+  "SampleAppConfig": {
+    "SampleAppShippingOptions": [
+    ]
+  }
+}
+```
+
+**Id:** a machine readable id for your app. The id shoult not contain any spaces.
+
+**DisplayName:** the human readable name of your app.
+
+**RequestedPermissions:** an array of the Litium permissions that your app requires to function.
+
+**Subscribers:** an array of Litium events that your app wants to subscribe to as part of the installation of the app. The _Url_ property defines the endpoint in your app that Litium will call every time the event specified in the _Event_ property is fired in Litium. All Litium events that you can subscribe to are available in the [API reference](/api-reference/net-api).
+
+**ConfigFiles:** an array of configuration files that your app supports. Each file defined here will generate a file upload field in the app detail page of the Litium backoffice where the user can upload the file to your app. The _Id_ property defines the filename to be used and must be unique. The _DisplayName_ property will be used as the label for the file upload field and the _Description_ property will be displayed as a tooltip.
+
+The SampleAppConfig section is the json schema definition for AppConfiguration.json file. In the example above the "SampleConfig" is the key to find the config section, and the SampleAppShippingOptions is a list of SampleAppShippingOption that we'll define in the actual config file. Please note that this only the structure for the config file and not the real section to define the config values.
+
+Adding SampleApp Config File definition : 
+
+## SampleAppConfig.cs
+
+```csharp
+namespace SampleApp.Configuration
+{
+    public class SampleAppConfig
+    {
+        public const string Key = "SampleAppConfig";
+        public List<ShippingOption> SampleAppShippingOptions { get; set; }
+    }
+}
+```
+
+The Key "SampleAppConfig" here is the value of the root note of the config section defined in AppConfiguration.json. The list of SampleAppShippingOptions is also declared to have the base type of ConnectShipments.ShippingOption in the next line. The definition in this config file definition will help to deserialize the json config file into strong type and help to map the values into the correct C# model.
+
+This is the sample of the AppConfiguration.json file to be uploaded to Litium back office : 
+
+```json
+{
+  "SampleAppConfig": {
+    "SampleAppShippingOptions": [
+      {
+        "Id": "standardPackage",
+        "MerchantAccountId": "",
+        "DeliveryCountries": null,
+        "DeliveryTimeInDays": 0,
+        "ShippingMethod": "NormalPost",
+        "IntegrationType": "DeliveryCheckout",
+        "FeeType": "Calculated",
+        "AdditionalProperties": null
+      },
+      {
+        "Id": "expressPackage",
+        "MerchantAccountId": "",
+        "DeliveryCountries": null,
+        "DeliveryTimeInDays": 0,
+        "ShippingMethod": "NormalPost",
+        "IntegrationType": "DeliveryCheckout",
+        "FeeType": "Calculated",
+        "AdditionalProperties": null
+      }
+    ]
+  }
+}
+```
+
+## Hosting.json
+
+The _Hosting.json_ is used to provide information that your app needs about the hosting environment where the app is running. A sample file looks like this:
+
+```json
+{
+  "LitiumApi": {
+    "ApiUrl": "https://litium.localtest.me/"
+  },
+  "AppMetadata": {
+    "AppUrl": "https://my-sample-app.localtest.me/"
+  }
+}
+```
+
+**LitiumApi:** The _ApiUrl_ property is the absolute URL to the Litium installation that the app should connect to**.**
+
+**AppMetadata:** The _AppUrl_ property is the absolute URL of the app itself.
+
+In the app startup , we can add something like this : 
+
+```csharp
+public void ConfigureServices(IServiceCollection services)
+        {
+            services.Configure<SampleAppConfig>(Configuration.GetSection(SampleAppConfig.Key));
+        }
+```
+
+## Define Config\_Path environment variable
+
+We need to define the evironmentVariable for Config path - it looks like this :
+
+```csharp
+<environmentVariable name="CONFIG_PATH" value="..\AppConfig" />
+```
+
+## LitiumApi.json
+
+This file is created when the app is installed successfully to litium and will be removed during uninstall.
+
+In case the connection between litium is lost and the app is forced delete, the file "LitiumApi.json" need to be removed manually also. The app can't be reinstalled until the old "LitiumApi.json" file is removed. 
+
+Updated   2023-09-21

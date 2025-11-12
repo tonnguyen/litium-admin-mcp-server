@@ -14,37 +14,42 @@ The following methods are used to get or create the field template and folder:
       
     The name of the field template is language-dependent. The name should be initialized for each language in the system so that it is loaded in the UI. To do this get a list of languages through the _LanguageService_ in the _Litium.Globalization_ namespace. The language service is added as a field. The names in the different languages are usually loaded from an XML file using the normal language handling in .NET. In the example below the name is set to the same as the ID.
 
-        public FieldTemplate GetOrCreateFolderFieldTemplate(string id)
+```csharp
+public FieldTemplate GetOrCreateFolderFieldTemplate(string id)
+{
+    var fieldTemplate = _fieldTemplateService.Get<FolderFieldTemplate>(id);
+    if (fieldTemplate == null)
+    {
+        fieldTemplate = new FolderFieldTemplate(id);
+        //set the name to be same as Id for this example.
+        foreach (var language in _languageService.GetAll())
         {
-            var fieldTemplate = \_fieldTemplateService.Get<FolderFieldTemplate>(id);
-            if(fieldTemplate == null)
-            {
-                fieldTemplate = new FolderFieldTemplate(id);
-                //set the name to be same as Id for this example.
-                foreach(var language in \_languageService.GetAll())
-                {
-                    fieldTemplate.Localizations\[language.CultureInfo\].Name = id;
-                }
-                \_fieldTemplateService.Create(fieldTemplate);
-            }
-            return fieldTemplate;
+            fieldTemplate.Localizations[language.CultureInfo].Name = id;
         }
+        _fieldTemplateService.Create(fieldTemplate);
+    }
+    return fieldTemplate;
+}
+```
 
 - _GetOrCreateFolder_: Set the folder template system ID, which is a GUID. This method uses the folder service to get the folder. If the folder does not exist it will be created. Mandatory parameters for creating a new folder is the folder template system ID and the name (which is the same as the ID in this example).
 
-        public Folder GetOrCreateFolder(string id, Guid folderTemplateSystemId)
-        {
-            var folder = \_folderService.Get(id);
-            if(folder == null)
-            {
-                folder = new Folder(folderTemplateSystemId, id) { Id = id };
-                \_folderService.Create(folder);
-            }
-            return folder;
-        }
+```csharp
+public Folder GetOrCreateFolder(string id, Guid folderTemplateSystemId)
+{
+    var folder = _folderService.Get(id);
+    if (folder == null)
+    {
+        folder = new Folder(folderTemplateSystemId, id) { Id = id };
+        _folderService.Create(folder);
+    }
+    return folder;
+}
+```
 
 The following code calls the above implementation.
 
+```csharp
 using System.Threading;
 using System.Threading.Tasks;
 using Litium.Runtime;
@@ -52,32 +57,34 @@ using Litium.Security;
 
 namespace Litium.Docs.Samples.Media
 {
-    \[Autostart\]
+    [Autostart]
     public class SampleFolderService : IAsyncAutostart
     {
-        private readonly SampleMediaService \_sampleMediaService;
-        private readonly SecurityContextService \_securityContextService;
+        private readonly SampleMediaService _sampleMediaService;
+        private readonly SecurityContextService _securityContextService;
         public SampleFolderService(SampleMediaService sampleMediaService, SecurityContextService securityContextService)
         {
-            \_sampleMediaService = sampleMediaService;
-            \_securityContextService = securityContextService;
+            _sampleMediaService = sampleMediaService;
+            _securityContextService = securityContextService;
         }
 
         public ValueTask StartAsync(CancellationToken cancellationToken)
         {
-            using (\_securityContextService.ActAsSystem())
+            using (_securityContextService.ActAsSystem())
             {
-                var folderTemplate = \_sampleMediaService.GetOrCreateFolderFieldTemplate("SampleFolderTemplate");
-                var mediaFolder = \_sampleMediaService.GetOrCreateFolder("SampleFolder", folderTemplate.SystemId);
+                var folderTemplate = _sampleMediaService.GetOrCreateFolderFieldTemplate("SampleFolderTemplate");
+                var mediaFolder = _sampleMediaService.GetOrCreateFolder("SampleFolder", folderTemplate.SystemId);
             }
             return ValueTask.CompletedTask;
         }
 
     }
 }
+```
 
 ### Complete code
 
+```csharp
 using Litium.Globalization;
 using Litium.Media;
 using Litium.Runtime.DependencyInjection;
@@ -89,45 +96,46 @@ using System.Threading.Tasks;
 
 namespace Litium.Docs.Samples.Media
 {
-    \[Service(ServiceType = typeof(SampleMediaService), Lifetime = DependencyLifetime.Singleton)\]
+    [Service(ServiceType = typeof(SampleMediaService), Lifetime = DependencyLifetime.Singleton)]
     public class SampleMediaService
     {
-        private readonly FieldTemplateService \_fieldTemplateService;
-        private readonly LanguageService \_languageService;
-        private readonly FolderService \_folderService;
+        private readonly FieldTemplateService _fieldTemplateService;
+        private readonly LanguageService _languageService;
+        private readonly FolderService _folderService;
 
         public SampleMediaService(FieldTemplateService fieldTemplateService, LanguageService languageService, FolderService folderService)
         {
-            \_fieldTemplateService = fieldTemplateService;
-            \_languageService = languageService;
-            \_folderService = folderService;
+            _fieldTemplateService = fieldTemplateService;
+            _languageService = languageService;
+            _folderService = folderService;
         }
 
         public FieldTemplate GetOrCreateFolderFieldTemplate(string id)
         {
-            var fieldTemplate = \_fieldTemplateService.Get<FolderFieldTemplate>(id);
-            if(fieldTemplate == null)
+            var fieldTemplate = _fieldTemplateService.Get<FolderFieldTemplate>(id);
+            if (fieldTemplate == null)
             {
                 fieldTemplate = new FolderFieldTemplate(id);
                 //set the name to be same as Id for this example.
-                foreach(var language in \_languageService.GetAll())
+                foreach (var language in _languageService.GetAll())
                 {
-                    fieldTemplate.Localizations\[language.CultureInfo\].Name = id;
+                    fieldTemplate.Localizations[language.CultureInfo].Name = id;
                 }
-                \_fieldTemplateService.Create(fieldTemplate);
+                _fieldTemplateService.Create(fieldTemplate);
             }
             return fieldTemplate;
         }
 
         public Folder GetOrCreateFolder(string id, Guid folderTemplateSystemId)
         {
-            var folder = \_folderService.Get(id);
-            if(folder == null)
+            var folder = _folderService.Get(id);
+            if (folder == null)
             {
                 folder = new Folder(folderTemplateSystemId, id) { Id = id };
-                \_folderService.Create(folder);
+                _folderService.Create(folder);
             }
             return folder;
         }
     }
 }
+```

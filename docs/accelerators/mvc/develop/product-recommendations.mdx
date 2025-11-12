@@ -1,0 +1,28 @@
+---
+title: Product recommendations
+description: Litium uses Litium Search to provide product recommendations to customers.
+---
+
+# Product recommendations
+
+*   Litium 8
+
+Litium uses Litium Search to provide product recommendations to customers.
+
+When a customer has purchased a product, this product will be added to an index that contains all the users  
+with all the products they have purchased if their orders have been confirmed.  
+   
+The search engine analyzes purchase data to get recommended products for a product that is shown on the page. A list of most sold products is returned via the .NET API. 
+
+The calculations are refreshed every 24 hours. 
+
+Orders older than 6 months are excluded from the calculation. 
+
+### Product recommendation types
+
+This generates two types of product recommendations:
+
+*   "Most bought" products, which are the products that have the highest number of purchases overall. 
+*   "Most bought together with", which are product recommendations based on what other customers have bought together with the same purchased product. 
+
+Updated   2022-11-25

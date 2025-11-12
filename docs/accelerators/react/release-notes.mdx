@@ -1,0 +1,503 @@
+---
+title: Release notes
+description: Release history and change log for the Litium React accelerator.
+---
+
+# Release notes
+
+## Version 1.10.0
+
+Release date: 2025-11-04
+
+### Improvements
+
+- 73199 | Ability for buyer to select from saved billing and shipping addresses on checkout page
+- 73547 | Ability to reload the cart when user logs in/out or switches organization
+- 73569 | Ability for a user to reset their password
+- 73755 | Improved compliancy with WCAG 2.2 AA
+
+## Version 1.9.0
+
+Release date: 2025-09-30
+
+### Improvements
+
+- 72363 | Ability for storefront to reflect channel VAT settings
+- 72787 | Ability to display validation errors on the checkout page
+- 72995 | Upgrade to NextJS 15.5
+- 73168 | Improved compliance with WCAG
+- 73184 | OpenTelemetry Integration for Unified Observability
+
+### Fixes
+
+- 72978 | Next.js build warning in 1.8.0
+- 73108 | Storefront - Missing spacing on the order confirmation page
+- 73222 | spelling error in yaml
+- 73488 | Should be able to add Products block into Home pages and Article pages
+- 73598 | Bug in CheckoutFlowInfo in react accelerator
+- 73600 | Sort dropdown doesn't display correct value when sorting by recommended
+
+## Version 1.8.0
+
+Release date: 2025-06-30
+
+### Improvements
+
+- 69840 | Improved display of fees, discounts, tax and VAT of the cart on the checkout page
+
+### Fixes
+
+- 69234 | My account - addresses odd behaviours
+- 72610 | Profile page get an error if page has two fields with same "Name" ()Keys should be unique ...
+
+## Version 1.7.0
+
+Release date: 2025-06-03
+
+### Fixes
+
+- 69251 | Incorrect Currency formating in React Accelerator
+- 69836 | React Order Summary page still ask for login event user is logged in
+- 71853 | Border does not cover the whole banner block when hovering
+- 71975 | Images not working in Emails anymore
+- 72563 | TermUrl not set in accelerator - Klarna shows error
+
+## Version 1.6.1
+
+Release date: 2025-04-04
+
+### Fixes
+
+- 71944 | Unable to log into B2B-customer Critical
+
+## Version 1.6.0
+
+Release date: 2025-03-31
+
+### Improvements
+
+- 71548 | Enhanced client information forwarding in GraphQL requests
+- 71583 | Ability to use display template for page, category and product templates
+
+### Fixes
+
+- 71138 | Products Missing and product duplication on Category Pages
+
+## Version 1.5.0
+
+Release date: 2025-01-31
+
+### Improvements
+
+- 70761 | Upgrade to NextJS 15.1
+
+### Fixes
+
+- 70756 | OrderApprover cannot see Addresses and Orders pages
+
+## Version 1.4.0
+
+Release date: 2024-11-29
+
+### Improvements
+
+- 68431 | Ability to configure Google Analytics using Google Tag Manager
+- 69439 | Ability to sign out using a sign out link
+- 69975 | Ability to show a product page with a variants list
+- 70229 | Upgrade to Next.JS 15
+
+### Fixes
+
+- 69867 | Prefetch clear cart
+- 70429 | Domains without prefixes on enabling redirect will be forwarded to /undefined
+- 70447 | React storefront - Can not display text editor list item
+- 70477 | Error in swiper component
+- 70538 | Html language attribute should be fetched from the server
+
+## Version 1.3.0
+
+Release date: 2024-09-30
+
+### Improvements
+
+- 67703 | Ability to show order history in My account
+- 67842 | Ability to use a delivery widget on the checkout page of the React Accelerator
+- 69533 | Ability to see an order detail page in My account
+
+### Fixes
+
+- 68110 | Sometimes order confirmation shows incorrect order on multi-server environment
+- 69157 | React accelerator - Empty cart link ignores the sub-domain
+- 69328 | generate-block-components.js has wrong reference
+- 69334 | React Accelerator - Can adjust the number of gift item
+- 69376 | Customer Info got cleared after update cart item
+- 69723 | GQL queries are not cached when using Server Components Critical
+
+## Version 1.2.1
+
+Release date: 2024-08-29
+
+### Fixes
+
+- 69547 | 502 Bad Gateway error / High memory usage causing restarts Critical
+
+## Version 1.2.0
+
+Release date: 2024-06-28
+
+### Improvements
+
+- 67763 | Ability for user to manage My profile in My account
+- 67764 | Ability for users to edit login details in My account
+- 67765 | Ability for a user to manage addresses in My account
+
+### Fixes
+
+- 68466 | The navigation menu is not sticky when scrolling down
+- 68480 | Cannot access Storefront if a Primary navigation link points to a page which does not have Url
+- 68759 | Heading configs in tailwind.config.js are ignored
+- 68831 | Preview not working in 8.16, react accelerator 1.1
+- 69002 | Fields Property in ProductItem Interface is defined as an empty array
+
+## Version 1.1.0
+
+Release date: 2024-05-31
+
+### Improvements
+
+- 68591 | Ability for global block preview
+- 68628 | Content security improvements from OWASP
+
+### Fixes
+
+- 67931 | No scroller in 'Select Organization' dropdown in React Accelerator
+- 68349 | Not found page is using wrong channel
+- 68419 | Order confirmation email currency
+- 68501 | Incorrect primary menu when navigating back and forth b2c and b2b sites
+- 68502 | Unable to render b2b product detail
+- 68503 | Unsupported page NewsPage and NewsListPage are being used in React Accelerator
+- 68505 | Unable to checkout in b2c, the entered address is removed Critical
+- 68627 | Avoid having duplicate string Litium Accelerator for site's title
+
+## Version 1.0.0
+
+Release date: 2024-04-04
+
+### Improvements
+
+- 62005 | Headless accelerator architecture foundation
+- 62150 | Ability for headless accelerator to render metadata for SEO
+- 62151 | Ability to show product page in headless accelerator POC
+- 62152 | Ability to show product filters in headless accelerator category page
+- 62629 | Ability to show a home page with banner block in headless accelerator POC
+- 62683 | Ability to use quick search in headless accelerator
+- 62684 | Ability to use product filters in headless accelerator
+- 62954 | Ability to handle different domain names in headless accelerator
+- 63293 | Ability to add product to cart with an add button
+- 63312 | Ability for visitor to manage a mini cart
+- 63529 | Upgrade to Next.JS 13.2
+- 63531 | Ability to render primary navigation and header
+- 63532 | Ability to manage and render a footer
+- 63949 | Ability for user to quick search in react accelerator
+- 64108 | Ability for user to use a search result page in react accelerator
+- 64241 | Ability for react accelerator to have a category page
+- 64487 | Ability for user to checkout in react accelerator
+- 64830 | Upgrade Next.JS to 13.4
+- 64973 | Ability for category page in React accelerator to show blocks
+- 65063 | Ability to show a product page
+- 65129 | Ability for a site visitor to login
+- 65193 | Ability to define secondary links for mobile navigation
+- 65343 | Ability for user to get an order confirmation
+- 65344 | Ability for user to access a My account start page
+- 65364 | Ability to use website strings
+- 65970 | Ability to handle permanent redirects
+- 66280 | Ability for merchant to use url prefix when connecting the domain name to a channel
+- 66305 | Ability to select organization when logging in
+- 66306 | Ability to use an article page
+- 66520 | Ability to use a landing page
+- 66521 | Ability use a product list page
+- 66524 | Ability to use a products block
+- 67140 | Ability to manage 404 and 500 errors
+- 67195 | Upgrade Next.JS to 14.0
+- 67278 | Modifications to the article page
+- 67440 | Use React Context instead of Zustand Breaking change
+- 67585 | Ability to place an order for a person connected to an organization
+- 67844 | B2B product furniture template
+- 67901 | Upgrade Next.JS to 14.1
+- 68109 | Ability to render different currencies
+
+### Fixes
+
+- 64829 | Menu isn't shown fully in landscape mode for React Accelerator
+- 64887 | UI issue when hovering on mega menu and scrolling in category page
+- 65382 | Displaying of Primary Navigation in tablet horizontal view is as same as desktop view
+- 65403 | Can not tab to Country field when input delivery information
+- 65821 | There is no alignment and space after button checkout in shopping cart in IPad horizontal view
+- 65871 | Mini shopping cart should be consistent with look in checkout page when it is empty
+- 65872 | What should be total in mini shopping cart
+- 65873 | Total in checkout is not updated when changing shipment method on checkout, only after refresh
+- 65881 | Update checkout UI
+- 65957 | Total amount shown wrong in mini cart
+- 66054 | Navigation buttons are wrongly aligned in landscape view for tablets
+- 66310 | Linting fails after installing the latest React Accelerator
+- 66331 | Running unit test failed with error Storefront
+- 66443 | Clicking on 'see more' in Quick search for Categories and Pages has to forward to correct tab in search result
+- 66668 | Storefront - facet filter is using name instead of value for querying.
+- 66695 | Button 'add to cart' has inactive style after couple of seconds in tablet and mobile
+- 66931 | Use Text component for rendering text
+- 67246 | Selecting a filter showing wrong number of products
+- 67337 | View for product list (category) page in mobile vertical
+- 67413 | JS-error in console when accessing not existing page
+- 67424 | Discounted prices are not shown in any product listings of already ready pages for Accelerator React
+- 67490 | Unable to display Product's related Category
+- 67513 | Error when using Banner menu in PrimaryNavigation
+- 67515 | Missing null check in middleware.ts
+- 67562 | "Left menu" - Doesn't expand/collapse in case when "Top" banner doesn't have image (article page)
+- 67590 | Remove background color in Login page's textboxes
+- 67657 | Invalid return type in blocks.template.js
+- 67833 | Missing page field templates
+- 67889 | Translation is missing in quantity dropdown in cart
+- 67890 | Logo on header redirects incorrectly when clicking
+- 67895 | Boolean fields render incorrectly on the storefront
+
+## Version 1.0.0-rc-03
+
+Release date: 2024-01-31
+
+### Improvements
+
+- 62005 | Headless accelerator architecture foundation
+- 62150 | Ability for headless accelerator to render metadata for SEO
+- 62151 | Ability to show product page in headless accelerator POC
+- 62152 | Ability to show product filters in headless accelerator category page
+- 62629 | Ability to show a home page with banner block in headless accelerator POC
+- 62683 | Ability to use quick search in headless accelerator
+- 62684 | Ability to use product filters in headless accelerator
+- 62954 | Ability to handle different domain names in headless accelerator
+- 63293 | Ability to add product to cart with an add button
+- 63312 | Ability for visitor to manage a mini cart
+- 63529 | Upgrade to Next.JS 13.2
+- 63531 | Ability to render primary navigation and header
+- 63532 | Ability to manage and render a footer
+- 63949 | Ability for user to quick search in react accelerator
+- 64108 | Ability for user to use a search result page in react accelerator
+- 64241 | Ability for react accelerator to have a category page
+- 64487 | Ability for user to checkout in react accelerator
+- 64830 | Upgrade Next.JS to 13.4
+- 64973 | Ability for category page in React accelerator to show blocks
+- 65063 | Ability to show a product page
+- 65129 | Ability for a site visitor to login
+- 65193 | Ability to define secondary links for mobile navigation
+- 65343 | Ability for user to get an order confirmation
+- 65364 | Ability to use website strings
+- 65970 | Ability to handle permanent redirects
+- 66306 | Ability to use an article page
+- 66520 | Ability to use a landing page
+- 66521 | Ability use a product list page
+- 66524 | Ability to use a products block
+- 67140 | Ability to manage 404 and 500 errors
+- 67195 | Upgrade Next.JS to 14.0
+
+### Fixes
+
+- 64829 | Menu isn't shown fully in landscape mode for React Accelerator
+- 64887 | UI issue when hovering on mega menu and scrolling in category page
+- 65382 | Displaying of Primary Navigation in tablet horizontal view is as same as desktop view
+- 65403 | Can not tab to Country field when input delivery information
+- 65821 | There is no alignment and space after button checkout in shopping cart in IPad horizontal view
+- 65871 | Mini shopping cart should be consistent with look in checkout page when it is empty
+- 65872 | What should be total in mini shopping cart
+- 65873 | Total in checkout is not updated when changing shipment method on checkout, only after refresh
+- 65881 | Update checkout UI
+- 65957 | Total amount shown wrong in mini cart
+- 66054 | Navigation buttons are wrongly aligned in landscape view for tablets
+- 66310 | Linting fails after installing the latest React Accelerator
+- 66331 | Running unit test failed with error Storefront
+- 66443 | Clicking on 'see more' in Quick search for Categories and Pages has to forward to correct tab in search result
+- 66668 | Storefront - facet filter is using name instead of value for querying.
+- 66695 | Button 'add to cart' has inactive style after couple of seconds in tablet and mobile
+- 66931 | Use Text component for rendering text
+- 67246 | Selecting a filter showing wrong number of products
+- 67413 | JS-error in console when accessing not existing page
+- 67424 | Discounted prices are not shown in any product listings of already ready pages for Accelerator React
+
+## Version 1.0.0-rc-02
+
+Release date: 2023-11-30
+
+### Improvements
+
+- 62005 | Headless accelerator architecture foundation
+- 62150 | Ability for headless accelerator to render metadata for SEO
+- 62151 | Ability to show product page in headless accelerator POC
+- 62152 | Ability to show product filters in headless accelerator category page
+- 62629 | Ability to show a home page with banner block in headless accelerator POC
+- 62683 | Ability to use quick search in headless accelerator
+- 62684 | Ability to use product filters in headless accelerator
+- 62954 | Ability to handle different domain names in headless accelerator
+- 63293 | Ability to add product to cart with an add button
+- 63312 | Ability for visitor to manage a mini cart
+- 63529 | Upgrade to Next.JS 13.2
+- 63531 | Ability to render primary navigation and header
+- 63532 | Ability to manage and render a footer
+- 63949 | Ability for user to quick search in react accelerator
+- 64108 | Ability for user to use a search result page in react accelerator
+- 64241 | Ability for react accelerator to have a category page
+- 64487 | Ability for user to checkout in react accelerator
+- 64830 | Upgrade Next.JS to 13.4
+- 64973 | Ability for category page in React accelerator to show blocks
+- 65063 | Ability to show a product page
+- 65193 | Ability to define secondary links for mobile navigation
+- 65343 | Ability for user to get an order confirmation
+- 65364 | Ability to use website strings
+- 65970 | Ability to handle permanent redirects
+- 66306 | Ability to use an article page
+- 67195 | Upgrade Next.JS to 14.0
+
+### Fixes
+
+- 64829 | Menu isn't shown fully in landscape mode for React Accelerator
+- 64887 | UI issue when hovering on mega menu and scrolling in category page
+- 65382 | Displaying of Primary Navigation in tablet horizontal view is as same as desktop view
+- 65403 | Can not tab to Country field when input delivery information
+- 65821 | There is no alignment and space after button checkout in shopping cart in IPad horizontal view
+- 65871 | Mini shopping cart should be consistent with look in checkout page when it is empty
+- 65872 | What should be total in mini shopping cart
+- 65873 | Total in checkout is not updated when changing shipment method on checkout, only after refresh
+- 65881 | Update checkout UI
+- 65957 | Total amount shown wrong in mini cart
+- 66054 | Navigation buttons are wrongly aligned in landscape view for tablets
+- 66310 | Linting fails after installing the latest React Accelerator
+- 66331 | Running unit test failed with error Storefront
+- 66443 | Clicking on 'see more' in Quick search for Categories and Pages has to forward to correct tab in search result
+- 66668 | Storefront - facet filter is using name instead of value for querying.
+
+## Version 1.0.0-rc-01
+
+Release date: 2023-09-29
+
+### Improvements
+
+- 62005 | Headless accelerator architecture foundation
+- 62150 | Ability for headless accelerator to render metadata for SEO
+- 62151 | Ability to show product page in headless accelerator POC
+- 62152 | Ability to show product filters in headless accelerator category page
+- 62629 | Ability to show a home page with banner block in headless accelerator POC
+- 62683 | Ability to use quick search in headless accelerator
+- 62684 | Ability to use product filters in headless accelerator
+- 62954 | Ability to handle different domain names in headless accelerator
+- 63293 | Ability to add product to cart with an add button
+- 63312 | Ability for visitor to manage a mini cart
+- 63529 | Upgrade to Next.JS 13.2
+- 63531 | Ability to render primary navigation and header
+- 63532 | Ability to manage and render a footer
+- 63949 | Ability for user to quick search in react accelerator
+- 64108 | Ability for user to use a search result page in react accelerator
+- 64241 | Ability for react accelerator to have a category page
+- 64487 | Ability for user to checkout in react accelerator
+- 64830 | Upgrade Next.JS to 13.4
+- 64973 | Ability for category page in React accelerator to show blocks
+- 65193 | Ability to define secondary links for mobile navigation
+
+### Fixes
+
+- 64829 | Menu isn't shown fully in landscape mode for React Accelerator
+- 65382 | Displaying of Primary Navigation in tablet horizontal view is as same as desktop view
+- 65403 | Can not tab to Country field when input delivery information
+- 65821 | There is no alignment and space after button checkout in shopping cart in IPad horizontal view
+- 65873 | Total in checkout is not updated when changing shipment method on checkout, only after refresh
+- 65881 | Update checkout UI
+
+## Version 1.0.0-beta-04
+
+Release date: 2023-06-30
+
+### Improvements
+
+- 62005 | Headless accelerator architecture foundation
+- 62150 | Ability for headless accelerator to render metadata for SEO
+- 62151 | Ability to show product page in headless accelerator POC
+- 62152 | Ability to show product filters in headless accelerator category page
+- 62629 | Ability to show a home page with banner block in headless accelerator POC
+- 62683 | Ability to use quick search in headless accelerator
+- 62684 | Ability to use product filters in headless accelerator
+- 62954 | Ability to handle different domain names in headless accelerator
+- 63293 | Ability to add product to cart with an add button
+- 63312 | Ability for visitor to manage a mini cart
+- 63529 | Upgrade to Next.JS 13.2
+- 63531 | Ability to render primary navigation and header
+- 63532 | Ability to manage and render a footer
+- 63949 | Ability for user to quick search in react accelerator
+- 64108 | Ability for user to use a search result page in react accelerator
+- 64241 | Ability for react accelerator to have a category page
+- 64487 | Ability for user to checkout in react accelerator
+- 64830 | Upgrade Next.JS to 13.4
+- 64973 | Ability for category page in React accelerator to show blocks
+
+### Fixes
+
+- 64829 | Menu isn't shown fully in landscape mode for React Accelerator
+
+## Version 1.0.0-beta-03
+
+Release date: 2023-05-31
+
+### Improvements
+
+- 62005 | Headless accelerator architecture foundation
+- 62150 | Ability for headless accelerator to render metadata for SEO
+- 62151 | Ability to show product page in headless accelerator POC
+- 62152 | Ability to show product filters in headless accelerator category page
+- 62629 | Ability to show a home page with banner block in headless accelerator POC
+- 62683 | Ability to use quick search in headless accelerator
+- 62684 | Ability to use product filters in headless accelerator
+- 62954 | Ability to handle different domain names in headless accelerator
+- 63293 | Ability to add product to cart with an add button
+- 63312 | Ability for visitor to manage a mini cart
+- 63529 | Upgrade to Next.JS 13.2
+- 63531 | Ability to render primary navigation and header
+- 63532 | Ability to manage and render a footer
+- 63949 | Ability for user to quick search in react accelerator
+- 64108 | Ability for user to use a search result page in react accelerator
+- 64241 | Ability for react accelerator to have a category page
+- 64830 | Upgrade Next.JS to 13.4
+
+### Fixes
+
+- 64829 | Menu isn't shown fully in landscape mode for React Accelerator
+
+## Version 1.0.0-beta-02
+
+Release date: 2023-03-31
+
+### Improvements
+
+- 62005 | Headless accelerator architecture foundation
+- 62150 | Ability for headless accelerator to render metadata for SEO
+- 62151 | Ability to show product page in headless accelerator POC
+- 62152 | Ability to show product filters in headless accelerator category page
+- 62629 | Ability to show a home page with banner block in headless accelerator POC
+- 62683 | Ability to use quick search in headless accelerator
+- 62684 | Ability to use product filters in headless accelerator
+- 62954 | Ability to handle different domain names in headless accelerator
+- 63293 | Ability to add product to cart with an add button
+- 63312 | Ability for visitor to manage a mini cart
+- 63529 | Upgrade to Next.JS 13.2
+- 63531 | Ability to render primary navigation and header
+- 63532 | Ability to manage and render a footer
+
+## Version 1.0.0-beta-01
+
+Release date: 2023-01-31
+
+### Improvements
+
+- 62005 | Headless accelerator architecture foundation
+- 62150 | Ability for headless accelerator to render metadata for SEO
+- 62151 | Ability to show product page in headless accelerator POC
+- 62152 | Ability to show product filters in headless accelerator category page
+- 62629 | Ability to show a home page with banner block in headless accelerator POC
+- 62683 | Ability to use quick search in headless accelerator
+- 62684 | Ability to use product filters in headless accelerator
+- 62954 | Ability to handle different domain names in headless accelerator
+

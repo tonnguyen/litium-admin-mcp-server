@@ -2,38 +2,38 @@
 title: "Translations"
 description: "Litium uses ASP.NET standard localization with translations kept in resource files for display texts in administration UI. To use custom resource file in a project, create a new file under \\Src\\Litium.Accelerator\\Resources folder. Create the folder if it is not available."
 ---
-How to translate texts in the administration UI.
+Litium uses [ASP.NET standard localization](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/localization?view=aspnetcore-6.0) with translations stored in resource files. Create custom resource files in `Src/Litium.Accelerator/Resources` (create the folder if needed).
 
-Litium uses  [ASP.NET standard localization](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/localization?view=aspnetcore-6.0) with translations kept in resource files for display texts in administration UI. To use custom resource file in a project, create a new file under \\_Src\\Litium.Accelerator\\Resources_ folder. Create the folder if it is not available.
+> When multiple resource files contain the same key, the last one in the build order wins.
 
-Note that when there are multiple resource files containing the same key, the last one will be used.
+Resource files follow the naming pattern `Name[.culture].resx`. `Name` can be any identifier related to your add‑on. `culture` is optional and represents the language (for example, `sv-SE`).
 
-When working with resource files, the naming is important. It is specified by different parts, _Name\[.culture\].resx_. _Name_ can be whatever you prefer, something that connects it to your add-on. _Culture_ is the culture code for the language, which can be skipped if it is the default/fallback language. 
+- `Common.resx` usually stores fallback (often English) translations.
+- `Common.sv-se.resx` stores Swedish translations. If a translation is missing, the fallback file is used.
 
-- _Common.resx_ is the default fallback values. This file probably contains the English translation.
-- _Common.sv-se.resx_ is the Swedish translation. If this file does not contain any value, the fallback file is used.
+Include the resources in `Litium.Accelerator.csproj`:
 
-Then add _LitiumLocalization_ tag into _Litium.Accelerator.csproj_ file to include all resource files under _Resources_ folder:
-
+```xml
 <ItemGroup>
-    <LitiumLocalization Include="Resources\\\*.resx" />
+  <LitiumLocalization Include="Resources\*.resx" />
 </ItemGroup>
+```
 
-The assembly attribute _Litium.Localization.UseAdministrationResource_ should be added in project file to include all resource strings defined by the _LitiumLocalization_\-tag when creating a _IStringLocalizer_ for any class in the project.
+Add the `Litium.Localization.UseAdministrationResource` assembly attribute to make the strings available via `IStringLocalizer`:
 
+```xml
 <ItemGroup>
-    <AssemblyAttribute Include="Litium.Localization.UseAdministrationResource" />
+  <AssemblyAttribute Include="Litium.Localization.UseAdministrationResource" />
 </ItemGroup>
+```
 
-The Accelerator is distributed with all strings for the different areas in a single _.resx_ file in the  \\_Src\\Litium.Accelerator\\Resources_ folder. 
-
-Using resource files in your add-ons makes the installation easier, since no XML files need to be imported into back office. Make sure to use unique names for your strings, for example _SpecialWidgetName,_ if you are building a special widget for the dashboard.
+The Accelerator ships with a single `.resx` file containing strings for all areas. Using resource files in add-ons simplifies installation because no XML needs to be imported in backoffice. Use unique keys, for example `SpecialWidgetName`, to avoid collisions.
 
 ## Usage
 
-\- In the back bffice, there are two options to get a translation:
+You can retrieve translations in the backoffice in two ways:
 
-1.  Use _AsAngularResourceString()_ string extension from Litium.Web.LocalizationExtensions. For example: _"your.resource.key".AsAngularResourceString()_
-2.  Inject _IStringLocalizer_ in constructor then use _\_localizer.GetString("your.resource.key​")_
+1. Use `AsAngularResourceString()` from `Litium.Web.LocalizationExtensions`, e.g. `"your.resource.key".AsAngularResourceString()`.
+2. Inject `IStringLocalizer` into a class and call `_localizer.GetString("your.resource.key")`.
 
-\- Angular components use ngx-translate to handle translation. Please read more about [ngx-translate](http://github.com/ngx-translate/core) [](https://github.com/ngx-translate/core)[here](https://github.com/ngx-translate/core).
+Angular components rely on `ngx-translate`. Refer to the [ngx-translate documentation](https://github.com/ngx-translate/core) for usage details.

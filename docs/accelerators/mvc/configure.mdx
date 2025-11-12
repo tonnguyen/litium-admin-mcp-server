@@ -1,0 +1,39 @@
+---
+title: Configure
+description: Configure services such as SMTP in the Litium MVC accelerator.
+---
+
+# Configure
+
+- Litium 8
+
+This section describes how to configure the Litium Accelerator.
+
+## SMTP configuration
+
+Litium allow user to setup accelerator Smtp server to send mail to customer. The Smtp settings can be updated in `appsettings.json`.
+
+**Section**: Litium / Accelerator / Smtp
+
+- `host`: the host name or ip-address of smtp service.
+- `port`: the port of the smtp service.
+- `password`: the password for the smtp service.
+- `username`: the user name for the smtp service.
+- `enableSecureCommunication`: if set to `True`, the TLS communication should be used for smtp service communication.
+
+```javascript
+"Accelerator": {
+      "Smtp": {
+        "Host": "",
+        "Port": 0,
+        "Password": "",
+        "Username": "",
+        "EnableSecureCommunication": false
+      }
+    }
+```
+
+Please find the [configuration for the platform](/platform/get-started/configuration) here.
+
+See also: [SMTP configuration](/accelerators/mvc/configure/smtp)
+

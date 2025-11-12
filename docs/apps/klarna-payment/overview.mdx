@@ -1,0 +1,284 @@
+---
+title: Klarna payment
+description: The Klarna payment app can be used to integrate with Kustom to handle payments in your e-commerce solution. It is developed and maintained by Litium.
+---
+
+# Klarna payment
+
+*   Litium 8
+
+The Klarna payment app can be used to integrate with Kustom to handle payments in your e-commerce solution. It is developed and maintained by Litium.
+
+The Klarna payment app supports Kustom Checkout (KCO). The app supports capture, cancel and refund transactions.
+
+## Version dependencies
+
+*   Klarna payment app 1.12.0
+    
+    *   Supports payment method information
+        
+    *   Requires Litium 8.21.0 and later.
+        
+*   Klarna payment app 1.6.0
+    
+    *   Supports validation callback.
+        
+    *   Requires Litium 8.8.0 and later.
+        
+
+## Installation
+
+Litium serverless cloud - Use the [Cloud CLI](https://docs.litium.com/cloud/serverless/get-started/install-payment-and-delivery-apps) to install the app.
+
+Litium legacy cloud - Contact [support](mailto:support@litium.com) to install the app in your test and/or production environment.
+
+Local environment - A [Docker compose template](/add-ons/litium-apps/klarna-payment/docker-template) is available for local installation.
+
+## Configuration file
+
+The configuration file must have json format and UTF-8 encoding.
+
+```json
+{
+  "Klarna": {
+    "PaymentAccounts": [
+      {
+        "PaymentAccountId": "SE",
+        "MerchantId": "",
+        "SharedSecret": "",
+        "Environment": "Test",
+        "Region": "Europe", 
+        "PaymentOptions": [ "Checkout" ],
+        "ShowVATRegistrationNumberField": true,
+        "UISettings": {
+            "ColorButton": "#FF0000",
+            "ColorButtonText": "#FFFF00",
+            "ColorCheckbox": "#FF0000",
+            "ColorCheckboxCheckMark": "#FFFF00",
+            "ColorHeader": "#0000FF",
+            "ColorLink": "#00FF00",
+            "RadiusBorder": "25",
+            "AdditionalCheckboxes": [
+            {
+                "Id": "newsletter_opt_in",
+                "Checked": false,
+                "Required": false,
+                "Text": {
+                    "en-US": "Please add me to the newsletter list, read more here [link](http://www.google.com)",
+                    "sv-SE": "Lägg till mig på nyhetsbrevslistan, läs mer här [link](http://www.google.com)",
+                    "*": "Please add me to the newsletter list, read more here [link](http://www.google.com)"
+                }
+            },
+            {
+                "Id": "newsletter_opt_in_required",
+                "Checked": false,
+                "Required": true,
+                "Text": {
+                    "en-US": "(Required) Please add me to the newsletter list, read more here [link](http://www.google.com)",
+                    "sv-SE": "(Required) Lägg till mig på nyhetsbrevslistan, läs mer här [link](http://www.google.com)",
+                    "*": "(Required) Please add me to the newsletter list, read more here [link](http://www.google.com)"
+                }
+            }
+            ]
+        }
+      },
+      {
+        "PaymentAccountId": "DK",
+        "MerchantId": "",
+        "SharedSecret": "",
+        "Environment": "Test",
+        "Region": "Europe", 
+        "PaymentOptions": [ "Checkout" ]
+      },
+    ]
+  }
+}
+```
+
+*   _PaymentAccountId_: Identifier to select the account. It must be a unique string.
+    
+    **Note:** _PaymentAccountId_ should not contain any spaces. If it contains spaces, it will cause the app to crash when trying to find the correct payment account for the cart's _PaymentOptionId_. The reason for this is that Litium sends it as `<PaymentAccountId> Checkout` and the app splits into spaces to retrieve the id. More than one space causes it to split incorrectly.
+    
+*   _MerchantId_: Kustom username, this is Kustom Merchant id (MID) followed by a string. This value can be found in the Kustom Portal when creating a API key.
+    
+*   _SharedSecret_: Kustom password. This value can be found in the Kustom Portal when creating a API key.
+    
+*   _Environment_: Klarna environment. It must be either "Test" or "Live".
+    
+*   _Region_: The region of the Klarna account. It must be one of these values: "Europe", "NorthAmerica", "Oceania".
+    
+*   _ShowVATRegistrationNumberField_: If true, a optional VAT registration number field will be shown in the address form when the customer type is an organisation.
+    
+*   _PaymentOptions_: Must be set to "Checkout".
+    
+*   _UISettings_ (optional): These fields are used to customize the UI of the Kustom Checkout iframe.
+    
+*   _AdditionalCheckboxes_ (optional): Additional checkboxes can be used to interact with consumers. They will be shown in the Kustom Checkout iframe. The consumers' answers will be stored in the _Payment.AdditionalInfo_ field upon order completion
+    
+
+## Server-side callbacks validation
+
+Klarna Payment App supports receiving three server-side callbacks: `Address update,` `Country change` and `Order validation`. If the address or country is changed on the checkout page. Kustom will request to try to verify the changes. Klarna Payment App will receive and call Litium for updating the address.
+
+If the country is changed, Litium will respond that it needs to be redirected to the checkout page to update the new country.
+
+If the address is changed, Litium will validate the Address and then update it to the cart. The custom address validation rules must be derived from `IValidationRule<ValidateCartAddressArgs>` class. These rules will also be applied when the cart is validated. E.g:
+
+```csharp
+internal class FirstNameNotEmpty : ValidationRuleBase<ValidateCartAddressArgs>
+{
+    public override ValidationResult Validate(ValidateCartAddressArgs entity, ValidationMode validationMode)
+    {
+        var result = new ValidationResult();
+        var name = entity.BillingAddress.FirstName;
+        if (string.IsNullOrEmpty(name))
+        {
+            result.AddError("Address", "First name must be not empty.");
+        }
+
+        return result;
+    }
+}
+```
+
+There are two strings defined as website text that are used by the validation:
+
+*   _sales.addressupdate.generalError_: will be used if any exception occurs.
+    
+*   _sales.addressupdate.haschanged_: will be used when the country is changed.
+    
+
+These keys are translated in Litium BO. [Learn how to use website text](/platform/areas/websites-cms/create-a-web).
+
+The order validation callback will trigger the [Pre-order validation](/platform/areas/sales/order-placement/preorder-validation) in Litium.
+
+## Selling to organizations
+
+In order to handle the checkout iframe displaying form of Person or Organization, the _CustomerType_ of _CheckoutFlowInfo_ should be defined. 
+
+*   If _CustomerType_ is not specified, the checkout iframe will display form for both Person and Organization.
+    
+*   If _CustomerType_ is Person, the checkout iframe will display Person's form.
+    
+*   If _CustomerType_ is Organization, the checkout iframe will display Organization's form.
+    
+
+**Note:** There is a _Type_ property of the _CustomerInfo_ class, which is used to determine if the logged in user is a person user or a organization user. If it is a person user and _CustomerType_ is set to Organization, Kustom won't accept it, and vice versa.
+
+When an organization buyer places an order, some information about the organization is stored in _AdditionInfo_ property of the Payment. The following keys is available:
+
+*   Klarna\_Organization\_Registration\_Id
+    
+*   Klarna\_Vat\_Id
+    
+*   Klarna\_Billing\_Address\_Reference
+    
+*   Klarna\_Shipping\_Address\_Reference
+    
+
+## Allow separate shipping address
+
+If the _AllowSeparateShippingAddress_ property of _CheckoutFlowInfo_ is true, it will allow the user enter a separate shipping address. Otherwise, the shipping section will not be visible and the shipping address of a completed order will be the same as the billing address
+
+## Using Klarna Shipping Assistant
+
+To enable the use of Klarna Shipping Assistant:
+
+1.  Configure the Direct Shipment app to provide a shipping option with integration type set to _PaymentCheckout_.
+    
+2.  Add this shipping option to channels where you want to use KSA. Additional shipping options configured on the channel will be sent to Klarna and selectable in KSA. **Note:** The fee for the integrated shipping option should be set to 0 in Litium.
+    
+
+If you activate a TA system integration with KSA, the additional shipping options configured on the channel in Litium will be used as fallback if the TA system integration fails.
+
+The field mappings for shipping data (height, width, length, weight and tags) in Litium backoffice will be used by the Klarna app to provide information to the TA system.
+
+**Note:** KSA will add any fee for shipping options from the integrated TA system to the order, the shipping\_option\_changed callback is currently not supported by the Klarna payment app. This means that Litium will not be able to calculate any free shipping discounts for these shipping options.
+
+When an order is placed, Litium will save the data received from Klarna about the selected shipping options as Additional Info on the ShippingInfo for the order.
+
+## Configuring Checkout Session Options
+
+You can customize the buyer experience by configuring session options. These values are configured by adding them to the _CheckoutFlowInfo.AdditionalInfo_ property during session initialization.
+
+```csharp
+var checkoutFlowInfo = new CheckoutFlowInfo  
+{  
+    AdditionalInfo = new Dictionary<string, object>  
+    {  
+        { "KlarnaPayment_VatRemoved", true.ToString() }
+    }  
+};
+```
+
+Below is a list of available options:
+
+*   _KlarnaPayment\_VatRemoved_ (bool): If true, VAT is not displayed in Checkout's Order Summary page. Default: false.
+*   _KlarnaPayment\_DateOfBirthMandatory_ (bool): If true, the consumer cannot skip date of birth. Default: false
+*   _KlarnaPayment\_TitleMandatory_ (bool): If specified to false, title becomes optional. Only available for orders for country GB.
+*   _KlarnaPayment\_NationalIdentificationNumberMandatory_ (bool): If true, the user cannot skip national identification number in SE, NO, FI and DK. Default: false.
+*   _KlarnaPayment\_PhoneMandatory_ (bool): If false, the consumer can skip the phone. Only available for orders in DACH countries.
+*   _KlarnaPayment\_ShowSubtotalDetail_ (bool): If true, the Order Detail subtotals view is expanded when the Klarna Checkout iFrame is loaded. Default: false.
+*   _KlarnaPayment\_VerifyNationalIdentificationNumber_ (bool): Enable verification of National Identification Numbers. This option also make the national identification number mandatory. Only applicable for Sweden and Norway.
+*   _KlarnaPayment\_RequireClientValidation_ (bool): If true, a client side validation is needed to complete the purchase. Default: false.
+
+Setting these options are optional. If any of them are not set, the default value would be used. For more information, see [Klarna Checkout API](https://docs.klarna.com/api/checkout/#operation/createOrderMerchant!path=options&t=request).
+
+## External payment methods
+
+Kustom Checkout can show additional payment methods in the checkout iframe. When the customer selects the external payment method and clicks the buy button, the buyer will be redirected to the provided URL (RedirectUrl field which is set in the configuration file). On the redirected page the buyer will finalize the purchase. A list of supported external payment methods and additional requirements for integration can be found in the [Klarna documentation](https://docs.klarna.com/klarna-checkout/in-depth-knowledge/external-payment-methods).
+
+**Please note** that the Klarna app is only responsible for redirecting the buyer to the provided URL. The merchant is responsible for implementation of the logic needed to switch to the other payment method in Litium, and providing the buyer with UI to complete the purchase flow.
+
+External payment methods is set in the ExternalPaymentMethods property on each payment account in the configuration file.
+
+```json
+"ExternalPaymentMethods": [
+    {
+        "Name": "PayPal",
+        "RedirectUrl": "https://paypal.com/?klarnaOrderId={klarnaOrderId}&paymentAccountId={paymentAccountId}&cartContextSystemId={cartContextSystemId}",
+        "ImageUrl": "https://www.paypalobjects.com/digitalassets/c/website/logo/full-text/pp_fc_hl.svg",
+        "Fee": 55,
+        "Description": {
+            "en-US": "Description en-us PayPal",
+            "sv-SE": "Description sv-se PayPal",
+             "*": "Description PayPal"
+        },
+        "BuyButtonLabel": "Continue",
+        "Countries": [ "se", "gb" ]
+    },
+    {
+        "Name": "Amazon Pay",
+        "RedirectUrl": "https://pay.amazon.com/",
+        "ImageUrl": "https://amazon-pay.brightspotcdn.com/75/8c/05780a7c41eb91759c77310a6f85/amazonpay-logo-rgb-clr.svg",
+        "Fee": 25,
+        "Description": {
+            "en-US": "Description en-us Amazon Pay",
+            "sv-SE": "Description sv-se Amazon Pay",
+            "*": "Description Amazon Pay"
+        },
+        "BuyButtonLabel": "Complete",
+        "Countries": [ "se", "gb" ]
+    }
+]
+```
+
+*   _Name_ (string) (required): The name of the payment provider, only supported External Payment Methods in KCO.
+*   _RedirectUrl_ (string) (required): URL to redirect to. Max 2000 characters.  
+    When configuring the redirect URL you can use placeholders that will be filled with current values by the Klarna app. The following placeholders are available:
+    *   _{klarnaOrderId}_: id of the order in Kustom Checkout. Can be used to fetch data from the Kustom order using Kustom's Checkout API (eg billing and shipping address and selected shipping option).
+    *   _{paymentAccountId}_: the payment account of the Klarna app used to initialise the order in Kustom.
+    *   _{cartContextSystemId}_: the id of the CartContext in Litium connected to this payment.
+*   _ImageUrl_ (string): URL to an image to display as icon for the payment method. Max 2000 characters.
+*   _Fee_ (long): Minor units. Includes VAT.
+*   _Description_ (string): Multiple languages are supported, or use "\*" for all locales. Max 500 characters.
+*   _BuyButtonLabel_ (string): Can be "Continue" or "Complete".
+*   _Countries_ (array of strings): Purchase countries for which the payment method should be displayed. ISO alpha-2 codes.
+
+## Sending Extra Merchant Data to Klarna
+
+When creating an order in Kustom, the merchant can provide additional data about the purchase in an object Kustom calls "attachment". This is required when using Klarna to sell some types of goods, like travel or event tickets, hotel reservations or vouchers.
+
+Attachment payload is extracted from _CheckoutFlowInfo.AdditionalInfo_ with key _KlarnaPayment\_attachment_, the content should be the full _attachment object_ serialized into a json-string that contains the _body_ and _content\_type_.
+
+See [Klarna Checkout API](https://docs.klarna.com/api/checkout/#operation/createOrderMerchant!path=attachment&t=request) and [Attachment Schema (klarna.com)](https://docs.klarna.com/api/attachment-schema/) for attachment details.

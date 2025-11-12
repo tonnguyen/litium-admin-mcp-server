@@ -1,0 +1,52 @@
+---
+title: Local installation - Docker Compose template
+description: "Values to replace in the template:"
+---
+
+# Local installation - Docker Compose template
+
+*   Litium 8
+
+Values to replace in the template:
+
+*   ports
+*   environment
+    *   ASPNETCORE\_HTTPS\_PORT
+    *   AppMetadata\_\_AppUrl
+    *   LitiumApi\_\_ApiUrl
+
+```plain
+version: '3'
+services:
+    svea-payment:
+    image: registry.litium.cloud/apps/svea-payment:1.8.2
+    dns: 
+    - 192.168.65.254
+    restart: unless-stopped
+    ports:
+    - "10040:80"
+    - "10041:443"
+    environment:
+    # Enable HTTPS binding
+    - ASPNETCORE_URLS=https://+;http://+
+    - ASPNETCORE_HTTPS_PORT=10041
+    # Configuration for HTTPS inside the container, exported dotnet dev-certs with corresponding password
+    - ASPNETCORE_Kestrel__Certificates__Default__Password=${CERT_PWD}
+    - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/localhost.pfx
+    # Folder for the configuraiton, this is volume-mapped
+    - CONFIG_PATH=/app_config
+    # Folder where logfiles should be placed, this is volume-mapped
+    - APP_LOG_PATH=/logs
+    # Don't validate certificates
+    - AppConfiguration__ValidateCertificate=false
+    # Url to this app
+    - AppMetadata__AppUrl=https://customer-app-svea-payment.localtest.me:10041
+    # Url to the litium installation
+    - LitiumApi__ApiUrl=https://customer.localtest.me:5001
+    volumes:
+    - ./data/svea-payment/config:/app_config
+    - ./data/svea-payment/data:/app_data
+    - ./data/svea-payment/logs:/logs
+    - ./data/svea-payment/DataProtection-Keys:/root/.aspnet/DataProtection-Keys
+    - ./data/https:/https:ro
+```

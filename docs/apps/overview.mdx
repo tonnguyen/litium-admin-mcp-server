@@ -3,57 +3,69 @@ title: Apps Overview
 description: 'Build custom applications to extend Litium platform functionality'
 ---
 
-## What are Litium Apps?
+## Litium apps
 
-Litium Apps are custom applications that extend the core functionality of the Litium platform.
+With Litium 8 we introduce a new way to extend the Litium platform. Add-ons will be able to run as separate applications, called Litium apps.
 
-<CardGroup cols={2}>
-  <Card
-    title="Getting Started"
-    icon="rocket"
-    href="#getting-started"
-  >
-    Build your first app
-  </Card>
-  <Card
-    title="App Framework"
-    icon="code"
-    href="#framework"
-  >
-    Development framework and SDK
-  </Card>
-  <Card
-    title="API Integration"
-    icon="plug"
-    href="#integration"
-  >
-    Connect to Litium APIs
-  </Card>
-  <Card
-    title="Deployment"
-    icon="cloud"
-    href="#deployment"
-  >
-    Deploy and distribute apps
-  </Card>
-</CardGroup>
+The Litium apps are stand-alone applications and will communicate with Litium through our Litium Connect APIs. This gives greater flexibility and scalability to the Litium platform. All payment service providers and shipping providers are integrated through Litium apps. That means that each Litium instance needs to have at least one payment app and one shipping app installed and configured to be able to place orders through code or the checkout page.
 
-## App Types
+Litium apps need to be installed to each customer environment. In Litium Commerce Cloud you can use the Cloud CLI to manage the apps in each environment. Please see the [Cloud CLI documentation](https://docs.litium.com/cloud/serverless/get-started/install-payment-and-delivery-apps) for more information.
 
-<AccordionGroup>
-  <Accordion title="Admin Applications" icon="shield-halved">
-    Platform management tools and dashboards
-  </Accordion>
-  
-  <Accordion title="Integration Applications" icon="plug">
-    Third-party system connectors
-  </Accordion>
-  
-  <Accordion title="Customer-Facing Applications" icon="users">
-    Customer experience tools and portals
-  </Accordion>
-  
-  <Accordion title="AI-Powered Applications" icon="robot">
-    Intelligent automation tools
-  </Accordion>
-</AccordionGroup>
+If you are running Litium in the legacy cloud environment, [Litium support](mailto:support@litium.com) manages the apps. You cannot do it yourself in the test or production environment.
+
+## Public and private apps
+
+Litium apps can be divided into two groups: public and private.
+
+A public app is available to all Litium customers. Public apps can be installed to any customer environment in Litium Commerce Cloud through the [Litium Cloud CLI](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli). Documentation for the public apps can be found in the left menu of this page.
+
+A private app is on the other hand an app that is developed for a specific Litium customer and installed only in that customer's environment. These apps are, unlike the public apps, not available in the central Litium registry. They are commonly developed and maintained by the Solution Partner as part of a customer's Litium solution.
+
+For more information on how to build Litium apps, please check out the [App Development Guide](https://docs.litium.com/add-ons/get-started/app-development-guide).
+
+## Local installation
+
+You are able to run Litium apps in you local environment during development. Each app runs in its own Docker container. Different customers need different apps connected, so the definition of one customer environment may not be equal to the next customer. Each environemtn is defined with the Docker Compose format to easily start and stop different environments.
+
+For each app, you can find the Docker Compose template on the documentation page. You need to complete the template with your environment-specific settings, and merge it with the Docker Compose file that you have for the customer. The Docker Compose file for the customer should be kept with the source of the application to make it look the same for all developers in the project.
+
+Before starting you need to ensure that you have the following installed:
+
+- [Custom developer certificate](https://docs.litium.com/platform/get-started/custom-developer-certificate)
+- [Shared dependencies](https://docs.litium.com/litium-8-beta/get-started/shared-dependencies)
+
+There is also step-by-step instructions available as part of the [Local installation guide](https://docs.litium.com/platform/guides/local-installation-guide).
+
+**Note!** Remember that you can't use localhost as the domain name and you need to use the one that is set up in the previous steps.
+
+### Certificate
+
+All communication between Litium and the Litium App needs to be using https. To make this work without certificate warnings the developer certificate that previously was created will be used.
+
+Use the following command to export the existing developer certificate. Remember to use your own password instead of *SuperSecretPassword*.
+
+```bash
+dotnet dev-certs https -ep ./data/https/localhost.pfx -p SuperSecretPassword
+```
+
+The data folder that was created should be ignored from version control, that folder contains developer-specific files.
+
+### Docker Compose
+
+To be able to use a Docker Compose file for the customer but with developer-specific settings; Docker Compose supports environment variables and environment file (".env").
+
+Create a new file with the name ".env" if that not exist with the following content. Remember to use your own password, the one you were using during certificate export. This file should be ignored from version control.
+
+```bash
+CERT_PWD=SuperSecretPassword
+```
+
+Create a new empty file with the name "docker-compose.yaml", skip if the file already exists. From the Litium App-specific pages that exist in the menu, you can find the Docker Compose template that is needed for the respective app. Copy the Docker Compose template and merge that content with your customer-specific Docker Compose.yaml file. Remember to replace the information in the template that is relevant for each app.
+
+Start the Litium apps with the following command
+
+```bash
+docker-compose up
+```
+
+If the content in docker-compose.yaml is correct the services will be created; otherwise, correct errors and try to start again. When all services are started you need to browse each app's URL, this will trigger the app to be visible inside customers' Litium installation.

@@ -1,0 +1,147 @@
+---
+title: "How to create a decoupled UI extension"
+description: "Build a custom panel as a decoupled extension in Litium 8.21 or later using either an iframe URL or an Angular component."
+---
+
+This tutorial explains how to build a custom panel as a decoupled extension in a separate app (Litium 8.21 or newer). Complete sample code is available in the provided download: [Test.Extensions.zip](/downloads/back-office-ui-extensions/Test.Extensions.zip).
+
+There are two approaches:
+
+1. **Embed a URL in an iframe.** Litium renders an iframe pointing to your URL (internal or external). Ideal when you already have a page or want to implement the panel with MVC.
+2. **Use an Angular component.** Register an Angular component name in the configuration. Best when most logic lives in JavaScript.
+
+Regardless of the approach, you first create an extension describing the panel.
+
+## Create the extension
+
+The simplest panel points at an existing URL that will be loaded inside an iframe. Register the panel by POSTing the following payload to the create-extension endpoint (see [`Managing extensions`](./back-office-ui-extensions-managing-extensions) for details about the API and available targets):
+
+```json
+{
+  "id": "test",
+  "name": "My extension",
+  "description": "My extension from external source",
+  "targets": [
+    {
+      "target": "customers.menu.item",
+      "name": "My external panel",
+      "url": "https://test-extensions.localtest.me/my-target-url"
+    }
+  ],
+  "type": "ui"
+}
+```
+
+To build an Angular-based panel you add multiple targets: one for the federated module and one for the panel.
+
+```json
+{
+  "id": "test",
+  "name": "My extension",
+  "description": "My extension from external source",
+  "targets": [
+    {
+      "target": "common.angular.module",
+      "name": "TestExtensions",
+      "url": "https://test-extensions.localtest.me:35863/dist"
+    },
+    {
+      "target": "customers.menu.item",
+      "name": "My external panel",
+      "component": "TestExtensions#SampleAngularPanelComponent"
+    }
+  ],
+  "type": "ui"
+}
+```
+
+In this sample the panel is registered in the **Customers** area. The `component` property references the federated module `TestExtensions` and exposes `SampleAngularPanelComponent`. Remember: a target cannot use `component` and `url` simultaneously.
+
+## Create a custom panel Angular component
+
+This step is required only for Angular-based panels. If you rely on a URL, you can skip it.
+
+```ts
+// src/components/sample-angular-panel/sample-angular-panel.component.ts
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+
+@Component({
+  selector: 'app-sample-angular-panel',
+  templateUrl: './sample-angular-panel.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class SampleAngularPanelComponent {
+  settings: any;
+}
+```
+
+Template:
+
+```html
+<!-- src/components/sample-angular-panel/sample-angular-panel.component.html -->
+<section>
+  My external panel component<br />
+</section>
+```
+
+## Register the component in the module
+
+Register the component in the module (for example `extensions.ts`). Import the component and declare it in the module so it is available to the federated module:
+
+```ts
+@NgModule({
+  declarations: [
+    SampleAngularPanelComponent
+  ],
+```
+
+Create a `configure` function inside `remoteConfig`. Litium calls this function when the module is first loaded and passes configuration information such as the base path used to load extension files. Without `remoteConfig` the module and components cannot be loaded.
+
+```ts
+import { RemoteConfig } from 'litium-ui';
+
+declare const __webpack_public_path__: string;
+
+export function configure(config: RemoteConfig) {
+  // set the public path to load the module from
+  __webpack_public_path__ = config.remotePath;
+}
+```
+
+Expose the component and `remoteConfig` in `webpack.js` using [ModuleFederationPlugin](https://webpack.js.org/concepts/module-federation/) so that the platform can discover and load them.
+
+```ts
+entry: {
+  // Include the remoteConfig module as an entry with the same name as the
+  // ModuleFederationPlugin:name property. This inlines it into remoteEntry.js.
+  TestExtensions: "./src/remote-config.ts"
+},
+plugins: [
+  new ModuleFederationPlugin({
+    name: "TestExtensions",
+    filename: "remoteEntry.js",
+    exposes: {
+      remoteConfig: "./src/remote-config.ts",
+      TestExtensions: "./src/extensions.ts",
+      SampleAngularPanelComponent: "./src/components/sample-angular-panel/sample-angular-panel.component.ts"
+    },
+```
+
+## Backend requests from the component
+
+Components often need to load data. Use the `common.api.proxy` target to configure Litium as a proxy to your external app. This forwards user authorisation and avoids CORS issues.
+
+```json
+{
+  "target": "common.api.proxy",
+  "name": "TestExtensions",
+  "url": "https://test-extensions.localtest.me:35863/"
+}
+```
+
+Make sure the proxy target (`name`) matches the module target. Litium then connects them and exposes a global property with the extension proxy path:
+
+```ts
+window.litiumExtensionConfig['TestExtensions'].remoteApiPath;
+```
+

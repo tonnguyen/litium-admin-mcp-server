@@ -1,0 +1,33 @@
+---
+title: Web content accessibility guidelines
+description: WCAG 2.2 AA considerations for the Litium React accelerator.
+---
+
+# Web content accessibility guidelines
+
+The Web Content Accessibility Guidelines (WCAG), developed by the World Wide Web Consortium (W3C), provide a shared international standard for web accessibility. The React Accelerator is designed to be compliant with the WCAG 2.2 Level AA standard.
+
+To better comply with the EU Accessibility Act the Litium Accelerator supports most of the necessary changes to comply with [WCAG 2.2 AA](https://www.w3.org/WAI/WCAG22/quickref/). Below are some things added to enhance accessibility.
+
+- Enhanced ARIA attributes for core elements, including navigation, sidebars, modals, dropdowns, checkboxes, accordions, images, and icons.
+- Keyboard navigation support is implemented for all complex and interactive components.
+- Improved form accessibility using autocomplete and dedicated ARIA attributes for better input handling.
+- Utilized Landmarks to clearly define page regions for screen reader navigation.
+- Implemented skip links to allow users to bypass menus and jump directly to main content.
+- Utilized semantically appropriate `<Button>` elements across various components for improved accessibility.
+- Implemented a color scheme that ensures enhanced contrast for improved readability.
+- Focus styles are clearly defined and visible to aid keyboard users.
+- Ensured consistent component usage throughout the application for a reliable user experience.
+- Integrated the jsx-a11y ESLint plugin for static accessibility checks in the codebase.
+
+## Best practices
+
+To ensure your solution complies with WCAG 2.2 AA, here are our recommendations:
+
+- Use built-in components of the React Accelerator.
+- For custom page templates and components, use these tools to check for compliance:
+  - ESLint: for static code analysis.
+  - [Axe DevTools extension](https://chromewebstore.google.com/detail/axe-devtools-web-accessib/lhdoppojpmngadmnindnejefpokejbdd).
+  - [Chrome Lighthouse accessibility](https://developer.chrome.com/docs/lighthouse/accessibility/scoring) tool.
+  - [BrowserStack Accessibility testing](https://www.browserstack.com/docs/accessibility)
+

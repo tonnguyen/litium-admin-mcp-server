@@ -4,11 +4,11 @@ description: "React accelerator comes with built-in page templates and page comp
 ---
 A guide to create and render a new or existing page templates in React accelerator.
 
-React accelerator comes with built-in page templates and page components to render them. They are built based on NextJS's [File conventions](https://beta.nextjs.org/docs/routing/fundamentals#file-conventions) and [routing](https://beta.nextjs.org/docs/routing/defining-routes), with a [Middleware](/accelerators/react-accelerator/routing-fundamentals) to forward requests to the right template's files. Accelerator comes with a set of [pre-defined page templates](/accelerators/mvc-accelerator/develop/page-types). For each template, we should have a file _/app/{TEMPLATE\_ID}{TEMPLATE\_TYPE}/\[\[...slug\]\]/page.tsx_ to handle requests. Where _{TEMPLATE\_ID}_ should be replaced by the Id of the template, and _{TEMPLATE\_TYPE}_ is its type. For example:
+React accelerator comes with built-in page templates and page components to render them. They are built based on NextJS's [File conventions](https://beta.nextjs.org/docs/routing/fundamentals#file-conventions) and [routing](https://beta.nextjs.org/docs/routing/defining-routes), with a [Middleware](/accelerators/react/routing-fundamentals) to forward requests to the right template's files. Accelerator comes with a set of [pre-defined page templates](/accelerators/react/working-with-page-types). For each template, we should have a file `/app/{TEMPLATE_ID}{TEMPLATE_TYPE}/[[...slug]]/page.tsx` to handle requests. Where `{TEMPLATE_ID}` should be replaced by the Id of the template, and `{TEMPLATE_TYPE}` is its type. For example:
 
-1.  Page templates: _app/HomePage/\[\[...slug\]\]/page.tsx_ for _Home_ page template.
-2.  Category template: _app/CategoryProductCategory/\[\[...slug\]\]/page.tsx_ for _CategoryProduct_ category template.
-3.  Product template: _app/ProductWithVariantsListProduct/\[\[...slug\]\]/page.tsx_ for _ProductWithVariantsList_ product template.
+1.  Page templates: `/app/HomePage/[[...slug]]/page.tsx` for _Home_ page template.
+2.  Category template: `/app/CategoryProductCategory/[[...slug]]/page.tsx` for _CategoryProduct_ category template.
+3.  Product template: `/app/ProductWithVariantsListProduct/[[...slug]]/page.tsx` for _ProductWithVariantsList_ product template.
 
 Wondering about \[\[...slug\]\]? It is called [Option catch-all segment](https://beta.nextjs.org/docs/routing/defining-routes#optional-catch-all-segments).
 
@@ -30,29 +30,29 @@ Switching to **Fields** tab, we should add a Field to this template so we can ge
 
 ## Create page component
 
-Following the folder name convention above, we should have a file _app/ContactUsPage/\[\[...slug\]\]/page.tsx_ where its content should be:
+Following the folder name convention above, we should have a file _app/ContactUsPage/[[...slug]]/page.tsx_ where its content should be:
 
+```tsx
 import { gql } from '@apollo/client';
 import { Metadata } from 'next';
 import { queryServer } from 'services/dataService.server';
 import { createMetadataFromUrl } from 'services/metadataService.server';
 
-
 export default async function Page({ params }: { params: any }) {
   const content = await getContent({ params });
-  return <div dangerouslySetInnerHTML={{ \_\_html: content.fields.text }}></div>;
+  return <div dangerouslySetInnerHTML={{ __html: content.fields.text }}></div>;
 }
 
 async function getContent({ params }: { params: any }) {
   return (
     await queryServer({
-      query: GET\_CONTENT,
+      query: GET_CONTENT,
       url: params.slug?.join('/') ?? '/'
     })
   ).content;
 }
 
-const GET\_CONTENT = gql\`
+const GET_CONTENT = gql`
   query GetContent {
     content {
       ... on ContactUsPage {
@@ -62,7 +62,7 @@ const GET\_CONTENT = gql\`
       }
     }
   }
-\`;
+`;
 
 export async function generateMetadata({
   params,
@@ -71,6 +71,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   return await createMetadataFromUrl(params.slug?.join('/'));
 }
+```
 
 What the code above does is:
 

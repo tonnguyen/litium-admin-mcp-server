@@ -1,57 +1,56 @@
 ---
-title: MVC Accelerator Overview
-description: 'Traditional server-side rendered storefront built with ASP.NET MVC'
+title: Overview
+description: "What it is and how it works."
 ---
 
-## What is the MVC Accelerator?
+# Overview
 
-The Litium MVC Accelerator is a traditional server-side rendered e-commerce storefront built with ASP.NET MVC and Razor.
+What it is and how it works.
 
-<CardGroup cols={2}>
-  <Card
-    title="Getting Started"
-    icon="rocket"
-    href="#getting-started"
-  >
-    Quick setup and installation
-  </Card>
-  <Card
-    title="Architecture"
-    icon="building"
-    href="#architecture"
-  >
-    MVC architecture overview
-  </Card>
-  <Card
-    title="Customization"
-    icon="paint-brush"
-    href="#customization"
-  >
-    Customize views and controllers
-  </Card>
-  <Card
-    title="Deployment"
-    icon="cloud"
-    href="#deployment"
-  >
-    Deploy to IIS or Azure
-  </Card>
-</CardGroup>
+The MVC accelerator consists of technical solutions, know-how, and methods that can get a project up to speed quickly. 
 
-## Key Features
+Every e-commerce project needs components like product presentation with filters, checkout, customer registration, and, mobile version. Litium accelerator provides them as a package, so they do not have to be figured out for every new project. It is a flexible solution that can be customized and developed in terms of functionality and design. 
 
-- ASP.NET MVC architecture
-- Razor view engine
-- Server-side rendering
-- SEO optimization
-- Responsive design
-- Performance optimization
+A customer solution can be [extended further by add-ons](/resources/download-add-ons), which are defined functionalities that can be added to the accelerator. The illustration below shows the context of the accelerator.
 
-## Technology Stack
+![AcceleratorConcept.png](/images/accelerators/mvc/AcceleratorConcept.png)
 
-- ASP.NET MVC
-- C#
-- Razor
-- Bootstrap
-- jQuery
-- Entity Framework
+## Basic structure
+
+The accelerator is built using .NET MVC and React components for front-end, and a Business Logic Layer for business rules. 
+
+![Litium 7 accelerator architecture-a.png](/images/accelerators/mvc/develop/Litium%207%20accelerator%20architecture-a.png)
+
+### Business Logic Layer
+
+The Business Logic Layer (BLL) contains all logic, from the different field templates to the logic for how a product search is executed. The BLL does not depend on the technology of the MVC or web API. It will produce a view model that can be used in the rendering layer to produce the content for a visitor. The view model can be used in both the MVC and web API rendering layer.
+
+### MVC rendering layer
+
+The MVC rendering layer is a "thin" layer acting as a bridge between the visitor request and the BLL. The result from the BLL is transformed with the MVC view engine to create the HTML output that will be returned to the visitor.
+
+### Web API rendering layer
+
+The web API rendering layer is a "thin" layer acting as a bridge between the BLL and the functions executed with JavaScript in the browser. The result from the BLL is transformed into JSON, which is processed with the caller method in the browser.
+
+![Litium Accelerator 2b.png](/images/accelerators/mvc/Litium%20Accelerator%202b.png)
+
+## Technical frameworks
+
+The MVC accelerator uses the responsive framework [Foundation by Zurb](http://foundation.zurb.com/) together with [React](https://reactjs.org/).
+
+A layout (flex-grid) with media queries from Foundation by Zurb is used. There are also custom-built styles on top of Foundation, specifically for the Accelerator. The custom-built styles use SCSS files and the BEM naming convention.
+
+To speed up the development of front-end components like menus, shopping cart, and product filtering, React can be used to organize the code and make it cross-browser compatible. React is also useful to build advanced front-end functions that communicate with the back end via a web API.
+
+All front-end assets, like style sheets and JavaScript, are processed with Webpack. During build, it will compile, analyze and bundle the different assets into optimized files.
+
+The MVC accelerator provides extensions to the platform, which can also be extended:
+
+*   _Litium.Accelerator.FieldTypes_: to add custom field types to the platform. Please read more about [how to create custom field types](/platform/guides/data-modelling/how-to-create-custom-field-types), [how to create custom panel](/platform/guides/back-office-ui-extensions/how-to-create-a-custom-panel), [how to create custom widgets](/platform/areas/dashboard/how-to-create-custom-dashboard-widgets), and [how to use dialogs](/platform/guides/back-office-ui-extensions/display-dialogs).
+*   _Litium.Accelerator.Administration.Extensions_ : provides a set of custom Setting pages for the platform. Please read more about [how to create custom Setting page](https://docs.litium.com/documentation/architecture/back-office_1/creating-custom-setting-page).
+*   _Litium.Accelerator.Administration.Deployment_: the Accelerator Deployment screen is built as a separated NuGet package. The UI is also written in Angular. The NuGet package is installed by default, which is shipped also with the source code. The customize the Deployment screen, extract the NuGet package Litium.Accelerator.Administration.Deployment file, as it is a zip file. The source code is located under the _Src_ folder. Remove the NuGet package from Litium.Accelerator.Mvc project and add the Source code project to the solution. Please read more about [how to create custom Setting page](https://docs.litium.com/documentation/architecture/back-office_1/creating-custom-setting-page) to understand how the Deployment page was built.
+
+Please read more about the [MVC accelerator architecture](/accelerators/mvc/develop/accelerator-architecture).
+
+Updated   2023-01-24

@@ -1,0 +1,146 @@
+---
+title: Upgrade and maintenance
+description: Manage your Litium MVC accelerator solution with source control for smoother upgrades.
+---
+
+# Upgrade and maintenance
+
+- Litium 8
+
+Manage your Litium solution with source control, for easy upgrades.
+
+This guide will help you to manage your Litium solution with an easy upgrade to the [Litium Accelerator's latest version](/accelerators/mvc/release-notes) even if you started to modify the code in your solution. It will provide you with information about:
+
+- [The importance of using source control](#the-importance-of-using-source-control)
+- [Solution maintenance](#solution-maintenance)
+- [Upgrading the Litium Accelerator](#upgrading-the-litium-accelerator)
+
+## The importance of using source control
+
+We strongly recommend that you use a source control system to maintain the source files of the Litium project. Without one you will have difficulties maintaining the source of the Litium solution.
+
+There are several online services that provide source control possibilities, such as GitHub, Azure DevOps, Bitbucket, and Gitlab.
+
+The most adapted source control system today is Git, and you have several services that you can use if you do not want to install and maintain the source control system inside your organization.
+
+This guide is written in a general-purpose and using the Git terminology, but the concept should work with any source control system.
+
+## Solution maintenance
+
+Maintaining the Litium Accelerator solution with source control, and making it easy to update to a later version, is done with a branching strategy. By using a branching strategy, you get a solution where it is easy to apply the changes made between the Litium Accelerator versions.
+
+In this guide, the branch name `main` is used as the default branch that all developers are working towards.
+
+- Create your source control repository and name the branch as `main`.
+
+From the `main` branch, you should make a new branch. Making this branch as early as possible from the `main` branch will make it easier to apply new versions of Litium Accelerator.
+
+- Create and switch to a new `accelerator-vanilla` branch.
+
+  ```powershell
+  git checkout -b accelerator-vanilla
+  ```
+
+The `accelerator-vanilla` branch will be the truth of Litium Accelerator and this branch should only contain the changes that are from the Litium provided package for Litium Accelerator.
+
+- Add the Litium Accelerator source into the branch.
+- Commit with a message “Accelerator X.Y.Z”.
+
+  ```powershell
+  git add -A
+  git commit -m "Accelerator X.Y.Z"
+  ```
+
+Note: If other changes are done in this branch, the later update steps will not work.
+
+- Switch back to your `main` branch and merge the changes from the `accelerator-vanilla` branch.
+
+  ```powershell
+  git checkout main
+  git merge accelerator-vanilla
+  ```
+
+Now the `main` branch is ready for your project changes.
+
+## Upgrading the Litium Accelerator
+
+When a [new version of the Litium Accelerator](/accelerators/mvc/release-notes) has been released it is time for the solution to get the changes in the Litium Accelerator package.
+
+Please read [The importance of using source control](#the-importance-of-using-source-control) and [Solution maintenance](#solution-maintenance) carefully, before you get started.
+
+### Preparations
+
+- Switch branch to your `accelerator-vanilla` branch
+
+  ```powershell
+  git checkout accelerator-vanilla
+  ```
+
+Now the solution is reverted to how everything was from the beginning.
+
+- Delete all files that were added by the Litium Accelerator package. If this branch was created with a nearly empty version of files, it is easy to clear files out from the directory.
+- Add all files from the new Litium Accelerator package.
+
+  ```powershell
+  git add -A
+  ```
+
+- Commit with a message “Accelerator X.Z.Z”.
+
+  ```powershell
+  git commit -m "Accelerator X.Z.Z"
+  ```
+
+The commit that is created contains the difference between Litium Accelerator X.Y.Z and X.Z.Z.
+
+- Switch back to `main` branch.
+
+  ```powershell
+  git checkout main
+  ```
+
+- Create and switch to a new branch `merge-accelerator-x-z-z`.
+
+  ```powershell
+  git checkout -b merge-accelerator-x-z-z
+  ```
+
+The source control system is now ready to apply the changes that have been made between the Litium Accelerator versions.
+
+### Merge
+
+Now we merge Litium Accelerator changes into the current version of the solution.
+
+- Merge the `accelerator-vanilla` branch into the current `merge-accelerator-x-z-z` branch.
+
+  ```powershell
+  git merge accelerator-vanilla
+  ```
+
+The merge of the Litium Accelerator changes can end in two different situations. We prefer the second, but the first also commonly occur.
+
+1. Merge conflict.
+   - Resolve merge conflicts.
+   - Make a merge commit “Merge Accelerator X.Z.Z”.
+
+     ```powershell
+     git commit -m "Merge Accelerator X.Z.Z"
+     ```
+
+2. Everything can be merged automatically, and a new merge-commit will be created.
+
+If changes have been made in the same rows of code in both the Litium Accelerator default version and in the project solution, the merge cannot successfully complete, and a conflict is created.
+
+In this case, you need to solve the merge conflicts manually and due to the nature of the source control system, you only need to solve the changes which have happened in the solution after the initial Accelerator version and the upgraded Accelerator version.
+
+If the changes are in the Accelerator and the solution has not changed the same lines the source control system will manage to merge the changes automatically.
+
+Ensure that the `merge-accelerator-x-z-z` branch is building and working as expected before merging the branch back to `main` to avoid that solution is broken and can’t be delivered to the test and production environment.
+
+- Switch branch to `main` and merge the `merge-accelerator-x-z-z`
+
+  ```powershell
+  git checkout main
+  git merge merge-accelerator-x-z-z
+  ```
+

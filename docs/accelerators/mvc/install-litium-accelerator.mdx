@@ -1,0 +1,138 @@
+---
+title: Install Litium accelerator
+description: Step-by-step instructions for installing the Litium MVC accelerator.
+---
+
+# Install Litium accelerator
+
+- Litium 8
+
+Installation instructions for Litium accelerator.
+
+Follow the steps below to install the latest version of the Accelerator. Please see the release notes for the [latest version here](/accelerators/mvc/release-notes).
+
+### Before you start
+
+Before Litium Accelerator is installed you need to set up the [Litium NuGet feed](/platform/get-started/litium-packages).
+
+Also, set up Elasticsearch, Redis, and Kibana. Please see the [setup instructions here](/platform/get-started/shared-dependencies).
+
+Use a [version control system](/accelerators/mvc/upgrade-and-maintenance) for easy upgrades of Litium Accelerator.
+
+### Install the template package
+
+The Accelerator template package is a pre-created package.
+
+Installation of the template package is only needed the first time the version is created.
+
+Only one version of the template package can exist at the same time.
+
+1. Open Powershell command prompt
+2. Install the template pack with
+
+   ```powershell
+   dotnet new install "Litium.Accelerator.Templates"
+   ```
+
+   After the template is installed, a list of available templates is shown  
+   ![Template list](/images/accelerators/mvc/Screenshot_14.png)  
+   _Note: To update the template to a later version, you should run the installation command again._
+
+   If you want to install a specific version of the template you need to append the version number to the template name separated by two colons (::) example for template for the 8.0.0 version
+
+   ```powershell
+   dotnet new install "Litium.Accelerator.Templates::8.0.0"
+   ```
+
+## Install and run Litium Accelerator
+
+1. Open the Powershell command prompt in the folder where the Accelerator should be installed.
+2. Install the Litium Accelerator with the following ​command.
+
+   ```powershell
+   dotnet new litmvcacc
+   ```
+
+   To include the Storefront API in the accelerator installation you need to add the `--storefront-api` to the command.
+
+   ```powershell
+   dotnet new litmvcacc --storefront-api
+   ```
+
+   ![Template parameters](/images/accelerators/mvc/Screenshot_15.png)  
+   During the creation of Litium Accelerator, the restore of projects and installation of `litium-db` tool are performed.
+
+   [If the installation is performed without errors, continue to step 3](#install-and-run-litium-accelerator).
+
+   Manually restore the project's dependencies
+
+   ```powershell
+   dotnet tool restore
+   dotnet restore
+   ```
+
+   Manually install `litium-db` tool
+
+   ```powershell
+   dotnet new tool-manifest
+   dotnet tool install Litium.Application.Migrations
+   ```
+
+   Please find more information about database management and [how to install specific versions of the db-tool here](/platform/get-started/developer-tools-db-tool).
+
+3. Setup the database with help of the `litium-db` tool. Using the command (**Note!** An empty database must exist before the command can run)
+
+   ```powershell
+   dotnet litium-db update --connection "Pooling=true;User Id=user;Password=secret;Database=litium8;Server=127.0.0.1;TrustServerCertificate=True"
+   ```
+
+   _Remember to replace the settings in the connectionstring for your database._
+
+4. Config your Litium Accelerator installation.
+
+   See [.Net configuration](http://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/), where you should put common non secret settings for the project (`appSettings.json`, `appSettings.Development.json`, and `appSettings.Production.json`),  [user-secrets should be used for development configuration and local secrets](https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets?view=aspnetcore-5.0&tabs=windows).
+
+### Optional: Build the client project (only if you are modifying client resource files)
+
+The Litium Accelerator comes with pre-built client resource files, so you do not have to build them yourself.
+
+However, if you have modified client resources under any project, then you need to build the project. Here is how to do it:
+
+1. Make sure that you have [NPM](https://www.npmjs.com/get-npm) and [Yarn](https://yarnpkg.com/lang/en/docs/install/) installed and in the path.
+2. Execute `BuildClientProjects.bat` file.
+
+Note:
+
+- If you are building `Litium.Accelerator.FieldTypes`, the output folder is `Litium.Accelerator.FieldTypes\dist`. Build the `Litium.Accelerator.FieldTypes.csproj` after building client resources to embed the script in the assembly.
+- If you are building `Litium.Accelerator.Mvc`, the output folder is `Litium.Accelerator.Mvc\UI`. If you update only `js`, `scss` or `cshtml` files, then you do not need to build `Litium.Accelerator.Mvc.csproj`. Note that you still need to build client resources when you update `js` files.
+- If you are building `Litium.Accelerator.Email`, the output folder is `Litium.Accelerator.Email\dist`. By default, `ConfirmationEmail.html` is copied to `Litium.Accelerator.Mvc\Views\Email` and renamed with `.cshtml` as extension. In case you want to automatically copy more files when building the project, modify `gulpfile.babel.js` file to add more files to be copied in the copy function.
+
+## Create your accelerator website
+
+1. In Visual Studio, go to **Solution Explorer** and select the `Litium.Accelerator.Mvc` project. Context-click and select **Set as StartUp project.**
+2. Start the accelerator with the **Start without debugging** option in the **Debug** menu. This will open a web browser with the port number. Type "litium" after the port number to display the login page for the Litium back office.
+3. Log in as a user with System All permissions. Please read more about [how to log in here](/platform/get-started/create-admin-user-and-log-in).  
+   _Example `https://localhost:5001/litium`_
+4. Open the settings by clicking the cogwheel in the upper right corner. In the left panel, expand the node **Deployment** where you will find the accelerator.  
+   ![Deployment menu](/images/accelerators/mvc/SettingMenu.png)
+5. Click on the accelerator to install.
+6. Enter a name and a domain name for the Accelerator website.  
+   ![Deploy accelerator](/images/accelerators/mvc/DeployAccelerator.JPG)
+7. Click the **Import** button and wait for a message confirming that the installation was successful. Note that an active internet connection is needed to download the installation package.
+
+   Your accelerator website has now been created.
+
+   This means that the following items are also created:
+
+   - A folder in **Media** for the Accelerator media files.
+   - An assortment for the Accelerator categories and products.
+   - A price list.
+   - An inventory.
+   - The default B2B buyer roles _Order approver_ and _Buyer._
+
+## Secure connection (SSL)
+
+Every page should use a secure connection. By setting the HSTS (Http Strict Transport Security) for the domain name, we force the website to use HTTPS instead of HTTP. To configure HSTS, navigate to **Settings** > **Globalization** > **Domain names**, select a domain name, click **Edit** and then choose to edit **HSTS max age** to a value greater than 0.
+
+[From Qualys](https://blog.qualys.com/vulnerabilities-threat-research/2016/03/28/the-importance-of-a-proper-http-strict-transport-security-implementation-on-your-web-server) it is advisable to assign the max-age directive’s value to be greater than 10368000 seconds (120 days) and ideally to 31536000 (one year). Websites should aim to ramp up the max-age value to ensure heightened security for a long duration for the current domain and/or subdomains.
+

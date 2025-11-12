@@ -1,0 +1,59 @@
+---
+title: Accelerator architecture
+description: Overview of the layered architecture, MVC, and React setup in the Litium MVC accelerator.
+---
+
+# Accelerator architecture
+
+- Litium 8
+
+Software design, patterns, and practices in Litium Accelerator.
+
+![Accelerator architecture](/images/accelerators/mvc/develop/Litium%207%20accelerator%20architecture-a.png)
+
+### Layered architecture
+
+The Accelerator in Litium 8 has been developed with a layered architecture. At the base is the Litium API, distributed as NuGet-packages. Then comes the Business Logic Layer (BLL), with the Model View Controller (MVC), React and web API in the top layer. Source code is available for the two top layers, but not for the Litium API.
+
+The BLL uses the Litium API, while MVC and React are rendered in html into the browser. This means that the User Interface (UI) is created either by the MVC, or by React, both with BLL in common. React interacts with the BLL through the web API end points, while the BLL uses the MVC controllers.
+
+There is no business logic in the controllers. All business logic is in the services and the view building is in the builders. `CartService` is found inside the `Services` folder in the `Litium.Accelerator` project and `CheckoutViewModelBuilder` is found in `Builders`.
+
+This is how the BLL works in the latest Litium Accelerator, which gives real separation between the UI building, and the real business logic. So, the `Litium.Accelerator` project is at the core of all business logic and model building in this scenario.
+
+## MVC and React
+
+Litium Accelerator employ both MVC and React to render pages. React is used when there is a lot of user action or UI-related matters involved. Otherwise, the MVC is used. With this mix of MVC and React, no pages are duplicated.
+
+The React API is located in the API section of the `Litium.Accelerator.Mvc` project. There you can see that it is inheriting the API-controller endpoints. A typical endpoint would be `api/cart`.
+
+The UI is based on React with Redux, which can be found inside the client folder of the `Litium.Accelerator.Mvc` project folder.
+
+In the `Litium.Accelerator.Mvc` project you will also find the MVC controllers. One example is the category controller that is rendering an MVC page. The view models are located in the `Litium.Accelerator project`.
+
+Under `Litium.Accelerator.Viewmodels` you will find the list of MVC models for the architecture. Under `Litium.Accelerator.Builders` you will find the MVC controller builders. And under `Litium.Accelerator.Mvc.Controllers.Category.CategoryController` you have the controllers for the MVC architecture.
+
+The web API interacts with the BLL in the same way as the MVC. One example is the checkout controller, where you can find the constructor injecting model builders and the services. The model builders build what is going to be shown on a page, including the data model for the view. The services include business logic that can change the model or initiate certain actions, like putting something into the cart, calculating the cart or checking out. The actual checkout processes are also found in services, for example checkout service and cart service.
+
+We use [Redux](https://redux.js.org/) as the state container and [Redux Thunk](https://github.com/reduxjs/redux-thunk) middleware for action creators that handle HTTP requests. The communication between React components and the server are done in two ways:
+
+1. Via the page's DOM. When the page is loaded, a small amount of state is returned in the page's DOM. This state is then consumed by the React component without the need to request it from the server, since that creates more requests to the server for a page load. For example: the cart's information and the data of the mega menu. Every page needs this information, so it is added to the preload state. This state then will be populated to the Redux's store, when creating the store in `Litium.Accelerator.Mvc\Client\Scripts\index.js`, where the React component will read data.
+2. Via the HTTP request: actions like **Add to cart** or **Search** are done via HTTP request. Those asynchronous actions are implemented as Redux actions, with Thunk middleware. For example, check `Cart.action.js` and `QuickSearch.action.js` under `Litium.Accelerator.Mvc\Client\Scripts\Actions`.
+
+All client resources are located in the `Litium.Accelerator.Mvc\Client` folder. For more information on how to set up the development environment and on the client project structure, please take a look at [this article](https://docs.litium.com/l8/litium-accelerators/develop/setting-up-the-development-environment).
+
+## Technology stack
+
+The technology stack includes Zurb Foundation for responsive design of websites and for generation of html content in e-mails. The other parts of the stack are as follows:
+
+### **Styles**
+
+- SASS
+- Block, Element, Modifier (BEM) for naming
+
+### JavaScript
+
+- Component based
+- React with Redux
+- Webpack
+

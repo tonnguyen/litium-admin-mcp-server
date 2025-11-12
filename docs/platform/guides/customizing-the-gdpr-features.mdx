@@ -24,16 +24,16 @@ To delete or export the custom information through the GDPR feature you need to 
 
 ### 1\. Add a data record class
 
-Define the custom data to be exported (or deleted) as a data record by creating a class according to the pattern in the class diagram below. _<T>_ in _DataRecord<T>_ is the class that defines the custom data (_ErpCustomerData_ in this example, see step 4).
+Define the custom data to be exported (or deleted) as a data record by creating a class according to the pattern in the class diagram below. `<T>` in `DataRecord<T>` is the class that defines the custom data (_ErpCustomerData_ in this example, see step 4).
 
 ![Customising-the-GDPR-features1-2.png](./media/Customising-the-GDPR-features1-2.png)
 
-_DataRecord<T>_ has a parameter called _Data_, that needs to be populated to be accessed.
+`DataRecord<T>` has a parameter called _Data_, that needs to be populated to be accessed.
 
+```csharp
 namespace Litium.Docs.Samples.Gdpr
 {
-
-    public class CustomData:DataRecord<ErpCustomerData>
+    public class CustomData : DataRecord<ErpCustomerData>
     {
         public CustomData(ErpCustomerData arg)
         {
@@ -41,20 +41,20 @@ namespace Litium.Docs.Samples.Gdpr
         }
     }
 }
+```
 
 ### 2\. Add a class that defines the data to be included in the data record
 
-In this class you define what data is included in the data record that has been specified as custom data. In other words, this class defines the _<T>_ in _DataRecord<T>_.
+In this class you define what data is included in the data record that has been specified as custom data. In other words, this class defines the `<T>` in `DataRecord<T>`.
 
+```csharp
+public class ErpCustomerData
 {
+    public string ErpId { get; set; }
 
-    public class ErpCustomerData
-    {
-        public string ErpId { get; set; }
-
-        public string Secret { get; set; }
-    }
+    public string Secret { get; set; }
 }
+```
 
 ### 3\. Add a public class for deleting and exporting the custom data, and implement the abstract class
 
@@ -65,30 +65,29 @@ This service will delete or export the custom data that you have defined in the 
 - _ExtractId_: Should return the ID of the data record, in this example the same as the ErpId.
 - _GetExcludedProperties_: Specifies any custom data that should be excluded from the GDPR features.
 
+```csharp
+[Service(Name = nameof(CustomData), FallbackService = true)]
+public class GdprCustomDataExport : NodeFactoryBase<CustomData>
 {
-
-    \[Service(Name = nameof(CustomData), FallbackService = true)\]
-    public class GdprCustomDataExport : NodeFactoryBase<CustomData>
+    protected override object ExtractData(CustomData arg)
     {
-        protected override object ExtractData(CustomData arg)
-        {
-            return arg?.Data;
-        }
+        return arg?.Data;
+    }
 
-        protected override string ExtractId(CustomData arg)
-        {
-            return arg?.Data?.ErpId;
-        }
+    protected override string ExtractId(CustomData arg)
+    {
+        return arg?.Data?.ErpId;
+    }
 
-        protected override ISet<PropertyInfo> GetExcludedProperties()
+    protected override ISet<PropertyInfo> GetExcludedProperties()
+    {
+        return new HashSet<PropertyInfo>
         {
-            return new HashSet<PropertyInfo>
-            {
-                 typeof(ErpCustomerData).GetProperty(nameof(ErpCustomerData.Secret))
-            };
-        }
+            typeof(ErpCustomerData).GetProperty(nameof(ErpCustomerData.Secret))
+        };
     }
 }
+```
 
 ### 4\. Search for data
 
@@ -100,18 +99,17 @@ The data found needs to be returned as an _IEnumerable_ data record. The _IDataI
 
 Note! In the example below the search function has not been implemented. The customer data has been added manually for demonstration purposes only.
 
+```csharp
+public class GdprCustomDataSearcher : IDataSearcher
 {
-
-    public class GdprCustomDataSearcher : IDataSearcher
+    public IEnumerable<IDataRecord> Search(IDataIdentity identity)
     {
-        public IEnumerable<IDataRecord> Search(IDataIdentity identity)
-        {
-            //TODO: search for erp data.
-            var erpCustomer = new ErpCustomerData { ErpId = "1234567", Secret = "Hello world!" };
-            return new List<CustomData>() { new CustomData(erpCustomer) };
-        }
+        //TODO: search for erp data.
+        var erpCustomer = new ErpCustomerData { ErpId = "1234567", Secret = "Hello world!" };
+        return new List<CustomData> { new CustomData(erpCustomer) };
     }
 }
+```
 
 ### 5\. Build the customised delete/export feature
 
@@ -129,6 +127,7 @@ Deleting and exporting from the Sales area works according to the same principle
 
 The following code is a dummy delete implementation.
 
+```csharp
 using Litium.GDPR;
 using Litium.Runtime.DependencyInjection;
 using System;
@@ -136,8 +135,7 @@ using System.Collections.Generic;
 
 namespace Litium.Docs.Samples.Gdpr
 {
-
-    \[Service(Name = nameof(CustomData), FallbackService = true)\]
+    [Service(Name = nameof(CustomData), FallbackService = true)]
     public class GdprCustomDataRemover : EntityRemoverBase<CustomData>
     {
         public override void Delete(CustomData dataRecord)
@@ -145,38 +143,40 @@ namespace Litium.Docs.Samples.Gdpr
             //TODO: remove the customer data
         }
 
-        protected override void EnsureDeleted( IEnumerable<Guid> systemIds)
+        protected override void EnsureDeleted(IEnumerable<Guid> systemIds)
         {
-           
         }
     }
 }
+```
 
 You can modify or replace the default implementations using the service decorator pattern. The following code fragment, for example, can be used to modify the default implementation for _PersonNodeBuilder_.
 
+```csharp
 using Litium.GDPR;
 using Litium.Runtime.DependencyInjection;
 
 namespace Litium.Docs.Samples.Gdpr
 {
-
-    \[ServiceDecorator(typeof(INodeFactory), Name = nameof(PersonData))\]
+    [ServiceDecorator(typeof(INodeFactory), Name = nameof(PersonData))]
     public class CustomPersonNodeBuilder : INodeFactory
     {
-        private readonly INodeFactory \_nodeFactory;
+        private readonly INodeFactory _nodeFactory;
+
         public CustomPersonNodeBuilder(INodeFactory nodeFactory)
         {
-            \_nodeFactory = nodeFactory;
+            _nodeFactory = nodeFactory;
         }
 
         public ExportNode Create(IDataRecord dataRecord)
         {
-            var defaultImplementation = \_nodeFactory.Create(dataRecord);
+            var defaultImplementation = _nodeFactory.Create(dataRecord);
 
-            //TODO: modify the defualt implementation.
+            //TODO: modify the default implementation.
             return defaultImplementation;
         }
     }
 }
+```
 
 [Back to the top](#topofpage)

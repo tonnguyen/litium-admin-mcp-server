@@ -1,0 +1,41 @@
+---
+title: Deploying an app to LCC
+description: When you have finished developing and testing your app in your development environment, you need to deploy it to Litium Commerce Cloud (LCC) to make it available to others. LCC currently only supports apps built on .NET.
+---
+
+# Deploying an app to LCC
+
+*   Litium 8
+
+When you have finished developing and testing your app in your development environment, you need to deploy it to Litium Commerce Cloud (LCC) to make it available to others. LCC currently only supports apps built on .NET.
+
+To be able to to deploy your app, you need to [contact Litium](mailto:support@litium.com) to obtain an AppName that will be used to identify your app. You should also provide us with the Litium developer account that should have access to upload your app to our NuGet.
+
+## Upload your app to Litium
+
+1.  [Download Octupus CLI](https://octopus.com/downloads/octopuscli), if it is not already available. Install Octupus CLI as a .NET Core tool (this is only needed once per machine):
+    ```plain
+    dotnet tool install --global Octopus.DotNet.Cli
+    ```
+    
+2.  Publish the app end set a version number:
+    ```plain
+    dotnet publish -c Release .\path\ProjectName.csproj -o publish -p:version=1.0.0
+    ```
+    **NOTE:** You can not overwrite an previously published version. You must increase the version number for each new release.
+3.  Create a NuGet package using octo-pack:
+    ```plain
+    dotnet octo pack --basePath=publish --outFolder=builds --id=AppName --version="1.0.0"
+    ```
+    **NOTE:** Replace `AppName` with the app name that you received from Litium.
+4.  Verify that the app can be run as a IIS website. Configuration should be run in the folder `..\AppConfig` relative to the path where the application is run. ThIs is to be able to separate the application and user configuration. Please make sure to verify that this works before uploading the package to Litium NuGet.
+5.  Upload the package to Litium, using the Litium account that was given upload access. The package can only be downloaded by the same user account that uploaded it, and Litium.
+    ```plain
+    nuget push .\builds\AppName.1.0.0.nupkg -Source https://nuget.litium.com/nuget
+    ```
+    
+6.  Notify Litium about the new version (including the version number) and we will start the process to make the app available to other users.
+
+Please note that prereleases and test versions of your app need to be designated as `beta` in your version number. Example: `1.0.0-beta-01`.
+
+Updated   2024-01-16

@@ -2,136 +2,140 @@
 title: "Configure the HTML editor"
 description: "The HTML editing tool in Litium is CKEditor. There are several ways to customize how the editor appears in the UI. You can configure:"
 ---
-How to define your own styles and templates for the HTML editor.
+The HTML editor in Litium uses CKEditor. You can customise its appearance and behaviour in several ways:
 
-The HTML editing tool in Litium is CKEditor. There are several ways to customize how the editor appears in the UI. You can configure:
+- Define style sets in `wwwroot/Site/Editor/styles.js`. See the [CKEditor stylesSet API](https://ckeditor.com/docs/ckeditor4/latest/api/CKEDITOR_stylesSet.html).
+- Override content CSS in `wwwroot/Site/Editor/editor.css`. See [CKEditor contentsCss](https://ckeditor.com/docs/ckeditor4/latest/api/CKEDITOR_config.html#cfg-contentsCss).
+- Provide additional configuration via `wwwroot/Site/Editor/config.js`. See [CKEditor customConfig](https://ckeditor.com/docs/ckeditor4/latest/api/CKEDITOR_config.html#cfg-customConfig).
+- Register templates in `wwwroot/Site/Editor/templates.js`. See [CKEditor templates configuration](https://ckeditor.com/docs/ckeditor4/latest/api/CKEDITOR_config.html#cfg-templates_files).
 
-- style sets in _wwwroot/Site/Editor/styles.js_. See [CKEditor.com](https://ckeditor.com/docs/ckeditor4/latest/api/CKEDITOR_stylesSet.html) for more information.
-- content CSS in _wwwroot/Site/Editor/editor.css_. This sets the style for editor content. See [CKEditor.com](https://ckeditor.com/docs/ckeditor4/latest/api/CKEDITOR_config.html#cfg-contentsCss) for more information.
-- the config file _wwwroot/Site/Editor/config.js_. See [CKEditor.com](https://ckeditor.com/docs/ckeditor4/latest/api/CKEDITOR_config.html#cfg-customConfig) for more information.
-- template files in _wwwroot/Site/Editor/templates.js_. See [CKEditor.com](https://ckeditor.com/docs/ckeditor4/latest/api/CKEDITOR_config.html#cfg-templates_files) for more information.
+Create a `config.js` file in `wwwroot/Site/Editor` to run custom logic before other configuration files. For example, to keep non-text HTML tags:
 
-In _wwwroot/site/editor_ you can create a JavaScript file named _config.js_ that will be loaded and executed before other configuration files. This will affect all websites with the same codebase. It enables settings like telling the editor to keep non-text formatting HTML tags such as script:
-
+```js
 var originalConfig = CKEDITOR.editorConfig;
 CKEDITOR.editorConfig = function (config) {
-    originalConfig(config); // to keep the default config
-    config.allowedContent = true;
+  originalConfig(config); // keep the default config
+  config.allowedContent = true;
 };
+```
 
-## Defining your own styles
+## Define custom styles
 
-When you define your own styles for the editor, the style-set name _litium_ should be used in the configuration file. Style sets are configured in _wwwroot/Site/Editor/styles.js_. If this file exists, it will be loaded.
+When defining styles, use the style-set name `litium`. Styles are configured in `wwwroot/Site/Editor/styles.js`.
 
-CKEDITOR.stylesSet.add( 'litium',
-\[
-    // Block-level styles
-    { name : 'Blue Title', element : 'h2', styles : { 'color' : 'Blue' } },
-    { name : 'Red Title' , element : 'h3', styles : { 'color' : 'Red' } },
- 
-    // Inline styles
-    { name : 'CSS Style', element : 'span', attributes : { 'class' : 'my\_style' } },
-    { name : 'Marker: Yellow', element : 'span', styles : { 'background-color' : 'Yellow' } }
-\]);
+```js
+CKEDITOR.stylesSet.add('litium', [
+  // Block-level styles
+  { name: 'Blue Title', element: 'h2', styles: { color: 'Blue' } },
+  { name: 'Red Title', element: 'h3', styles: { color: 'Red' } },
 
-Read more about applying styles to editor content at [CKEditor.com](https://ckeditor.com/docs/ckeditor4/latest/guide/dev_styles.html).
+  // Inline styles
+  { name: 'CSS Style', element: 'span', attributes: { class: 'my_style' } },
+  { name: 'Marker: Yellow', element: 'span', styles: { 'background-color': 'Yellow' } },
+]);
+```
 
-## Defining your own templates
+See the [CKEditor styles guide](https://ckeditor.com/docs/ckeditor4/latest/guide/dev_styles.html) for more information.
 
-When you define your own templates, the template-set name _default_ should be used in the configuration file. Templates are configured in _wwwroot/Site/Editor/templates.js_. If this file exists, it will be loaded.
+## Define custom templates
 
+Templates are configured in `wwwroot/Site/Editor/templates.js`. Use the template-set name `default`.
+
+```js
 // Register a template definition set named "default".
-CKEDITOR.addTemplates( 'default',
-{
-         // The name of the subfolder that contains the preview images of the templates.
-         imagesPath : CKEDITOR.getUrl( CKEDITOR.plugins.getPath( 'templates' ) + 'templates/images/' ), 
- 
-         // Template definitions.
-         templates :
-                  \[
-                          {
-                                   title: 'My Template 1',
-                                   image: 'template1.gif',
-                                   description: 'Description of My Template 1.',
-                                   html:
-                                            '<h2>Template 1</h2>' +
-                                            '<p><img src="/logo.png" style="float:left" />Type your text here.</p>'
-                          },
-                          {
-                                   title: 'My Template 2',
-                                   html:
-                                            '<h3>Template 2</h3>' +
-                                            '<p>Type your text here.</p>'
-                          }
-                  \] });
+CKEDITOR.addTemplates('default', {
+  // The name of the subfolder that contains preview images.
+  imagesPath: CKEDITOR.getUrl(CKEDITOR.plugins.getPath('templates') + 'templates/images/'),
 
-Read more about templates at [CKEditor.com](https://docs-old.ckeditor.com/CKEditor_3.x/Developers_Guide/Templates).
+  // Template definitions.
+  templates: [
+    {
+      title: 'My Template 1',
+      image: 'template1.gif',
+      description: 'Description of My Template 1.',
+      html:
+        '<h2>Template 1</h2>' +
+        '<p><img src="/logo.png" style="float:left" />Type your text here.</p>',
+    },
+    {
+      title: 'My Template 2',
+      html:
+        '<h3>Template 2</h3>' +
+        '<p>Type your text here.</p>',
+    },
+  ],
+});
+```
 
-## Defining your own content style sheet (CSS)
+See the [CKEditor templates guide](https://docs-old.ckeditor.com/CKEditor_3.x/Developers_Guide/Templates) for details.
 
-Styles are configured in _wwwroot/Site/Editor/editor.css_. If this file exists, it will be loaded. Here is an example of a style sheet that will remove the underline from the anchor tag in the editor:
+## Define a content style sheet (CSS)
 
-![HtmlEditorCssSample2.PNG](./media/HtmlEditorCssSample2.PNG)
+Content styles are configured in `wwwroot/Site/Editor/editor.css`. The following example removes underlines on links:
 
-Anchor tags are usually underlined. We can configure a custom style sheet for editor content to remove that, by setting text-decoration to none in _wwwroot/Site/Editor/editor.css_.
+![HTML editor CSS sample](./media/HtmlEditorCssSample2.PNG)
 
+```css
 a {
-	text-decoration: none;
+  text-decoration: none;
 }
+```
 
-This feature is provided through a [CKEditor plug-in](https://ckeditor.com/docs/ckeditor4/latest/guide/dev_styles.html#the-stylesheet-parser-plugin) that is not included by default, so we need to install it. This is done as follows:
+This feature relies on the [stylesheet parser plugin](https://ckeditor.com/docs/ckeditor4/latest/guide/dev_styles.html#the-stylesheet-parser-plugin), which is not included by default.
 
-- Download the plug-in at [CKEditor.com](https://ckeditor.com/cke4/addon/stylesheetparser).
-- Extract the zip file and copy it to Litium Accelerator so that the the _plugin.js_ file is in the _wwwroot/Site/Editor/plugins/stylesheetparser_ folder.
-- To tell CKEditor where to find the stylesheetparser plug-in. To load it, create a _config.js_ file under _wwwroot/Site/Editor/_ with the following content:
+1. Download the plugin from [CKEditor](https://ckeditor.com/cke4/addon/stylesheetparser).
+2. Extract the ZIP and copy it so that `plugin.js` resides in `wwwroot/Site/Editor/plugins/stylesheetparser`.
+3. Load the plugin by creating `wwwroot/Site/Editor/config.js` with:
 
-CKEDITOR.plugins.addExternal('stylesheetparser', '/Site/Editor/plugins/stylesheetparser/');
-var originalFn = CKEDITOR.editorConfig;
-CKEDITOR.editorConfig = function (config) {
-    originalFn(config);
-    config.extraPlugins += ',stylesheetparser';
-};
+   ```js
+   CKEDITOR.plugins.addExternal('stylesheetparser', '/Site/Editor/plugins/stylesheetparser/');
+   var originalFn = CKEDITOR.editorConfig;
+   CKEDITOR.editorConfig = function (config) {
+     originalFn(config);
+     config.extraPlugins += ',stylesheetparser';
+   };
+   ```
 
 Anchor tags in the editor will no longer be underlined.
 
-![HtmlEditorCssSample.PNG](./media/HtmlEditorCssSample.PNG)
+![HTML editor CSS sample](./media/HtmlEditorCssSample.PNG)
 
-## Using native browser spell checker
+## Use the native browser spell checker
 
-The spelling dictionaries functionality was removed from the CKEditor in Litium 7.4 version.  
-Instead, the native browser spell check functionality was enabled in the CKEditor.
+The built-in spelling dictionaries were removed in Litium 7.4. The native browser spell checker is now enabled instead.
 
-- Use the config.disableNativeSpellChecker configuration option to disable/enable it.
-    
-    CKEDITOR.editorConfig = function (config) {
-        config.disableNativeSpellChecker = false;
-    };
-    
-- To use the native browser spell check functionality in the CKEditor you need to enable spell check in your browser.
-    
-    _Note: The spell check functionality is not available natively for all browsers_.
-    
-- Misspelled words will be underlined. 
-- You have to press the Ctrl key when right-clicking misspelled words to see the suggestions.
-    
-    ![Native Browser Spell Checker.PNG](./media/Native%20Browser%20Spell%20Checker.PNG)
-    
-- If you need to change or add a new language, please check the "Language" settings in your browser.
+- Set `config.disableNativeSpellChecker` to enable or disable it:
 
-## Using iframe
+  ```js
+  CKEDITOR.editorConfig = function (config) {
+    config.disableNativeSpellChecker = false;
+  };
+  ```
 
-Litium 8.12 and later versions are using CkEditor 4.21.0, where iframe elements are sanboxed to secure web pages. This restricts JavaScript code execution in the iframe element. To allow JavaScript execution in iframe elements, [iframe\_attributes](https://ckeditor.com/docs/ckeditor4/latest/api/CKEDITOR_config.html#cfg-iframe_attributes) should be configured. Here is an example _wwwroot/Site/Editor/config.js_ file which allows embeded Youtube videos:
+- Ensure spell check is enabled in the user’s browser. (Some browsers do not provide native spell checking.)
+- Misspelled words are underlined. Press `Ctrl` when right-clicking to see suggestions.
 
+![Native browser spell checker](./media/Native%20Browser%20Spell%20Checker.PNG)
+
+To change or add languages, use your browser’s language settings.
+
+## Use iframes
+
+Litium 8.12 and later ship with CKEditor 4.21.0, where iframe elements are sandboxed. To allow JavaScript execution in an iframe, configure [`iframe_attributes`](https://ckeditor.com/docs/ckeditor4/latest/api/CKEDITOR_config.html#cfg-iframe_attributes). Example (`wwwroot/Site/Editor/config.js`) that enables embedded YouTube videos:
+
+```js
 var originalConfig = CKEDITOR.editorConfig;
 CKEDITOR.editorConfig = function (config) {
-    originalConfig(config); // to keep the default config
-    config.iframe\_attributes = function (iframe) {
-        var youtubeOrigin = 'https://www.youtube.com';
+  originalConfig(config); // keep the default config
+  config.iframe_attributes = function (iframe) {
+    var youtubeOrigin = 'https://www.youtube.com';
 
-        if (iframe.attributes.src.indexOf(youtubeOrigin) !== -1) {
-            return { sandbox: 'allow-scripts allow-same-origin' };
-        }
+    if (iframe.attributes.src.indexOf(youtubeOrigin) !== -1) {
+      return { sandbox: 'allow-scripts allow-same-origin' };
+    }
 
-        return { sandbox: '' };
-    };
+    return { sandbox: '' };
+  };
 };
+```
+

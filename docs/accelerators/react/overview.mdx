@@ -1,56 +1,70 @@
 ---
-title: React Accelerator Overview
-description: 'Modern headless storefront built with React and Next.js'
+title: Overview
+description: A headless, single page storefront application.
 ---
 
-## What is the React Accelerator?
+# Overview
 
-The Litium React Accelerator is a modern, headless e-commerce storefront built with React, Next.js, and TypeScript.
+To be able to use the React accelerator, the customer need to be on the Litium Commerce Cloud offer. For more information, contact your partner responsible.
 
-<CardGroup cols={2}>
-  <Card
-    title="Getting Started"
-    icon="rocket"
-    href="#getting-started"
-  >
-    Quick setup and installation
-  </Card>
-  <Card
-    title="Architecture"
-    icon="building"
-    href="#architecture"
-  >
-    Technical architecture overview
-  </Card>
-  <Card
-    title="Customization"
-    icon="paint-brush"
-    href="#customization"
-  >
-    Customize design and functionality
-  </Card>
-  <Card
-    title="Deployment"
-    icon="cloud"
-    href="#deployment"
-  >
-    Deploy to production
-  </Card>
-</CardGroup>
+Features are not ported 1:1 from the MVC accelerator, so please update yourself on the details by reading the docs and checking whether the features you need are built or still planned.
 
-## Key Features
+[Read more about the features being built and planned](https://docs.litium.com/accelerators/react-accelerator/react-accelerator-roadmap)
 
-- Modern React stack with Next.js
-- Server-side rendering and static generation
-- TypeScript support
-- Mobile-first responsive design
-- Progressive Web App capabilities
-- Performance optimization
+## Technologies and frameworks
 
-## Technology Stack
+*   NextJS framework
+*   React, React Server Components
+*   TailwindCSS
+*   Apollo Client to query data from GraphQL server
+*   ESLint to find and fix problems in JS/TS
+*   Prettier to format code
+*   Typescript
+*   Jest for running unit tests
+*   Playwright for running end-to-end tests
+*   Images are optimized by Litium Image Optimization
 
-- React 18
-- Next.js 13+
-- TypeScript
-- Tailwind CSS
-- Progressive Web App features
+## Development
+
+Please check the [Get started](/accelerators/react/get-started) on how to configure and start development.
+
+## Folder structure
+
+The project was created by using [create-next-app](https://nextjs.org/learn/basics/create-nextjs-app/setup) tool and is pre-configured with Typescript, Tailwind, ESLint, Prettier, Jest and Playwright. All client resources are located in the _src\\client_ folder. It includes the following items:
+
+_app_: NextJS's [app directory](https://beta.nextjs.org/docs/routing/fundamentals#the-app-directory) which was introduced in NextJS 13, which supports React Server Components.
+
+_components_: React components.
+
+_e2e_: End to end tests.
+
+_models_: model interfaces.
+
+_operations_: GraphQL's fragments and mutations.
+
+_public_: static files like icons, images.
+
+_scripts_: scripts to be used when building project.
+
+_services_: service functions.
+
+_stores:_ state management's stores
+
+_styles_: [Tailwind's base styles](https://tailwindcss.com/docs/preflight) and extensions.
+
+_utils_: utility functions.
+
+_.env_: [environment variables configuration](https://nextjs.org/docs/basic-features/environment-variables) file. For more information, please check [Get started](/accelerators/react/get-started) page on how to set variables values.
+
+_tailwind.config.js_: Tailwind's configuration file. To make it easier to override and extend stylings, the project is configured and using abstract color names and Tailwind's scale units. The theme then can be modified or extended by updating tailwind.config.js file. Please check [Theme configuration](https://tailwindcss.com/docs/theme) for more information .
+
+## Related
+
+*   [Routing fundamentals](/accelerators/react/routing-fundamentals)
+*   [Pages and layouts](https://beta.nextjs.org/docs/routing/pages-and-layouts)
+*   [Server vs Client components](https://beta.nextjs.org/docs/rendering/server-and-client-components#when-to-use-server-vs-client-components)
+*   [How to create blocks](/platform/guides/how-to-create-blocks-in-react-accelerator)
+*   [How to create pages](/platform/guides/how-to-create-pages-in-react-accelerator)
+*   [Working with shopping cart and checkout](/accelerators/react/working-with-shopping-cart-and-checkout)
+
+Updated   2024-04-05

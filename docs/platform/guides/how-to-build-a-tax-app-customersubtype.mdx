@@ -13,21 +13,21 @@ Litium does not define the available customer sub-types, so this needs to be set
 
 Following code is in Litium side, which shows how the CustomerSubType is added.
 
-            await cartContext.AddOrUpdateCustomerInfoAsync(new()
-            {
-                CustomerInfo = new CustomerInfo()
-                {
-                    CustomerSubType = "NonProfit"
-                }
-            });
-            await cartContext.CalculateTaxAsync();
+```csharp
+await cartContext.AddOrUpdateCustomerInfoAsync(new()
+{
+    CustomerInfo = new CustomerInfo
+    {
+        CustomerSubType = "NonProfit"
+    }
+});
+await cartContext.CalculateTaxAsync();
+```
 
 In the above code the following line makes Litium contact the tax app to calculate the tax.
 
-            await cartContext.CalculateTaxAsync();
+```csharp
+await cartContext.CalculateTaxAsync();
+```
 
-In the tax app, the customer sub-type is available in
-
-request.CustomerInfo?.CustomerSubType
-
-where request is a CalculateSalesOrderTaxRequest or a CalculateShipmentTaxRequest.
+In the tax app, the customer sub-type is available in `request.CustomerInfo?.CustomerSubType` where `request` is a `CalculateSalesOrderTaxRequest` or a `CalculateShipmentTaxRequest`.

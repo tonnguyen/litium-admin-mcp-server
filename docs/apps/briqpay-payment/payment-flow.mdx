@@ -1,0 +1,20 @@
+---
+title: Briqpay payment flow in Litium 8
+description: When integrating with the Briqpay payment window, all order actions are asynchronous. That means that actions such as order-placement, order-capture and order-refund are always put in an initial state of “pending”. This is reflected on the transaction result object of each transaction. Any pending action will change its state to either a successful or rejected state at a later point of time. This timeframe will be dependent on the underlying PSP in the briqpay offering and is unique for each briqpay merchant.
+---
+
+# Briqpay payment flow in Litium 8
+
+*   Litium 8
+
+## Asynchronous payments
+
+When integrating with the Briqpay payment window, all order actions are asynchronous. That means that actions such as order-placement, order-capture and order-refund are always put in an initial state of “pending”. This is reflected on the transaction result object of each transaction. Any pending action will change its state to either a successful or rejected state at a later point of time. This timeframe will be dependent on the underlying PSP in the briqpay offering and is unique for each briqpay merchant.
+
+## What does this mean to me?
+
+As an integrator your responsibility is to reflect the correct order status to each transaction result. This should not interfere with the customer journey when placing an order but is important for the ecommerce flow together with the ERP to ensure payment for orders.
+
+## Sequence diagram of events
+
+![Briqpay Payment Flow diagram](/images/apps/briqpay-payment/payment-flow.png)

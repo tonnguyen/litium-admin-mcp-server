@@ -6,28 +6,28 @@ Script
 
 ### Transformation.txt:
 
+```json
 {
-"Litium/Data/ConnectionString":"<<insert your connectionstring>>"
+  "Litium/Data/ConnectionString": "<<insert your connectionstring>>"
 }
+```
 
 ### Deployscript.txt:
 
-$msdeploy =  (get-childitem "HKLM:\\SOFTWARE\\Microsoft\\IIS Extensions\\MSDeploy" | Select -last 1).GetValue("InstallPath") + "msdeploy.exe"
+```powershell
+$msdeploy =  (get-childitem "HKLM:\SOFTWARE\Microsoft\IIS Extensions\MSDeploy" | Select -last 1).GetValue("InstallPath") + "msdeploy.exe"
 # Auth
 $auth = "username=$env:PublishUsername,password=$env:PublishPassword"
 
-
-#Stop  AppPool
-
-&$msdeploy "-verb:sync" "-source:recycleApp" "-dest:recycleApp=\`"$env:PublishName\`",recycleMode=StopAppPool,wmsvc=$env:PublishServer,$auth" "-allowUntrusted"
+# Stop AppPool
+&$msdeploy "-verb:sync" "-source:recycleApp" "-dest:recycleApp=`"$env:PublishName`",recycleMode=StopAppPool,wmsvc=$env:PublishServer,$auth" "-allowUntrusted"
 
 # Deploy files
-
-&$msdeploy "-verb:sync" "-source:contentPath=\`"$env:ExtractedSource\\\`"" "-dest:contentPath=$env:PublishName,wmsvc=$env:PublishServer,$auth" "-allowUntrusted" "-enableRule:AppOffline" "-disableLink:AppPoolExtension" "-disableLink:ContentExtension" "-disableLink:CertificateExtension"
+&$msdeploy "-verb:sync" "-source:contentPath=`"$env:ExtractedSource\`"" "-dest:contentPath=$env:PublishName,wmsvc=$env:PublishServer,$auth" "-allowUntrusted" "-enableRule:AppOffline" "-disableLink:AppPoolExtension" "-disableLink:ContentExtension" "-disableLink:CertificateExtension"
 
 # Start AppPool
-
-&$msdeploy "-verb:sync" "-source:recycleApp" "-dest:recycleApp=\`"$env:PublishName\`",recycleMode=StartAppPool,wmsvc=$env:PublishServer,$auth" "-allowUntrusted"
+&$msdeploy "-verb:sync" "-source:recycleApp" "-dest:recycleApp=`"$env:PublishName`",recycleMode=StartAppPool,wmsvc=$env:PublishServer,$auth" "-allowUntrusted"
+```
 
 ### Feedback and additional questions
 

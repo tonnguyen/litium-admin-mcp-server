@@ -1,0 +1,31 @@
+---
+title: The shopping cart
+description: How the shopping cart works in Litium Accelerator.
+---
+
+# The shopping cart
+
+*   Litium 8
+
+How the shopping cart works in Litium Accelerator.
+
+The shopping cart in Litium Accelerator is built as a React component. It displays the _CartViewModel_, built by the _CartViewModelBuilder_. You can also build the shopping cart in another library or framework.
+
+To understand how this works, let us look at the components that are needed:
+
+Back end:
+
+*   _CartController:_ a WebAPI controller to communicate with the React component.
+*   _CartViewModelBuilder:_ a model builder that is part of the Business Logic Layer (BLL). Please read more about the [BLL](/accelerators/mvc/overview).
+*   _CartContext:_ to handle the shopping experience with providing the Cart and CheckoutFlowInfo.
+*   _ClientContextViewModelBuilder:_ to build the client context view model, which contains the cart's data. This client context is returned to the client via the DOM content, so that the cart component can use it. Please read more about it in the article about the [architecture of Litium Accelerator](/accelerators/mvc/develop/accelerator-architecture).
+
+Front end:
+
+*   _MiniCart.js:_ the mini cart component that is shown in the top-right corner of every page.
+*   _Cart.js:_ the cart component that is shown on the checkout page.
+*   _Checkout.js:_ the checkout component that contain _Cart_.
+*   _Cart.action.js:_ the Redux action for the cart.
+*   _Cart.reducer.js:_ the Redux reducer for the cart.
+
+Updated   2022-11-25

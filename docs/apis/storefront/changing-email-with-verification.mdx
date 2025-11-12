@@ -1,0 +1,134 @@
+---
+title: Changing email with verification
+description: This page describes how to change email with verification
+---
+
+# Changing email with verification
+
+This page describes how to change email with verification  
+
+In this article, you'll learn how to:
+
+*   [Sign in user](#sign in user)
+*   [Sign out user](#sign out user)
+*   [Send changing email verification](#change email verification)
+*   [Use verification code to change user email](#change email)
+
+## Prerequisites
+
+*   GraphQL
+*   Storefront API knowledge. If you are new, please read this [article](https://docs.litium.com/platform/apis/storefront-api).
+*   Storefront API playground. If you are new, please read this [article](https://docs.litium.com/platform/apis/storefront-api).
+
+## Working with user
+
+### Sign in user
+
+In order to change user email, first the user needs to be signed in. To perform a user sign in mutation, we can use the query below.  
+ 
+
+```javascript
+mutation {
+  signInUser(input: { password: "password", username: "user@mail.com" }) {
+    authentication {
+      me {
+        person {
+          customerNumber
+          id
+        }
+      }
+    }
+    errors {
+      ... on AuthenticationFailure {
+        message
+        type
+      }
+    }
+  }
+}
+```
+
+### Sign out user
+
+And along with the user sign in mutaion, Litium also provides mutation to sign out a user.  
+ 
+
+```javascript
+mutation {
+  signOutUser(input: { allSessions: true }) {
+    boolean
+  }
+}
+```
+
+## Working with email
+
+### Send change email verification
+
+Before a user can actually change email, Litium need to make sure that the user is allowed to perform that action. Consider the query below
+
+```javascript
+mutation {
+  changeMyEmailVerification(input: { 
+    email: "user@email.com", 
+    notificationUrl: "https://dummy-domain.com/changeEmailVericationUrl" }) {
+    token
+    errors {
+      ... on ValidationError {
+        message
+      }
+      ... on Forbidden {
+        message
+      }
+      ... on Failure {
+        message
+        type
+      }
+    }
+  }
+}
+```
+
+The _notificationUrl_ should be an absolute url and the domain need to be registered in Litium backoffice.
+
+Once Litium received the request, a webhook will be sent to _notificationUrl_ endpoint, and by that, we can send the verification code to the user, by for example sending an email. 
+
+### Change email
+
+Once token and verification token are provided, we can now change the user email. 
+
+```javascript
+mutation {
+  changeMyEmail(
+    input: { 
+      notificationUrl: "https://dummy-domain.com/emailChangedUrl", 
+      token: "The-token-recived-from-webhook", 
+      verificationToken: "the-token-after-perform-changing-email-verification" }
+  ) {
+    errors {
+      ... on Failure {
+        message
+        type
+      }
+      ... on Forbidden {
+        message
+      }
+      ... on ValidationError {
+        message
+      }
+    }
+    me {
+      customerNumber
+      id
+    }
+  }
+}
+```
+
+The _notificationUrl_ in the section above has the same rule - it should be an abosolute url and the domain need to be registered in Litium backoffice.
+
+After the email was changed, the _EmailChanged_ webhook will be sent to _notificationUrl_ endpoint. and thanks to that we know whether the email was changed successfully or not.  
+  
+ 
+
+Updated   2024-06-28

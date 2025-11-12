@@ -1,0 +1,167 @@
+---
+title: The checkout
+description: This is a description of how the checkout process is built. Both from a back-end and front-end perspective.
+---
+
+# The checkout
+
+*   Litium 8
+
+This is a description of how the checkout process is built. Both from a back-end and front-end perspective.
+
+The checkout page in Litium Accelerator is an MVC page, while the actual checkout form is built as a React component. We will go through which part does what and how they interact with each other. 
+
+## Configuration
+
+The checkout page is configured as follows:
+
+1.  Navigate to the **Website** area in back office.
+2.  Go to **Start** and use **Checkout page template** to create the page.
+3.  Then create a terms-and-conditions page, so that a link there can be included on the checkout page. It can have any template but let us use the article page template.
+4.  Edit the checkout page and set a link to the terms-and-conditions page:![checkout-terms-config.PNG](/images/accelerators/mvc/develop/checkout-terms-config.PNG)
+5.  Create a page using the order confirmation template.
+6.  Navigate to **Settings**, select **Websites** > **Websites** and choose the website where the checkout and order confirmation pages you created belong:
+
+![settings-websites.PNG](/images/accelerators/mvc/develop/settings-websites.PNG)
+
+6.  Edit the checkout page and order confirmation page properties, so they point to the pages we created above. Make sure they are published and activated for the current channel. The checkout page should now be ready to use.
+7.  Litium Accelerator can be configured to display checkout forms targeting B2C or B2B customers, or both. To configure this, set the **Allow private or company customers (B2C or B2B)** options in the website configuration.
+
+## Checkout page
+
+The checkout page is built of several different parts:
+
+*   _Index_ Razor view.
+*   _Checkout_ MVC controllers
+*   _Checkout_ WebAPI controller.
+*   _Checkout_ component, written in React.
+*   _Checkout_ action and reducer, written in Redux.
+
+Let us take a closer look at them:
+
+### _Index_ Razor view
+
+The view is located under _Litium.Accelerator.Mvc\\Views\\Checkout\\Index.cshtml_. It contains an empty DIV tag, with _checkout_ as _id_ so that the React _Checkout_ component will be loaded to that position.
+
+It also contains the script to set the Redux state for the checkout page. The state is built by the _CheckoutViewModelBuilder_ and set to _window.\_\_litium.preloadState_, which is the global JavaScript variable. This preload state is the initial state, which we use when [Redux store](https://redux.js.org/api/createstore) is created. That means the _Checkout_ component has the data right when the page is loaded, which avoids unnecessary requests. The _Checkout_ component load part is done in _Litium.Accelerator.Mvc\\Client\\Scripts\\index.js_:
+
+```javascript
+if (document.getElementById('checkout')) {
+    const Checkout = Loadable({
+        loader: () => import('./Components/Checkout'),
+        loading: () => <div></div>,
+    });
+    ReactDOM.render(
+        <Provider store={store}>
+            <Checkout />
+        </Provider>,
+        document.getElementById('checkout')
+    );
+}
+```
+
+Note that the _Checkout_ component is loaded on demand. It is not bundled in the _app.min.js_ file, to reduce the size of the main JavaScript file. We use the _Checkout_ component only in the checkout page and does not need it for other pages.​
+
+### Checkout controllers
+
+There are two checkout controllers, one MVC and one WebAPI. They handle different requests:
+
+*   Checkout MVC controller: serves the request to render the checkout page, using the _Index_ Razor view above. It also serves responses from payment providers. For example, a user who selects DIBS as payment option will be redirected to the DIBS's website to enter a credit card. The user will then be redirected back to the website, either by completing the payment or by cancelling it. Those requests are served by this controller, with the _HandleResponse_ and _HandleCancelResponse_ methods.
+*   Checkout WebApi controller: serves AJAX requests made by the client code, for example, to place an order or change the delivery/payment method. It receives the _CheckoutViewModel_ and returns the same model. All actions are decorated with the _ApiValidateAntiForgeryToken_ to prevent cross-site request forgeries. This is similar to the configuration in _CartController_ for the [**Buy** button](/accelerators/mvc/develop/the-buy-button).
+
+When a user selects a payment option on the checkout page, an AJAX request is sent to the checkout WebAPI controller, to action _SetPaymentProvider_. If the selected provider has a payment widget, a _PaymentWidgetResult_ will be sent to the client to render the payment widget. For example, if a user selects Klarna Checkout, a Klarna Checkout widget will be rendered in the browser. If DIBS is selected, no widget must be rendered since the user is redirected to DIBS's payment page instead.
+
+Please read more about [working with payment providers here.](https://docs.litium.com/accelerators/mvc-accelerator/develop/the-checkout/payment-and-delivery-providers)
+
+Place order request is processed in the _PlaceOrder_ action of the WebApi checkout controller, where most of the logic is done in _CheckoutServiceImpl.cs_. Thanks to the framework, most of the important checkout logic is done in the cart located there.
+
+### React _Checkout_ component
+
+The React _Checkout_ component takes responsible for rendering the checkout form. It consists of the cart detail section, the address form, delivery and payment options, and the order detail section. If the payment provider has a payment widget, it will be rendered in React too.
+
+There are some components:
+
+*   cart details — _Cart.js_
+*   address form for private customers — _Checkout.PrivateCustomerInfo.js_
+*   address form for business customers — _Checkout.BusinessCustomerInfo.js_
+*   delivery options — _Checkout.DeliveryMethods.js_
+*   payment options — _Checkout.PaymentMethods.js_
+*   order details section — _Checkout.OrderInfo.js_ and _Checkout.OrderNote.js_
+
+Each component is responsible for rendering and processing a small and specific part of the checkout form. Then the _Checkout.js_ component connects them all together, adds the validation.
+
+### Checkout action and reducer
+
+The actual logic is placed in _Checkout.action.js_ and _Checkout.reducer.js_. While _Checkout.reducer.js_ is very "thin" — it simply takes the data in an action and merges it into the corresponding state — _Checkout.action.js_ is considered "fat". The action is responsible for sending requests to the WebApi controller, process the request and [dispatch](https://redux.js.org/api/store#dispatch) the action to the reducer, to trigger the state change. The examples below show how the actions _set payment provider_ and _place order_ work:
+
+```javascript
+export const setPayment = (systemId) => (dispatch, getState) => {
+    dispatch({
+        type: CHECKOUT_SET_PAYMENT,
+        payload: {
+            selectedPaymentMethod: systemId,
+        }
+    });
+    const { payload } = getState().checkout;
+    return put('/api/checkout/setPaymentProvider', payload)
+        .then(response => response.json())
+        .then(result => {
+            dispatch(loadCart());
+            dispatch(setPaymentWidget(result.paymentWidget));
+        })
+        .catch(ex => dispatch(catchError(ex, error => submitError(error))))
+}
+```
+
+This is what happens when a user selects a payment option:
+
+*   A _CHECKOUT\_SET\_PAYMENT_ action is dispatched to set the selected payment method Id for the Redux state. The _CheckoutPaymentMethods_ component will set the corresponding radio button as checked when the state is updated.
+*   A _PUT_ request is sent to the _SetPaymentProvider_ action of the checkout WebAPI controller. It has the checkout state as payload, which is the _CheckoutViewModel_. Note that the checkout state has the _selectedPaymentMethod_, so the WebApi controller has the Id of the payment method the user has selected.
+*   The checkout WebApi controller changes the payment method, sets _PaymentWidget_ to _CheckoutViewModel,_ if any, and returns _CheckoutViewModel_ to the client.
+*   When the checkout action receives the response, it does two things: first it reloads the cart by calling the _loadCart()_ function, to get the latest _Cart_ object. This is to show the new price, because a payment fee might be added. Then it calls _setPaymentWidget_ to dispatch the _CHECKOUT\_SET\_PAYMENT\_WIDGET_ action. The checkout reducer then updates the state to store the payment widget.
+
+Now, depending on what we have in the payment widget, _PaymentWidget_ will either render it or just an empty block. _PaymentWidgetResult_ has the Id, which is the Id of the payment provider, and _ResponseString_ is the response from the payment provider. Klarna Checkout, for instance, would have _KlarnaCheckout_ as Id, and the [HtmlSnippet](https://developers.klarna.com/api/#checkout-api-create-a-new-order) as _ResponseString_. We use this _ResponseString_ to render the Klarna Checkout widget.
+
+This action is called when the **Place order** button is clicked:
+
+```javascript
+const _submit = (url, model, dispatch) => {
+    return post(url, model)
+        .then(response => response.json())
+        .then(result => {
+            dispatch(submitDone(result));
+            if (result.redirectUrl) {
+                window.location = result.redirectUrl;
+            }
+        })
+        .catch(ex => {
+            if (ex.response) {
+                ex.response.json().then(error => {
+                    dispatch(submitError(error));
+                    dispatch(submitDone(null));
+                });
+            } else {
+                dispatch(submitError(ex));
+            }
+        })
+    ;
+}
+```
+
+The _url_ parameter has _/api/checkout_ as its value, and the _model_ parameter has the _Checkout_ state as payload, which is the _CheckoutViewModel_. It sends a POST request to the _PlaceOrder_ action of the checkout WebAPI controller, which returns the new _CheckoutViewModel_. If the model has the _RedirectUrl_, the browser will then be redirected to the new URL. This is the case when a user selects a "Redirect payment" like DIBS, and will be redirected to DIBS's payment page. Or, if the order is placed, the _RedirectUrl_ will guide the browser to navigate to the order confirmation page.
+
+If an error occurs, it will be handled in the _catch()_ function. The error can be a validation error or other error types. _Checkout.js_ will catch the error, show the error message, and scroll the browser to the incorrect field if it is a validation error. See the _useEffect_ hook of handling errors in _Checkout.js for detail_.
+
+## Validation
+
+Client side validation is done with [Yup](https://docs.litium.com/accelerators/mvc-accelerator/develop/front-end-coding/working-with-javascript). Different validation schemas are defined for private and business customers.
+
+## Payment and delivery methods
+
+Payment providers and methods can be downloaded as Litium Add-ons. Please read more about [payment providers here](/add-ons/add-ons-as-extensions/payment-extensions). Always consult the respective payment providers regarding installation and configuration.
+
+To enable and show the payment/delivery methods in the checkout page. Please read more about [working with payment providers here.](https://docs.litium.com/l8/litium-accelerators/develop/checkout/payment-and-delivery-providers)
+
+![methods.PNG](/images/accelerators/mvc/develop/methods.PNG)
+
+Updated   2022-11-25

@@ -16,7 +16,8 @@ Sample code performing the following actions:
 2.  Create a group field template and link the MultiField to that template.
 3.  Create a static group and assign some values to the MultiField we have created in the first step.
 
-public void Multi\_Field\_Group\_Sample()
+```csharp
+public void Multi_Field_Group_Sample()
 {
     //Create MultiField definition
     var multiFieldDefinition =
@@ -32,12 +33,12 @@ public void Multi\_Field\_Group\_Sample()
                 }
             }
         };
-    \_fieldDefinitionService.Create(multiFieldDefinition);
+    _fieldDefinitionService.Create(multiFieldDefinition);
 
     //Create group field template and assign the MultiField definition to group
     var sampleGroupFieldTemplate = new GroupFieldTemplate(this.UniqueString())
     {
-        FieldGroups = new\[\]
+        FieldGroups = new[]
         {
             new FieldTemplateFieldGroup()
             {
@@ -50,7 +51,7 @@ public void Multi\_Field\_Group\_Sample()
             }
         }
     };
-    \_fieldTemplateService.Create(sampleGroupFieldTemplate);
+    _fieldTemplateService.Create(sampleGroupFieldTemplate);
 
     //prepare multi field data 
     var innerData1 = new MultiFieldItem { AreaType = typeof(CustomerArea) };
@@ -61,28 +62,27 @@ public void Multi\_Field\_Group\_Sample()
     innerData2.Fields.AddOrUpdateValue(SystemFieldDefinitionConstants.Email, "email2@domain.com");
 
     //Create a sample static group and assign multi field value to it:
-    var sampleGroup = new StaticGroup(sampleGroupFieldTemplate.SystemId,this.UniqueString());
-    sampleGroup.Fields.AddOrUpdateValue(multiFieldDefinition.Id,new \[\] {innerData1, innerData2});
-    \_groupService.Create(sampleGroup);
+    var sampleGroup = new StaticGroup(sampleGroupFieldTemplate.SystemId, this.UniqueString());
+    sampleGroup.Fields.AddOrUpdateValue(multiFieldDefinition.Id, new[] { innerData1, innerData2 });
+    _groupService.Create(sampleGroup);
 
     //Retrieve the group we've created and extract the multifield value
-    var savedGroup = \_groupService.Get<StaticGroup>(sampleGroup.SystemId);
+    var savedGroup = _groupService.Get<StaticGroup>(sampleGroup.SystemId);
     savedGroup.Fields.TryGetValue(multiFieldDefinition.Id, out var multiFieldValue);
 
     //Retrieve values
-    var list = IList<MultiFieldItem>(multiFieldValue);
-    if(list != null)
+    if (multiFieldValue is IList<MultiFieldItem> list)
     {
         var count = list.Count; // should be 2
         var name1 = list.First().Fields.GetValue<string>(SystemFieldDefinitionConstants.Name, CultureInfo.CurrentCulture); // should be "name1"
-        var email1 = list.First().Fields.GetValue<string>(SystemFieldDefinitionConstants.Email) //Should be "email1@domain.com"
+        var email1 = list.First().Fields.GetValue<string>(SystemFieldDefinitionConstants.Email); //Should be "email1@domain.com"
         var name2 = list.Last().Fields.GetValue<string>(SystemFieldDefinitionConstants.Name, CultureInfo.CurrentCulture); // should be "name2"
-        var email2 = list.Last().Fields.GetValue<string>(SystemFieldDefinitionConstants.Email) //Should be "email2@domain.com"
+        var email2 = list.Last().Fields.GetValue<string>(SystemFieldDefinitionConstants.Email); //Should be "email2@domain.com"
     }
-    
 }
+```
 
-The MultiField data is stored in the same tables as normal fields (_<EntityType>FieldData_). Based on the _ChildOwnerId_ and _ChildIndex_ columns, we can group the individual values into objects. In the example below, we have three slides of the MultiField with the Id _Slider._ _ChildIndex_ with the value 0 belongs to the first slide, and so on.
+The MultiField data is stored in the same tables as normal fields (_`<EntityType>FieldData`_). Based on the _ChildOwnerId_ and _ChildIndex_ columns, we can group the individual values into objects. In the example below, we have three slides of the MultiField with the Id _Slider._ _ChildIndex_ with the value 0 belongs to the first slide, and so on.
 
 ![Slider 3.PNG](./media/Slider%203.PNG)
 
@@ -90,7 +90,8 @@ The MultiField data is stored in the same tables as normal fields (_<EntityType>
 
 Implementations can create custom validation by implementing the IValidationRule interface. When validating MultiField nested fields, a custom validation rule must follow a specific convention for constructing the error ID. This ensures the system can correctly associate and display validation messages with the corresponding fields. The following example demonstrates this convention.:
 
-\[Service(Lifetime = DependencyLifetime.Scoped)\]
+```csharp
+[Service(Lifetime = DependencyLifetime.Scoped)]
 internal class BaseProductRuleCustomForMultiField : ValidationRuleBase<BaseProduct>
 {
     public override ValidationResult Validate(BaseProduct entity, ValidationMode validationMode)
@@ -109,17 +110,18 @@ internal class BaseProductRuleCustomForMultiField : ValidationRuleBase<BaseProdu
                 // For instance, you could check if the "Color" field is empty.
                 var validatedFieldId = "Color";
                 // The key for the error message must follow this specific format:
-                // {multiFieldId}\_{baseProductSystemId}|{fieldId}|{index}
+                // {multiFieldId}_{baseProductSystemId}|{fieldId}|{index}
                 // Note: The {index} starts at 1, so we use 'i + 1'
-                result.AddError($"{multifieldId}\_{entity.SystemId}|{validatedFieldId}|{i + 1}", $"Color is required");
+                result.AddError($"{multifieldId}_{entity.SystemId}|{validatedFieldId}|{i + 1}", "Color is required");
             }
 
             // Use this line to add a general, non-specific error to the result.
-            //result.AddError("\*", "error message");
+            // result.AddError("*", "error message");
         }
 
         return result;
     }
 }
+```
 
 For more information on validation, see: [Object Validation](/platform/get-started/developer-introduction/object-validation).

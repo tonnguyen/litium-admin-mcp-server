@@ -1,0 +1,29 @@
+---
+title: Setup a development environment
+description: To be able to develop a Litium app you need a number of things in your development environment.
+---
+
+# Setup a development environment
+
+*   Litium 8
+
+To be able to develop a Litium app you need a number of things in your development environment.
+
+You will need a Litium environment that your app can connect to. This can be an environment in Litium Commerce Cloud, or a local environment. Find out more about setting up a local environment in the [Get started section of the Platform documentation](/platform/get-started).
+
+The requirements on your local development environment for a Litium app:
+
+1.  Docker Desktop  
+    When deployed to LCC all Litium apps will be running in a Docker container. Install Docker Desktop to be able to run containers on your local machine.
+    
+2.  DNS Resolver  
+    When running Litium apps in containers the _localhost_ domain will always point to the container itself and can't be used in the communication between the app and Litium. To solve the communication between the app and Litium, we will use a custom domain that resolves to the host of the container. For more information, please see the secton on [shared dependencies](https://docs.litium.com/platform/get-started/shared-dependencies) under Getting started for the platform.
+    
+3.  A custom developer certificate  
+    To be able to use custom domain names with .NET Core's inbuilt webserver Kestrel, you must generate your own certificate. More information can be found in the section on [custom developer certificate](/platform/get-started/custom-developer-certificate) under Getting started for the platform
+    
+4.  Litium NuGet  
+    Litium provides a pre-built module to handle common tasks in the Litium app framework (like registering an app to the corresponding Litium instance) as a NuGet package. Information on how to access the Litium NuGet feed can be found on the [Litium packages](/platform/get-started/litium-packages) section under Getting started for the platform.
+    
+
+Updated   2023-02-18

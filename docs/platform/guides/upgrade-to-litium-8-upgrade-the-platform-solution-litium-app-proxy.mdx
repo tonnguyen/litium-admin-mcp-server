@@ -12,20 +12,22 @@ When a payment was created before migrating sales data, the URL for notification
 
 Therefore, you need to configure the Litium App proxy. Litium 8 will then be able to catch the request sent to those URLs and forward the request to the payment app that will operate the notification. The system will be able to forward the response from the payment app back to the caller of the notification (notification acknowledgment). 
 
-The list of URLs is configured in Litium.Accelerator.MVC - appsettings.json under Litium node. It is a dictionary where the key is the notification URL and the value is a destination URL on the app.
+The list of URLs is configured in Litium.Accelerator.MVC - `appsettings.json` under the `Litium` node. It is a dictionary where the key is the notification URL and the value is a destination URL on the app.
 
+```json
 {
-    "Litium": {
-        "AppProxy": {
-            "Url": {
-                "/url1": {"AppId": "appId", "DestinationUrl": "/relative-action-url1" },
-                "/url2": {"AppId": "appId", "DestinationUrl": "/relative-action-url2" }
-            }
-        }
+  "Litium": {
+    "AppProxy": {
+      "Url": {
+        "/url1": { "AppId": "appId", "DestinationUrl": "/relative-action-url1" },
+        "/url2": { "AppId": "appId", "DestinationUrl": "/relative-action-url2" }
+      }
     }
+  }
 }
+```
 
-In a PSP add-on, the format of the endpoint used to received notification from payment provider is https://<domain name>/PaymentProviderResult.axd/Report/<PaymentProviderName>.
+In a PSP add-on, the format of the endpoint used to received notification from payment provider is `https://<domain-name>/PaymentProviderResult.axd/Report/<payment-provider-name>`.
 
 #### Example
 
@@ -36,23 +38,26 @@ If you want to create an App proxy for the Klarna Add-on, you will have to defin
 
 Then, the configuration should be:
 
+```json
 {
-    "Litium": {
-        "AppProxy": {
-            "Url": {
-                "/PaymentProviderResult.axd/Report/KlarnaV3": {"AppId": "KlarnaPayment", "DestinationUrl": "/legacy-callback/PushNotification" },
-                "/site.axd/KlarnaPayment/PushNotification": {"AppId": "KlarnaPayment", "DestinationUrl": "/legacy-callback/PushNotification" }
-            }
-        }
+  "Litium": {
+    "AppProxy": {
+      "Url": {
+        "/PaymentProviderResult.axd/Report/KlarnaV3": { "AppId": "KlarnaPayment", "DestinationUrl": "/legacy-callback/PushNotification" },
+        "/site.axd/KlarnaPayment/PushNotification": { "AppId": "KlarnaPayment", "DestinationUrl": "/legacy-callback/PushNotification" }
+      }
     }
+  }
 }
+```
 
 ### Enable App proxy
 
 In order to enable this feature, insert middleware to use Litium App proxy in Startup.cs.
 
-Please note that App proxy-middleware is already installed per default in the [Litium accelerator](/accelerators/mvc-accelerator). 
+Please note that App proxy-middleware is already installed per default in the [Litium accelerator](/accelerators/mvc/overview). 
 
+```csharp
 public void Configure(IApplicationBuilder app, IHostEnvironment env)
 {
     //..
@@ -64,10 +69,11 @@ public void Configure(IApplicationBuilder app, IHostEnvironment env)
     {
         app.UseLitiumExceptionPage();
     }
-    
+
     app.UseLitiumAppProxy();
 
     app.UseLitiumPageNotFoundPage();
     app.UseLitiumUrlRedirect();
     //..
 }
+```

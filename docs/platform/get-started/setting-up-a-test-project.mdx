@@ -40,8 +40,8 @@ Litium Accelerator version 8.3 or later contains the test project when the Litiu
 8.  Add tests to the project to see that everything works.
 
 Example project file  
- 
 
+```xml
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
@@ -83,10 +83,11 @@ Example project file
   </PropertyGroup>
 
 </Project>
+```
 
 Example test  
- 
 
+```csharp
 using Litium.Security;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -110,3 +111,4 @@ public class PermissionContextTests : TestBase
         Assert.Equal(SecurityContextService.Everyone.SystemId, currentSystemId);
     }
 }
+```

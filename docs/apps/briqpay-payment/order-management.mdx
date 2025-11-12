@@ -1,0 +1,29 @@
+---
+title: Order management
+description: The Briqpay Litium app is designed to manage all aspects of order processing, including captures and refunds, in accordance with actions performed within the Litium platform.
+---
+
+# Order management
+
+*   Litium 8
+
+The Briqpay Litium app is designed to manage all aspects of order processing, including captures and refunds, in accordance with actions performed within the Litium platform.
+
+### Captures
+
+Captures are initiated when a shipment is created in Litium. This action generates a pending capture status within Litium. Upon receiving a callback from the Payment Service Provider (PSP) confirming the capture approval, the capture status will be updated accordingly in Litium.
+
+### Refunds
+
+Refunds to PSPs are triggered when a refund action is executed on a sales return order. Similar to the capture process, a pending refund status is recorded initially and is subsequently updated only after Briqpay receives notification from the PSP confirming the refund.
+
+These order management actions are standard within the Litium Accelerator; however, system integrators have the flexibility to modify or relocate these triggers as needed. The events governing these processes are as follows:
+
+*   `Litium.Connect.Payments.Events.CaptureTransaction`
+*   `Litium.Connect.Payments.Events.RefundTransaction`
+
+The Briqpay app subscribes to these events during the installation process, ensuring proper integration and responsiveness to order management activities.
+
+## Reading PSP ID for reconciliation process.
+
+The Briqpay app saves the capture ID to transactions to assist with the reconciliation process. When a capture occurs, the Briqpay API returns a `capture.reservationId` from the PSP which is saved as `TransactionReference2` on the `Sales.Transaction` object in Litium. This can be forward to your ERP in order to match transactions from PSP

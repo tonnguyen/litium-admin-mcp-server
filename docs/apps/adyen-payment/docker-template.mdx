@@ -1,0 +1,55 @@
+---
+title: Docker template for local installation
+description: "Values to replace in the template:"
+---
+
+# Docker template for local installation
+
+*   Litium 8
+
+Values to replace in the template:
+
+*   ports
+*   environment
+    *   ASPNETCORE\_HTTPS\_PORT
+    *   AppMetadata\_\_AppUrl
+    *   LitiumApi\_\_ApiUrl
+    *   AppConfiguration\_\_DisableCallbacks: If you are developing and are behind a firewall, you may need to disable background calls from external systems. The reason is that the external system cannot reach the addon app in your local environment and the app will not work as expected.
+
+```plain
+version: '3'
+services:
+  adyen-payment:
+    image: registry.litium.cloud/apps/adyen-payment:1.5.0
+    dns: 
+    - 192.168.65.254
+    restart: unless-stopped
+    ports:
+    - "10060:80"
+    - "10061:443"
+    environment:
+    # Enable HTTPS binding
+    - ASPNETCORE_URLS=https://+;http://+
+    - ASPNETCORE_HTTPS_PORT=10061
+    # Configuration for HTTPS inside the container, exported dotnet dev-certs with corresponding password
+    - ASPNETCORE_Kestrel__Certificates__Default__Password=${CERT_PWD}
+    - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/localhost.pfx
+    # Folder for the configuraiton, this is volume-mapped
+    - CONFIG_PATH=/app_config
+    # Folder where logfiles should be placed, this is volume-mapped
+    - APP_LOG_PATH=/logs
+    # Don't validate certificates
+    - AppConfiguration__ValidateCertificate=false
+    # Disable callbacks
+    - AppConfiguration__DisableCallbacks=true
+    # Url to this app
+    - AppMetadata__AppUrl=https://customer-app-adyen-payment.localtest.me:10061
+    # Url to the litium installation
+    - LitiumApi__ApiUrl=https://customer.localtest.me:5001
+    volumes:
+    - ./data/adyen-payment/config:/app_config
+    - ./data/adyen-payment/data:/app_data
+    - ./data/adyen-payment/logs:/logs
+    - ./data/adyen-payment/DataProtection-Keys:/root/.aspnet/DataProtection-Keys
+    - ./data/https:/https:ro
+```

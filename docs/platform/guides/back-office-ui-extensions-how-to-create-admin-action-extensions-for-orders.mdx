@@ -1,0 +1,219 @@
+---
+title: "How to create admin action extensions for orders"
+description: "Register admission review extensions that participate in Litium order admin action batches starting with Litium 8.23."
+---
+
+Litium 8.23 adds richer integration points for order admin actions. Extensions can now participate when administrators modify orders in the backoffice.
+
+An **admin action** represents an operation an administrator can perform on an order. As of Litium 8.23, the supported actions are:
+
+- Change shipping address
+- Change billing address
+- Add order discount
+
+An order can accept admin actions when:
+
+- The order state is `Confirmed`.
+- At least one admin action is enabled in backoffice (`Settings → Sales → Admin actions`).
+- No admin actions are currently processing, and there is no failed admin action batch on the order.
+
+When these criteria are met, the **Edit** button becomes available. Actions added here are stored as *pending admin actions*. After at least one pending action is added—and the new order total is less than or equal to the original—administrators can process the batch. Litium evaluates mandatory extensions first; if all succeed, the optional extensions are notified. If any mandatory extension fails or times out, processing stops and the order is tagged with `_adminActionsFailed`.
+
+If an order has pending admin actions or a processing/failed batch, it cannot automatically transition to the `PendingProcessing` state.
+
+## Create the extension
+
+Admin action extensions are registered through the standard extension management system described in [`Managing extensions`](./back-office-ui-extensions-managing-extensions). Configure an extension with the new type `admission_review`.
+
+```json
+{
+  "type": "admission_review",
+  "id": "string",
+  "name": "string",
+  "description": "string",
+  "targets": [
+    {
+      "target": "string",
+      "type": "string",
+      "condition": "string",
+      "url": "string",
+      "timeout": 0
+    }
+  ]
+}
+```
+
+Root fields (`id`, `name`, `description`, `ownerId`) work as they do for other extensions. The target fields are:
+
+- `target`: the admin action to hook into, for example:
+  - `sales.salesorder.adminaction.change_billing_address`
+  - `sales.salesorder.adminaction.change_shipping_address`
+  - `sales.salesorder.adminaction.add_order_discount`
+- `type`: controls how the order is represented when communicating with the extension.
+  - `"erp"` → `Litium.Connect.Erp.Order`
+  - `"payments"` → `Litium.Connect.Payments.Payment`
+  - `"shipments"` → `Litium.Connect.Shipments.UpdateSessionRequest`
+- `condition`: a C# expression that determines whether the extension should run. The expression evaluates against `Item.Object.Item`, which is the root object for the selected `type`.
+- `url`: the endpoint Litium invokes when the batch is processed.
+- `timeout`: seconds Litium waits before considering the call timed out (counts as a failure for mandatory extensions).
+
+Example configuration for the Direct Payment app:
+
+```json
+{
+  "Type": "admission_review",
+  "Id": "directpayment_admission_review",
+  "Name": "Direct payment",
+  "Targets": [
+    {
+      "target": "sales.salesorder.adminaction.change_billing_address",
+      "type": "payments",
+      "condition": "Item.Object.Item.PaymentProviderId.Equals(\"directpayment\")",
+      "url": "/api/admission-review/change-billing-address",
+      "timeout": 10
+    },
+    {
+      "target": "sales.salesorder.adminaction.change_shipping_address",
+      "type": "payments",
+      "condition": "Item.Object.Item.PaymentProviderId.Equals(\"directpayment\")",
+      "url": "/api/admission-review/change-shipping-address",
+      "timeout": 10
+    },
+    {
+      "target": "sales.salesorder.adminaction.add_order_discount",
+      "type": "payments",
+      "condition": "Item.Object.Item.PaymentProviderId.Equals(\"directpayment\")",
+      "url": "/api/admission-review/add-order-discount",
+      "timeout": 10
+    }
+  ]
+}
+```
+
+## Handle an admin action batch
+
+Implement the endpoints referenced by each target URL. Litium calls them while processing the admin action batch. Example (.NET):
+
+```csharp
+[HttpPost]
+[Route("change-billing-address")]
+public async Task<IActionResult> ChangeBillingAddress(
+    AdmissionReviewRequest<Litium.Connect.Payments.Communications.ConnectPayments.Payment> admissionReview)
+{
+    return await HandleAdminAction("change_billing_address", admissionReview);
+}
+```
+
+At the time of writing the `AdmissionReviewRequest` and related records are not published in the public NuGet packages. Define them locally as follows:
+
+```csharp
+public record AdmissionReviewRequest<T>(
+    string ApiVersion,
+    string Kind,
+    Guid RequestId,
+    AdmissionReview<T> Request
+);
+
+public record AdmissionReviewResponse(
+    Guid RequestId,
+    AdmissionReviewResponseData Response,
+    string ApiVersion = "1",
+    string Kind = "AdmissionReview");
+
+public record AdmissionReviewResponseData(
+    bool Allowed,
+    AdmissionReviewResponseStatus Status);
+
+public record AdmissionReviewResponseStatus(
+    string Message = null);
+
+public record AdmissionReview<T>(
+    string Area,
+    string EntityType,
+    string Id,
+    Guid? SystemId,
+    AdmissionReviewOperation Operation,
+    SalesOrderAdmissionReview<T> Object
+);
+
+public record SalesOrderAdmissionReview<T>(
+    string Target,
+    ICollection<AdminActionInfo> AdminActionInfos,
+    T Item
+);
+
+public record AdminActionInfo(
+    Guid SystemId,
+    string AdminActionId,
+    JObject Data
+);
+
+public enum AdmissionReviewOperation
+{
+    Create,
+    Update,
+    Delete
+}
+```
+
+## Respond to the batch
+
+The response determines whether the batch proceeds when the extension is configured as mandatory:
+
+- Accept the batch:
+
+  ```csharp
+  Ok(new AdmissionReviewResponse(
+      admissionReview.RequestId,
+      new AdmissionReviewResponseData(true, new AdmissionReviewResponseStatus())))
+  ```
+
+- Reject the batch:
+
+  ```csharp
+  Ok(new AdmissionReviewResponse(
+      admissionReview.RequestId,
+      new AdmissionReviewResponseData(false, new AdmissionReviewResponseStatus("failure message"))))
+  ```
+
+- Delay the batch (respond asynchronously later):
+
+  ```csharp
+  Accepted()
+  ```
+
+When returning `Accepted()` you must send an asynchronous response to `Litium/api/admission-control/admission-review` within two days. The per-target `timeout` determines how long Litium waits before treating the batch as failed.
+
+Example client registration inside an app:
+
+```csharp
+public interface IAdmissionReviewClient
+{
+    Task NotifyResult(AdmissionReviewResponse response);
+}
+
+public class AdmissionReviewClient : IAdmissionReviewClient
+{
+    private readonly HttpClient _httpClient;
+
+    public AdmissionReviewClient(HttpClient httpClient)
+    {
+        _httpClient = httpClient;
+    }
+
+    public async Task NotifyResult(AdmissionReviewResponse response)
+    {
+        var content = new StringContent(JsonConvert.SerializeObject(response), Encoding.UTF8, "application/json");
+        await _httpClient.PostAsync("Litium/api/admission-control/admission-review", content);
+    }
+}
+```
+
+Register the client:
+
+```csharp
+services.AddLitiumClient().RegisterHttpClient<IAdmissionReviewClient, AdmissionReviewClient>();
+```
+
+Any response other than the three listed above results in an automatic batch failure.
+

@@ -4,8 +4,9 @@ description: "Example: we need to validate if the product is available for Sales
 ---
 Example: we need to validate if the product is available for Sales
 
-Create class _ProductIsAvailableForSale_ inherited from class _ValidationRuleBase<ValidateCartContextArgs>_ and implement the logic of validating in the method _Validate_
+Create class _ProductIsAvailableForSale_ inherited from class `ValidationRuleBase<ValidateCartContextArgs>` and implement the logic of validating in the method _Validate_
 
+```csharp
 using Litium.Sales;
 using Litium.Validations;
 using Litium.Web;
@@ -31,6 +32,7 @@ namespace Litium.Accelerator.ValidationRules
         }
     }
 }
+```
 
 _**NOTE**_:
 

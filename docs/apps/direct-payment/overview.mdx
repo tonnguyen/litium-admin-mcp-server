@@ -1,0 +1,53 @@
+---
+title: Direct payment
+description: Direct payment app is a pseudo payment provider, developed by Litium for testing and direct cash handling tasks.
+---
+
+# Direct payment
+
+*   Litium 8
+
+Direct payment app is a pseudo payment provider, developed by Litium for testing and direct cash handling tasks.
+
+Direct Payment can be used for:
+
+1.  Simulating a payment provider, without having to configure a real one. This could be useful until you get your accounts configured from a real payment provider.
+2.  Allowing the e-commerce administrators to place orders and collect money manually.
+3.  Custom implementation, eg to place the a sales order into your ERP system which would handle the invoicing.
+
+## Version dependencies
+
+*   Direct payment app 1.3.0
+    
+    *   Supports Connect Payments API 1.0
+        
+    *   Requires Litium 8.6 or later.
+        
+
+## Installation
+
+Litium serverless cloud - Use the [Cloud CLI](https://docs.litium.com/!b4353f6c-fc24-4afb-8a66-7a7e77fff13c/cloud/serverless/get-started/install-payment-and-delivery-apps) to install the app.
+
+Litium legacy cloud - Contact [support](mailto:support@litium.com) to install the app in your test and/or production environment.
+
+Local environment - See details below.
+
+## App configuration file
+
+```json
+{
+  "DirectPay": {
+    "PaymentAccounts": [
+      {
+        "Id": "DirectPay",
+        "MerchantAccountId": null,
+        "Environment": "Live"
+      }
+    ]
+  }
+}
+```
+
+*   Id: The payment option id.
+*   MerchantAccountId: The merchant account identifier. Not currently used.
+*   Environment: The App environment. It should be "Live" or "Test".

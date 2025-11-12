@@ -6,63 +6,66 @@ In this example, we assign a value to a field that does not belong to a field te
 
 Values for fields that are not included in any field template can be set through the API:
 
-    using System;
-    using Litium.Products;
-    public class FieldTemplateExample
+```csharp
+using System;
+using Litium.Products;
+
+public class FieldTemplateExample
+{
+    private readonly FieldTemplateService _fieldTemplateService;
+
+    public FieldTemplateExample(FieldTemplateService fieldTemplateService)
     {
-        private readonly FieldTemplateService \_fieldTemplateService;
+        _fieldTemplateService = fieldTemplateService;
+    }
 
-        public FieldTemplateExample(FieldTemplateService fieldTemplateService)
+    public void Main()
+    {
+        var fieldTemplate = new ProductFieldTemplate("MyFieldTemplate")
         {
-            \_fieldTemplateService = fieldTemplateService;
-        }
-
-        public void Main()
-        {
-            var fieldTemplate = new ProductFieldTemplate("MyFieldTemplate")
+            UseVariantUrl = true,
+            Localizations =
             {
-                UseVariantUrl = true,
-                Localizations =
+                ["se-SV"] = { Name = "Min fältmall" },
+                ["en-UK"] = { Name = "My field template" }
+            },
+            ProductFieldGroups =
+            {
+                new FieldTemplateFieldGroup
                 {
-                    \["se-SV"\] = {Name = "Min fältmall"},
-                    \["en-UK"\] = {Name = "My field template"}
-                },
-                ProductFieldGroups =
-                {
-                    new FieldTemplateFieldGroup
+                    Localizations =
                     {
-                        Localizations =
-                        {
-                            \["se-SV"\] = {Name = "Min grupp"},
-                            \["en-UK"\] = {Name = "My group"}
-                        },
-                        Fields =
-                        {
-                            "MyField1",
-                            "MyField2",
-                            "MyField3"
-                        }
-                    }
-                },
-                VariantFieldGroups =
-                {
-                    new FieldTemplateFieldGroup
+                        ["se-SV"] = { Name = "Min grupp" },
+                        ["en-UK"] = { Name = "My group" }
+                    },
+                    Fields =
                     {
-                        Localizations =
-                        {
-                            \["se-SV"\] = {Name = "Min grupp"},
-                            \["en-UK"\] = {Name = "My group"}
-                        },
-                        Fields =
-                        {
-                            "MyField8",
-                            "MyField2",
-                            "MyField5"
-                        }
+                        "MyField1",
+                        "MyField2",
+                        "MyField3"
                     }
                 }
-            };
+            },
+            VariantFieldGroups =
+            {
+                new FieldTemplateFieldGroup
+                {
+                    Localizations =
+                    {
+                        ["se-SV"] = { Name = "Min grupp" },
+                        ["en-UK"] = { Name = "My group" }
+                    },
+                    Fields =
+                    {
+                        "MyField8",
+                        "MyField2",
+                        "MyField5"
+                    }
+                }
+            }
+        };
 
-            \_fieldTemplateService.Create(fieldTemplate);
-        }
+        _fieldTemplateService.Create(fieldTemplate);
     }
+}
+```

@@ -1,0 +1,137 @@
+---
+title: Qliro payment
+description: Qliro payment app can be used to integration with Qliro to handle payments in your e-commerce solution. It is developed and maintained by Litium.
+---
+
+# Qliro payment
+
+*   Litium 8
+
+Qliro payment app can be used to integration with Qliro to handle payments in your e-commerce solution. It is developed and maintained by Litium.  
+  
+The Qliro payment app supports Qliro Checkout 0.0. The app supports capture, cancel and refund transactions and recurring payments.
+
+## Version dependencies
+
+*   Qliro payment app 1.6.0
+    *   Supports partial captures for orders with product discounts only
+    *   Requires Litium 8.25 or later
+*   Qliro payment app 1.5.0
+    *   Supports payment method information
+    *   Requires Litium 8.21 or later
+*   Qliro payment app 1.3.0
+    *   Supports recurring paymets
+    *   Supports Ingrid integration
+    *   Requires Litium 8.18 or later
+
+## Installation
+
+Litium serverless cloud - Use the [Cloud CLI](https://docs.litium.com/!b4353f6c-fc24-4afb-8a66-7a7e77fff13c/cloud/serverless/get-started/install-payment-and-delivery-apps) to install the app.
+
+Litium legacy cloud - Contact [support](mailto:support@litium.com) to install the app in your test and/or production environment.
+
+Local environment - A [Docker compose template](/add-ons/litium-apps/qliro-payment/docker-template) is available for local installation.
+
+## App configuration file
+
+The configuration file must have json format and UTF-8 encoding
+
+```json
+{
+  "Qliro": {
+    "PaymentAccounts": [
+      {
+        "PaymentAccountId": "SE",
+        "MerchantApiKey": "",
+        "MerchantApiSecret": "",
+        "Environment": "Test",
+        "PaymentOptions": [ "One" ],
+        "UISettings": {
+          "CallToActionHoverColor": "#FF0000",
+          "CallToActionColor": "#FFFF00",
+          "BackgroundColor": "#FF0000",
+          "PrimaryColor": "#FFFF00",
+          "CornerRadius": 30,
+          "ButtonCornerRadius": 25
+        },
+        "EnableShippingMethods": true,
+        "AvailableShippingMethodsBackendUrl": "https://example.com/ShippingMethods",
+        "AvailableShippingAdressesBackendUrl": "https://example.com/ShippingAddresses"
+      },
+      {
+        "PaymentAccountId": "DK",
+        "MerchantApiKey": "",
+        "MerchantApiSecret": "",
+        "Environment": "Test",
+        "PaymentOptions": [ "One" ]
+      }
+    ]
+  }
+}
+```
+
+*   PaymentAccountId: Identifier to select the account. It must be a unique string.  
+    **Note:** _PaymentAccountId_ should not contain any spaces. If it contains spaces, it will cause the app to crash when trying to find the correct payment account for the cart's _PaymentOptionId_. The reason for this is that Litium sends it as `<PaymentAccountId> One` and the app splits into spaces to retrieve the id. More than one space causes it to split incorrectly.
+*   MerchantApiKey: Qliro api key for the merchant account. This value is assigned by Qliro.
+*   MerchantApiSecret: Qliro api password. This value is assigned by Qliro.
+*   Environment: Qliro environment. It should be "Test" or "Live".
+*   PaymentOptions: It must be "One".
+*   UISettings (optional): These fields are used to customize the UI of the Qliro checkout iframe.
+*   EnableShippingAddress (optional): Enable the callbacks for getting shipping addresses from Litium
+*   EnableShippingMethods (optional): Enable the callbacks for getting shipping methods from Litium
+*   AvailableShippingMethodsBackendUrl (optional): Defines the endpoint for the MerchantOrderAvailableShippingMetthods callback from Qliro. More information below.
+*   AvailableShippingAdressesBackendUrl (optional): Defines the endpoint for the MerchantOrderAvailableShippingAddresses callback. More information below.
+
+## Integrated shipping
+
+The Qliro checkout iframe can load available shipping methods and/or shipping addresses from Litium. The URLs to the respective endpoints is defined in the app configuration. You would then need to build the actual endpoints to return the correct data in your Litium solution.
+
+More information about what data Qliro will send in the callback, as well as which data it expects in the response can be found in the Qliro documentation about the [Update Shipping Methods](https://developers.qliro.com/docs/qliro-one/get-started/notifications-checkout#update-shipping-methods) and [Update Shipping Addresses](https://developers.qliro.com/docs/qliro-one/get-started/notifications-checkout#update-shipping-addresses) notifications. Request to the provided endpoints contains the _cartContextSystemId_ query string parameter with the identifier for the cart context for the current request, use the extension method _HttpContext.SwitchCartContextAsync_ to use the cart context based on the identifier.
+
+## Ingrid integration
+
+Qliro supports displaying shipping options from ingrid inside Qliro checkout iframe.
+
+You need to contact Qliro merchant support to enable Ingrid for your account.
+
+Additional configuration in Litium:
+
+1.  Configure the Direct Shipment app to provide a shipping option with integration type set to _PaymentCheckout_.
+2.  Add this shipping option to channels where you want to use Ingrid. Additional shipping options configured on the channel will be sent to Qliro to be used as fallback options if the connection between Qliro and Ingrid fails.
+    
+
+**Note:** The fee for the integrated shipping option should be set to 0 in Litium.
+
+**Note:** The AvailableShippingMethodsBackendUrl and AvailableShippingAdressesBackendUrl endpoints can not be used together with Ingrid integration. These configuration parameters should be set to _null_.
+
+The field mappings for shipping data (height, width, length, weight and tags) in Litium backoffice will be used by the Qliro app to provide information to Ingrid. Also, Litium will calculate the discount amount per item in the order and send that information to Ingrid.
+
+**Note:** Qliro will add the fee for shipping option from Ingrid to the order when the payment is confirmed. This means that Litium will not be able to calculate any free shipping discounts for these shipping options.
+
+When an order is placed, Litium will save the Ingrid Checkout Session ID received from Qliro as additional info on the shipping info of the order. This Session ID can be used to retrieve information about the selected shipping option from Ingrid's API. The Merchant Notification callback from Qliro is not supported by the app.
+
+## Upsell
+
+Qliro's Upsell feature enables the merchant to offer the customer the ability to add additional items to an already confirmed order. This is commonly implemented on the order confirmation page. More information are available in [Qliro documentation](https://developers.qliro.com/docs/qliro-one/checkout-features/upsell-on-thank-you-page). To use this feature you need to implement additional logic in the Litium solution.
+
+To enable Upsell, you need to manually create a additional authorization transaction that contains the products that the customer want to add. This transaction needs to have a key in the additionalData dictionary with the key "Upsell" set to "true"
+
+When Qliro payment app receives the notification back for the request the app will forward the result into the payments authorization update endpoint in Litium with the status of how the upsell was applied or not.
+
+Please note that Litium does not currently support more than one authorization transaction when doing payment operations like capture and refund. For orders with Upsell you would need to implement this yourself.
+
+## Recurring Payments / Payment token
+
+Qliro supports saving a payment token and using that token to make payments for subsequent orders.
+
+You need to contact Qliro cutomer service to enable the Qliro recurring payments / subscriptions feature for your account.
+
+To use a saved Payment token, use the payment method "Payment Token" when creating the order. You need to set the actual payment token, for more information see documentation on [Payment Tokens](/platform/apis/connect-apis/domain-areas/payments-domain/business-processes/payment-tokens).
+
+Since not all payment methods are supported for recurring payments, you need to restrict which methods to display when creating a recurring payment. To enable this you first need to setup constraints in Qliro's system. Please contact Qliro merchant support to help you with this setup. The constraints will be named, and you should add the key _QliroPayment\_merchantConstraintName_ to _CheckoutFlowInfo.AdditionalInfo_ to select which constraint to use for each payment session.
+
+## Partial captures
+
+Due to limitations in Qliro's API, partial captures are supported only for payments where only product discounts are present. Payments for orders with other types of discounts (product group discounts, free shipping, order discounts) will have partial captures disabled.
+
+Also, refunds for order rows captured in multiple captures in Qliro is not supported by the app. Such orders would need to be refunded directly in Qliro backoffice.

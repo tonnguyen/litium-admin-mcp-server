@@ -1,0 +1,240 @@
+---
+title: Search filter and navigation
+description: How to configure search in Litium Accelerator, and how filtering and navigation works.
+---
+
+# Search filter and navigation
+
+*   Litium 8
+
+How to configure search in Litium Accelerator, and how filtering and navigation works.
+
+First you need to create a new page from the template **Search result.** Then select the **Cogwheel** icon > **Websites** > **Websites**  and select your website. To configure, go to the **Properties** tab, find the **S****earch** section, and point **Search result page** to the page you created. 
+
+![setting search.PNG](/images/accelerators/mvc/develop/setting%20search.PNG)
+
+There are two ways to get to the search result page:
+
+*   Directly by URL, for example [http://litium.local/search-result?q=hammond](#)[.](http://litium.local/search-result?q=hammond.) Then "search-result" is the URL of the search result page and "q=hammond" is the query with "hammond" as the keyword
+*   Via quick search. Type a keyword and press the enter key or click on the search icon.
+    
+    ![quick search.PNG](/images/accelerators/mvc/develop/quick%20search.PNG)
+
+## Structure
+
+The search result page has three sections:
+
+1.  Other result: Includes all pages and categories related to the search keyword. They must be indexed before they can be found and are currently limited to one hundred. 
+    
+    ![other result.png](/images/accelerators/mvc/develop/other%20result.png)
+    
+2.  Facet filter: There are two types of facet filters: category based, and filter based. Select the **Cogwheel** icon > **Websites** > **Websites** > select your website) to choose your website. To configure, go to the **Properties** tab, find the **Navigation** tab, and change **Navigation theme**.
+
+Category based:
+
+![category base.png](/images/accelerators/mvc/develop/category%20base.png)
+
+Filter based: 
+
+![filter base.png](/images/accelerators/mvc/develop/filter%20base.png)
+
+3.  Product list: Show the products related to a search keyword. The number of displayed products can be set manually. Select the **C****ogwheel** icon > **Websites** > **Websites**  and choose your website. To configure, go to the **Properties** tab, find the tab for **Product lists,** and change the **Products per page** attribute. Products must be fully configured before they can be found.
+
+![product list.png](/images/accelerators/mvc/develop/product%20list.png)
+
+## Search result controllers
+
+The search result page is handled by two controllers:
+
+*   The MVC search controller: receives the URL of the search result page along with a search query, to return the result (product list and other results) for the specific Razor view.
+*   The API product filter controller: when a user changes filter or page index, this controller takes the request and returns a new view and a new facet filter, without refreshing the page. The page URL will also be changed to fix the new filter and page index.
+
+The API input is query keyword, filter criteria and page index. The output includes new facet filter data, the navigation theme (category based or filter based), the HTML product view to replace the product list, the sorting criteria and category links (category page only).
+
+All logic for the search result page can be found in:
+
+*   _Litium.Accelerator.Mvc\\Views\\Search\\Index.cshtml:_ the view of the search result page. This is the place for style and display of product list, facet filter and other result.
+*   _Litium.Accelerator.Mvc\\Controllers\\Search\\SearchController.cs – Index action:_ the MVC search controller, contains the logic to return other result and product list.
+*   _Litium.Accelerator.Mvc\\Controllers\\Api\\_ _ProductFilterController.cs – Get action:_ The API search controller, same as the MVC controller, but handles API requests.
+
+## Facet search on client
+
+This is the filter feature that allows users to search and filter the products they are interested in. To implement this feature, we have the following files: 
+
+*   _Litium.Accelerator.Mvc\\Client\\Scripts\\Actions\\FacetedSearch.action.js_: Contains actions for facet search, dispatch and API calling.
+*   _Litium.Accelerator.Mvc\\Client\\Scripts\\Reducers\\FacetedSearch.reducer.js:_ Reducer handle state for facet search
+*   _Litium.Accelerator.Mvc\\Client\\Scripts\\Components\\FacetedSearchCompactContainer.js_: Facet search compact container, connect child component to Redux, manages it ‘s own state, contains components: _FacetedSearchCompact, FilterTags._
+*   _Litium.Accelerator.Mvc\\Client\\Scripts\\Components\\FacetedSearch.js -_ Facet search component:
+    
+    ![facet search component.png](/images/accelerators/mvc/develop/facet%20search%20component.png)
+    
+*   _Litium.Accelerator.Mvc\\Client\\Scripts\\Components\\FacetedSearchCompact.js_ - facet search compact component:
+    
+    ![facet.PNG](/images/accelerators/mvc/develop/facet.PNG)
+    
+*   _Litium.Accelerator.Mvc\\Client\\Scripts\\Components\\FilterTags.js -_ Filter tag component:
+    
+    ![filter tag component.png](/images/accelerators/mvc/develop/filter%20tag%20component.png)
+    
+
+## Page responsiveness
+
+*   Faceted search has two layouts for computers: category based, and filter based.
+*   Faceted search has one layout for mobile units:
+    
+    ![moblie layout.png](/images/accelerators/mvc/develop/moblie%20layout.png)
+    
+
+## Rendering 
+
+We use both server rendering to support SEO and client rendering to improve the user experience on the web browser.
+
+### Server rendering
+
+*   When a user, or a bot from Google or similar, access the search result page via URL, everything except the parts marked with red in the example below is rendered to support SEO (http://litium.local/search-result?q=shirt)
+    
+    ![server render.png](/images/accelerators/mvc/develop/server%20render.png)
+    
+*   Pagination is handled by the server. Pages 2, 3 and onwards each have a link to them, for example http://litium.local/search-result?q=nolita&page=2
+    
+
+### Client Rendering
+
+We use React, Redux, window variable, and call-to-services API to implement the client rendering. The search flow works like this:
+
+*   Facet components (_FacetedSearch_, _FilterTags_, _FacetedSearchCompact_): when the search page was loaded completely. _FacetedSearch_, _FacetSearchCompactContainer_ is injected to website in _index.js_ file.
+    ```javascript
+    if (document.getElementById('facetedSearch')) {
+        ReactDOM.render(
+            <Provider store={store}>
+                <FacetedSearch/>
+            </Provider>,
+            document.getElementById('facetedSearch')
+        );
+    }
+    if (document.getElementById('facetedSearchCompact')) {
+        ReactDOM.render(
+            <Provider store={store}>
+                <FacetedSearchCompactContainer/>
+            </Provider>,
+            document.getElementById('facetedSearchCompact')
+        );
+    }
+    ```
+    
+*   _FacetedSearchCompactContainer_ will call query in an useEffect hook, and pass parameters with _HtmlResult = false_. Since the HTML content is rendered from the server, we only need information of current facet search in this query.
+    
+    ```javascript
+    useEffect(() => {
+       dispatch(query(window.location.search.substr(1) || '', false));
+    }, [dispatch]);
+    ```
+    
+*   _Query_ is a function from _FacetedSearch.action.js ._ When a user has made a search or selected filters, this function is called to fetch the result from server and populate data to the view that is displayed to the user.
+    
+*   _withHtmlResult_ is an input parameter of the _Query_ function, to tell the server when to return the product list view (_productView)_ in HTML or not_._ If _withHtmlResult = false_, the result response does not contain _productView._
+    
+*   The result response from the server of a _query_ function is a JSON object, it contains the following fields:
+    
+    *   _productView_: the content of the page, after search and filter, in HTML format.
+        
+    *   _sortCriteria_: use of sort drop-down menu.
+        
+    *   _subNavigation_: some pages have sub-navigation
+        
+    *   _navigationTheme_: decides if the theme is filter or category based.
+        
+    *   _facetFilters_: data of filter groups, filter options, and selected filters
+        
+*   After _FacetedSearch.action.js_ receives the result response from the server, it dispatches it to _FacetedSearch.reducer.js._ Here is the code for the query function in _FacetedSearch.action.js._ You can see this line of code _dispatch(receive(result))_ which pushes the result to _FacetedSearch.reducer.js._ 
+    
+    ```javascript
+    export const query = (queryString = '', withHtmlResult = true, productsViewCachedId = (new Date()).getTime()+'') => (dispatch, getState) => 
+        let url = withHtmlResult ? '/api/productFilter/withHtmlResult' : '/api/productFilter'
+        if (queryString && queryString.trim() !== '') {
+            url += `?${queryString}`;
+        }
+        return get(url)
+            .then(response => response.json())
+            .then(result => {
+                const {productsView, sortCriteria, subNavigation, ...others} = result;
+                if(withHtmlResult) {
+                   window.__litium.cache[PRODUCT_VIEW_CACHED] = {
+                      productsViewCachedId,
+                      productsView
+                   };
+                }
+                result = {
+                    ...others,
+                    sortCriteria,
+                    subNavigation,
+                    productsViewCachedId,
+                }
+                dispatch(receive(result));
+            })
+            .catch(ex => dispatch(catchError(ex, error => searchError(error))))
+        ;
+    }
+    ```
+    
+*   In _FacetedSearch.reducer.js_: 
+    
+    *   _FACETED\_SEARCH\_RECEIVE_: the result from the API will be pushed into Redux
+        
+    *   _FACETED\_SEARCH\_TOGGLE\_VALUE_: when a user check/uncheck a filter, it will update the state.
+        
+    *   _FACETED\_SEARCH\_TOGGLE\_COMPACT_: show/hide the compact drop-down.
+        
+    *   After updating Redux's state, all components will be updated.
+        
+*   In Filter based mode, when a user checks a box in the left column, the filter will be triggered immediately. ![filter base.png](/images/accelerators/mvc/develop/filter%20base.png)
+*   In Category-based mode: when a user selects a filter, the filter will not be triggered until the apply button is selected.
+
+![Capture1.PNG](/images/accelerators/mvc/develop/Capture1.PNG)
+
+*   _FacetedSearchCompactContainer_ : to allow this behavior, we use the component state of React. We do not use Redux here.![facet search compact.png](/images/accelerators/mvc/develop/facet%20search%20compact.png)
+
+*   When a user checks/unchecks a filter, another _query_ is sent from _FacetedSearch.action.js_.
+    
+*   The result is a JSON object and _productView_ is a field in this object. It contains the product list in HTML format.
+    
+*   The parameter _withHtmlResult_ tells the server to if the productView should be returned or not.
+    
+*   With the parameter _withHtmlResult = true_ by default, _productsView_ will be included within the response that the server returns to the client. _productView_ is a result field that may be large in HTML format, so it shouldn’t be stored in Redux. Instead, it will be stored in _window variable_. The parameter _productsViewCachedId_ – the random number representing the _productView_ – will be stored in Redux.
+    
+*   After Redux has changed, a hook in _FacetedSearchCompactContainer.js_ will be triggered. It knows that a new result is coming because _used_ property of _productsView_ from _window variable_ is not set. In _onSearchResultDataChange_ function, it will move _existingFilter_ into new HTML and apply that to page.
+    
+    ```javascript
+    const onSearchResultDataChange = (dom) => {
+        if ( [null, undefined].includes(dom) ) {
+            return;
+        }
+        const container = document.createElement('div');
+        container.innerHTML = dom;
+        const existingResult = document.querySelector("#search-result");
+        const tempResult = container.querySelector("#search-result");
+        const existingFilter = existingResult.querySelector('#facetedSearchCompact');
+        const tempFilter = tempResult.querySelector('#facetedSearchCompact');
+        const replace = (node, newNode) => node.parentNode.replaceChild(newNode, node);
+        // move existingFilter from existingResult to tempResult
+        replace(tempFilter, existingFilter);
+        // replace existingResult with tempResult ( newResult )
+        replace(existingResult, tempResult);
+        // bootstrap react components if any exists in the search result
+        window.__litium.bootstrapComponents();
+    }
+    ```
+    ```javascript
+    useEffect(() => {
+        const productViewCached = window.__litium.cache 
+              ? window.__litium.cache[PRODUCT_VIEW_CACHED] || {} : {};
+        if (!productViewCached.used) {
+            productViewCached.used = true;
+            const dom = productViewCached.productsView;
+            dom && onSearchResultDataChange(dom);
+        }
+    });
+    ```
+    
+
+Updated   2021-10-06

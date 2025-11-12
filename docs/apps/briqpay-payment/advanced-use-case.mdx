@@ -1,0 +1,35 @@
+---
+title: Advanced use-case
+description: To customise payment options per session, you can define which payment methods are available by configuring the module settings at the time of checkout creation.
+---
+
+# Advanced use-case
+
+*   Litium 8
+
+To customise payment options per session, you can define which payment methods are available by configuring the module settings at the time of checkout creation.
+
+The PSPIds can be found on each payment method from the [Briqpay Backoffice](https://app.briqpay.com/dashboard/payment-methods/configuration).
+
+The below example uses parts of the [Briqpay Nuget Package](https://www.nuget.org/packages/Briqpay) to handle typings easier.
+
+```csharp
+// Enable default Invoice payment method by setting its rule override to "enabled"
+var pspConfigurationInvoice = new RuleOverridePSP("f4da7d49-30d7-4628-aa3c-93535880d52b", new RuleOverridePSPHandles { Enabled = true });
+
+// Set up manual invoice option, enabled only if default invoice is disabled
+var pspConfigurationManualInvoice = new RuleOverridePSP("0e66a37b-a646-4ac4-a1ad-94dd40083e9f", new RuleOverridePSPHandles { Enabled = !pspConfigurationInvoice.Handles.Enabled });
+
+// Define a list to store the override rules
+var listOfRules = new List<RuleOverridePSP> { pspConfigurationInvoice, pspConfigurationManualInvoice };
+
+// Configure the module to include payment settings and rule overrides
+var modules = new { loadModules = new List<string> { "payment" }, config = new { payment = new PaymentConfiguration() } };
+
+modules.config.payment.PspRulesOverride = new PaymentConfigurationPspRulesOverride { Psp = listOfRules, OtherPsps = PaymentConfigurationPspRulesOverride.OtherPspsEnum.RunRules };
+
+// Add the configured module settings to the additional data for checkout flow
+additionalData.Add("ModulesConfig", JsonConvert.SerializeObject(modules));
+```
+
+Add this configuration to the `additionalInfo` dictionary in the checkout flow settings. Please note: this setup can only be applied when the Briqpay session is initially created and cannot be modified later.

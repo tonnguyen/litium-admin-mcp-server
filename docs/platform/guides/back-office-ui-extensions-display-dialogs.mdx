@@ -2,137 +2,140 @@
 title: "Display dialogs"
 description: "In Litium 8, all dialogs are built with Angular."
 ---
-This section shows how to use dialogs in the back office.
+This section shows how to use dialogs in the Litium backoffice.
 
-In Litium 8, all dialogs are built with Angular.
+In Litium 8 all dialogs are built with Angular.
 
-[Dialogs using Angular](#customers and media \(angular\))
-
-[Universal dialogs](#universaldialogs)
+- [Dialogs using Angular](#dialogs-using-angular)
+- [Universal dialogs](#universal-dialogs)
 
 ## Dialogs using Angular
 
-This describes how to display dialogs using Angular. To display the dialog in the back office, and to select a value, add the following to the template:
+To open a dialog in the backoffice and select a value, add the following to your component template:
 
-<a class="base\_\_fake\_\_link" (click)="showDialog = true"> {{ 'general.action.add' | translate}}</a>
+```html
+<a class="base__fake__link" (click)="showDialog = true">
+  {{ 'general.action.add' | translate }}
+</a>
 <entity-selector-dialog
-    \*ngIf="showDialog"
-    \[entityType\]="'group'"
-    \[entityMultiSelect\]="false"
-    (onSubmit)="submit($event)"
-    (onClose)="showDialog = false">
+  *ngIf="showDialog"
+  [entityType]="'group'"
+  [entityMultiSelect]="false"
+  (onSubmit)="submit($event)"
+  (onClose)="showDialog = false">
 </entity-selector-dialog>
+```
 
-And add the following to the code file:
+Add the corresponding code to the component:
 
+```ts
 showDialog = false;
-submit(ids: string\[\]) {
-    // process the list item's id here
-}
 
-The anchor tag is for the Add-link, which will open the entity selector dialog when you click on it. The dialog will display a list of groups, in which you can select a single group.
+submit(ids: string[]) {
+  // Process the selected IDs
+}
+```
+
+The anchor renders an **Add** link that opens the entity selector dialog. The example lists groups and allows selecting a single group.
 
 Options:
 
-- _entityType_: Configure the type you want to select. Check the list below for supported types.
-- _entityMultiSelect_: Configure whether the user should be able to select single or multiple items. Set to true by default.
-- _onSubmit_: Configure the callback for the OK button in the dialog is clicked. In the callback, you receive the list of selected ID's.
-- _onClose_: Configure the callback for the Cancel button in the dialog. Usually nothing is done. Set the value for _showDialog_ to false if you want the dialog to be closed when clicking Cancel.
+- `entityType`: the entity to select (see the list below).
+- `entityMultiSelect`: whether a user can pick multiple items (default `true`).
+- `onSubmit`: callback for the OK button. Receives the selected IDs.
+- `onClose`: callback for the Cancel button. Set `showDialog` to `false` to close the dialog.
 
 ### Supported entity types
 
-| Area | Name | Description | From  
-version |
+| Area | Name | Description | Introduced |
 | --- | --- | --- | --- |
-| **Customers** | _group_ | Select groups, both static, smart and target groups | 6.0.0 |
-| **Customers** | _staticGroup_ | Select static groups | 6.0.0 |
-| **Customers** | _targetGroup_ | Select target groups | 6.0.0 |
-| **Customers** | _organization_ | Select organization | 6.0.0 |
-| **Customers** | _person_ | Select person, exclude system users | 6.0.0 |
-| **Customers** | _allPerson_ | Select person, include system users | 6.0.0 |
-| **Customers** | _role_ | Select role | 6.0.0 |
-| **Customers** | _addressType_ | Select address type | 6.0.0 |
-| **Customers** | _groupTemplate_ | Select group template | 6.0.0 |
-| **Customers** | _organizationTemplate_ | Select organization template | 6.0.0 |
-| **Customers** | _personTemplate_ | Select person template | 6.0.0 |
-|   |   |   |   |
-| **Websites** | _website_ | Select website | 7.0.0 |
-|   |   |   |   |
-| **Products** | _assortments_ | Select assortment | 7.0.0 |
-| **Products** | _products_ | Select products | 7.0.0 |
-| **Products** | _productLists_ | Select product list | 7.0.0 |
-| **Products** | _productsWithUrl_ | Select base products or variants depend on the settings use variant url on display template | 7.4.1 |
-| **Products** | _baseProductsAndVariants_ | Select base product or variant | 7.4.1 |
-| **Products** | _variants_ | Select variant | 7.4.1 |
-| **Products** | _relationshipType_ | Select relationship type | 7.4.1 |
-| **Products** | priceList | Select price lists | 8.0.0 |
-| **Products** | campaignPriceList | Select campaign price lists which are used with discounts | 8.0.0 |
-| **Products** | inventory | Select inventories | 8.0.0 |
-|   |   |   |   |
-| **Globalization** | _countries_ | Select countries | 7.0.0 |
-| **Globalization** | _marketChannel_ | Select channels where the list is group by Market | 7.0.0 |
-|   |   |   |   |
-| **Sales** | campaign | Select campaigns | 8.0.0 |
-| **Sales** | discount | Select discounts | 8.0.0 |
-| **Sales** | paymentMethod | Select payment methods | 8.0.0 |
-| **Sales** | deliveryMethod | Select delivery methods | 8.0.0 |
-|   |   |   |   |
-| **Blocks** | globalBlock | Select global blocks | 8.0.0 |
+| **Customers** | `group` | Select static, smart, and target groups | 6.0.0 |
+| **Customers** | `staticGroup` | Select static groups | 6.0.0 |
+| **Customers** | `targetGroup` | Select target groups | 6.0.0 |
+| **Customers** | `organization` | Select organisations | 6.0.0 |
+| **Customers** | `person` | Select person (excludes system users) | 6.0.0 |
+| **Customers** | `allPerson` | Select person (includes system users) | 6.0.0 |
+| **Customers** | `role` | Select roles | 6.0.0 |
+| **Customers** | `addressType` | Select address types | 6.0.0 |
+| **Customers** | `groupTemplate` | Select group templates | 6.0.0 |
+| **Customers** | `organizationTemplate` | Select organisation templates | 6.0.0 |
+| **Customers** | `personTemplate` | Select person templates | 6.0.0 |
+| **Websites** | `website` | Select websites | 7.0.0 |
+| **Products** | `assortments` | Select assortments | 7.0.0 |
+| **Products** | `products` | Select products | 7.0.0 |
+| **Products** | `productLists` | Select product lists | 7.0.0 |
+| **Products** | `productsWithUrl` | Select base products or variants depending on template configuration | 7.4.1 |
+| **Products** | `baseProductsAndVariants` | Select base products or variants | 7.4.1 |
+| **Products** | `variants` | Select variants | 7.4.1 |
+| **Products** | `relationshipType` | Select relationship types | 7.4.1 |
+| **Products** | `priceList` | Select price lists | 8.0.0 |
+| **Products** | `campaignPriceList` | Select campaign price lists (used with discounts) | 8.0.0 |
+| **Products** | `inventory` | Select inventories | 8.0.0 |
+| **Globalization** | `countries` | Select countries | 7.0.0 |
+| **Globalization** | `marketChannel` | Select channels grouped by market | 7.0.0 |
+| **Sales** | `campaign` | Select campaigns | 8.0.0 |
+| **Sales** | `discount` | Select discounts | 8.0.0 |
+| **Sales** | `paymentMethod` | Select payment methods | 8.0.0 |
+| **Sales** | `deliveryMethod` | Select delivery methods | 8.0.0 |
+| **Blocks** | `globalBlock` | Select global blocks | 8.0.0 |
 
 ## Universal dialogs
 
-The approach above need to be executed in Angular context. In case those requirements cannot be fullfilled, then we need another solution. We need a universal way to open the dialog. Note that the universal dialog only supports entity types that are listed in [supported entity types](#angular supported entity types) section above, plus media files and pages.
+The Angular approach above runs within the Angular runtime. When that is not possible you can open dialogs through an iframe. Universal dialogs support all entity types listed above plus media files and pages.
 
-In this approach, we use iFrame to show the Angular component. The iFrame can be placed in a DIV tag and by using CSS and JS, we can make it look like a modal dialog. We can use any JS library to create a modal dialog. Note that we don't cover how to create modal dialog in this article.
+The idea is to render an iframe and listen for messages when a user selects an item. Use one of the following URLs as the iframe `src`:
 
-Basically the idea is to have an iFrame in the page and listen for the event when the OK or Cancel button is clicked. Here are the list of URLs should be set in the SRC attribute of the iFrame:
+- **Media file**  
+  `https://localhost/Litium/UI/frame/FileSelectorWrapper?multiSelect=true&type=4`
 
-- _Media file_: https://localhost/Litium/UI/frame/FileSelectorWrapper?multiSelect=true&type=4
-    - Input:
-        - _multiSelect_: a boolean parameter to configure if a single or mutiple items can be selected.
-        - _type_: a number 1, 2 or 4 to configure what type of file should be displayed.
-            - 1 (default if omitted): all files.
-            - 2: images.
-            - 4: video files.
-    - Output:
-        - _source_: _fileSelector_
-        - _value_: an object that contains _action_ and _items_:
-            - _action_: a string that represents the action. It is _closeMediaPopup_ when OK or Cancel button is clicked. It is _doubleClick_ if user double clicks a file.
-            - _items_: the list of selected file object.
-- _Page_: https://localhost/Litium/UI/frame/EntityTreeSelectorWrapper?entityMultiSelect=1&entityType=page
-    - Input: 
-        - _entityMultiSelect_: a numer 0 or 1 to configure if a single or multiple items can be selected.
-    - Output:
-        - _source_: _entitytreeselector_
-        - _value_: an object that contains _items_:
-            - _items_: an array if _entityMultiSelect_ is 1, otherwise an object of selected page. The object has the _systemId_ and _channelSystemId_ properties.
-- _Category_: https://localhost/Litium/UI/frame/EntityTreeSelectorWrapper?entityMultiSelect=1&entityType=category
-    - Input: 
-        - _entityMultiSelect_: a numer 0 or 1 to configure if a single or multiple items can be selected.
-    - Output:
-        - _source_: _entitytreeselector_
-        - _value_: an object that contains _items_:
-            - _items_: an array if _entityMultiSelect_ is 1, otherwise an object of selected category. The object has the _systemId_ property.
-- Other entity types that are listed in the [supported entity types](#angular supported entity types): https://localhost/Litium/UI/frame/EntitySelectorWrapper?entityMultiSelect=1&entityType=countries
-    - Input:
-        - _entityMultiSelect_: a numer 0 or 1 to configure if a single or multiple items can be selected.
-        - _entityType_: the name of the entity type to configure what type should be selected.
-    - Output:
-        - _source_: _entityselector_
-        - _value_: an object that contains _items_:
-            - items: the list of selected items. Each array item is an object which has _name_ and _systemId_ properties.
+  - Inputs:
+    - `multiSelect`: `true` enables multi-select.
+    - `type`: `1` (all files, default), `2` (images), or `4` (video files).
+  - Output:
+    - `source`: `fileSelector`
+    - `value`: `{ action, items }` where `action` is `closeMediaPopup` (OK/Cancel) or `doubleClick`, and `items` contains the selected files.
 
-Here is a simple snipppet to show the iFrame and to listen for the event:
+- **Page**  
+  `https://localhost/Litium/UI/frame/EntityTreeSelectorWrapper?entityMultiSelect=1&entityType=page`
 
+  - Input:
+    - `entityMultiSelect`: `0` or `1`
+  - Output:
+    - `source`: `entitytreeselector`
+    - `value`: `{ items }` (array if multi-select, otherwise an object with `systemId` and `channelSystemId`)
+
+- **Category**  
+  `https://localhost/Litium/UI/frame/EntityTreeSelectorWrapper?entityMultiSelect=1&entityType=category`
+
+  - Output:
+    - `value.items` contains the selected categories (`systemId` only when single select)
+
+- **Other entity types**  
+  `https://localhost/Litium/UI/frame/EntitySelectorWrapper?entityMultiSelect=1&entityType=countries`
+
+  - Inputs:
+    - `entityMultiSelect`: `0` or `1`
+    - `entityType`: one of the names from the table above
+  - Output:
+    - `source`: `entityselector`
+    - `value.items`: array of `{ name, systemId }`
+
+Example snippet:
+
+```html
 <html>
-<body>
-	<script type="text/javascript">
-		window.addEventListener("message", receiveMessage, false);
-		function receiveMessage(event) {
-		    // process the response from the iFrame
-			// event.data is the output object
-		}
-	</script>
-	<iframe src="https://localhost/Litium/UI/frame/EntitySelectorWrapper?entityMultiSelect=1&entityType=countries" />
-</body>
+  <body>
+    <script type="text/javascript">
+      window.addEventListener('message', receiveMessage, false);
+
+      function receiveMessage(event) {
+        // Handle the response from the iframe
+        // event.data is the output object described above
+      }
+    </script>
+
+    <iframe src="https://localhost/Litium/UI/frame/EntitySelectorWrapper?entityMultiSelect=1&entityType=countries"></iframe>
+  </body>
 </html>
+```
+

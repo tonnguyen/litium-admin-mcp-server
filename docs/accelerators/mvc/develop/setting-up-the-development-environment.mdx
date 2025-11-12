@@ -1,0 +1,64 @@
+---
+title: Setting up the development environment
+description: Configure your development workstation for the Litium MVC accelerator.
+---
+
+# Setting up the development environment
+
+- Litium 8
+
+How to set up a development environment for Litium Accelerator.
+
+This article explains how to set up a development environment for Litium Accelerator. It also covers the front end, where React, SASS, and webpack are included.
+
+Please read about [how to install Litium Accelerator here](/accelerators/mvc/install-litium-accelerator).
+
+**Note!** Make sure to have [required Developer tools](/platform/guides/upgrade-to-litium-8-upgrade-the-platform-solution-dotnet-upgrade) installed.
+
+## Front-end development
+
+Several Integrated Developer Environments (IDE) can be used for front-end development. You can also use Visual Studio but [Visual Studio Code](https://code.visualstudio.com/) is a lighter and better code editor for front-end development. After downloading the editor, open a folder in Windows Explorer, for example, `Litium.Accelerator.Mvc`. Right-click and select **Open with Code,** which will open the project in Visual Studio Code.
+
+![Open in VS Code](/images/accelerators/mvc/develop/OpenInVS.png)
+
+## How to build a client project using Visual Studio Code
+
+1. Make sure you have [NPM](https://www.npmjs.com/get-npm) or [Yarn](https://yarnpkg.com/lang/en/docs/install/) installed. Yarn is recommended.
+2. In Visual Studio Code, select **Menu** > **View** > **Terminal,** which will open the terminal panel
+
+   ![VS Code terminal](/images/accelerators/mvc/develop/VScodeTerminal.png)
+
+3. Type `yarn install`, then press Enter to install all dependent packages.
+4. Type `yarn run build:w` then press Enter to do the development build and enable the watch mode to monitor changes in `.js` or `.scss` file to rebuild. If you don't want to use watch mode, execute `yarn run build`.
+
+When the build is completed, output files are produced. Each project has its own output folder:
+
+- `Litium.Accelerator.Mvc`: `/wwwroot/ui` folder
+- `Litium.Accelerator.FieldTypes`: `/dist` folder
+- `Litium.Accelerator.Administration.Extensions`: `/dist` folder
+- L_itium.Accelerator.Email: `/dist` folder.
+
+The target file `ConfirmationEmail.html` is copied to the MVC project to be consumed by the MVC controller. To modify this logic, update the `copy()` function in `gulpfile.babel.js`.
+
+5. To build all client projects, execute `yarn run prod` for production build, or `yarn run build` for development build, under `Src` folder.
+
+## Build commands
+
+In `package.json` file, you can find a list of the available commands under `scripts` property. Each command serves a different purpose. To execute a command, append its name to the `yarn run` command.
+
+1. `yarn run prod`: build the project in production mode. The build configuration `webpack.prod.js` will be used. Output files are optimized for production use.
+2. `yarn run build`: build the project in development mode. The build configuration `webpack.dev.js` is used. Output files are not minified or optimized for production use. Developers should use this mode when developing or debugging.
+3. `yarn run build:w`: identical to `build` command, but also enables the watch mode. This will automatically build the project whenever a file is saved and webpack sees that the package needs to be updated.
+
+## Debug tools
+
+- Chrome DevTools: when using Google Chrome we can use its [DevTools](https://developers.google.com/web/tools/chrome-devtools/) to debug HTML, Javascript, and Network. There are similar tools for Firefox.
+- [Redux DevTools](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en): for debugging an application's state. There is a similar plug-in for Firefox.
+- [React Developer Tools for Chrome](https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi?hl=en)
+
+## Related articles
+
+- [MVC structure](/accelerators/mvc/develop/accelerator-architecture)
+- [Field types](/accelerators/mvc/develop/front-end-coding)
+- [Email](https://docs.litium.com/documentation/litium-accelerators/develop/front-end-accelerator/accelerator-email)
+

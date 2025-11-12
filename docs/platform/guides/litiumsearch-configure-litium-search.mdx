@@ -8,18 +8,22 @@ How to configure Litium search.
 
 To configure _Accelerator_ to use Litium Search powered by Elasticsearch you must add the connection string to Elasticsearch into _appsettings.json._
 
+```json
 "Elasticsearch": {
-      "ConnectionString": "http://localhost:9200"
-      
+  "ConnectionString": "http://localhost:9200"
+}
+```
 
- **Note:** _http://localhost:9200_ is the default port number that the Elasticsearch listens on_.00_
+**Note:** `http://localhost:9200` is the default port number that Elasticsearch listens on.
 
 To be able to use sniffing mode or password protected Elasticsearch, the username and password must be set in _appSettings_ and not in the connection string.
 
+```json
 "Elasticsearch": {
-      "Username": "",
-      "Password": ""
-      
+  "Username": "",
+  "Password": ""
+}
+```
 
 ## Synonym configuration
 
@@ -27,10 +31,13 @@ Litium is using dynamic synonyms to be able to reload them without needing of tu
 
 [Read more about Litium Search and synonyms in the user guide](https://docs.litium.com/help/litium-8/settings)
 
+```json
 "Elasticsearch": {
-      "Synonym": {
-        "Server": "http://synonymserver.localtest.me:9210"
-      }
+  "Synonym": {
+    "Server": "http://synonymserver.localtest.me:9210"
+  }
+}
+```
 
 If Elasticsearch cannot reach the host the index will not be created. Indexing and searching will then result in errors.
 
@@ -38,7 +45,10 @@ If Elasticsearch cannot reach the host the index will not be created. Indexing a
 
 To separate Litium applications, the prefix name can be added to Elasticsearch index in _appsettings.json__._
 
+```json
 "Elasticsearch": {
-      "Prefix": "prefix\_"
+  "Prefix": "prefix_"
+}
+```
 
 The prefix is optional but is recommended to use also for local development to not mix search indexes between installations.

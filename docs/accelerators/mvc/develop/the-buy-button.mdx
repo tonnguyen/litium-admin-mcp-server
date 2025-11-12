@@ -1,0 +1,87 @@
+---
+title: The buy button
+description: How the buy button is implemented in Litium Accelerator.
+---
+
+# The buy button
+
+*   Litium 8
+
+How the buy button is implemented in Litium Accelerator.
+
+The buy button is used to add a product to a cart. It works asynchronously, which means the page does not have to reload and the mini cart is reloaded automatically. The buy button:
+
+*   Can be used in MVC Razor view.
+*   Should work asynchronously so the page does not reload.
+*   Should update the mini cart or any other component that needs to reload.
+*   Can add one or many quantities.
+*   Should show a notification message when an item is added to the cart.
+
+Here we will go through the code required and show how it meets these requirements.
+
+## Render the buy button on the server side
+
+On the server side, the buy button is created by calling the extension method of _MvcHtmlString,_ located in _ProductItemViewModelHtmlExtensions.cs_:
+
+```csharp
+@Html.BuyButton(model => model.ProductItem, cssClass: "product-detail__buy-button", isBuyButton: true)
+```
+
+Where _model.ProductItem_ should return the _Litium.Accelerator.ViewModels.Product.ProductItemViewModel_.
+
+We can build the _ProductItemViewModel_ from a variant, by using the _ProductItemViewModelBuilder_. Remember to import the extension namespace:
+
+```csharp
+@using Litium.Accelerator.Mvc.Extensions
+```
+
+The _buy-button_ parameter is used to decide if clicking the button will add a product to the shopping cart, or simply navigate to the product's page.
+
+The server side renders an HTML tag named _buy-button_, with some data attributes which are used later when creating the React component:
+
+```javascript
+<buy-button data-article-number="636743401924888880-02423006_L" data-css-class="button buy-button product-detail__buy-button" data-quantity-field-id="41fa735e-0473-4238-82f6-68b3d0e3c7ae">Add to car</buy-button>
+```
+
+## Render a buy button in React
+
+A built-in _BuyButton_ component should be used like this:
+
+```csharp
+import BuyButton from './Components/BuyButton';
+
+<Provider store={store}>
+    <BuyButton {...{ label, articleNumber, quantityFieldId, href, cssClass }}/>
+</Provider>
+```
+
+This is explained as follows:
+
+*   _store_: the Redux store object. The store object can be found in the _index.js_ file, as well as in _window.\_\_litium.store._
+*   _label_: the label of the button.
+*   _articleNumber_: the article number should be added to the cart when the button is selected.
+*   _quantityFieldId_: the unique id of the quantity field to get the quantity value.
+*   _href_: in case _articleNumber_ is not available, _href_ will be used as a hyper link for the buy button.
+*   _cssClass_: the css class for the button.
+
+## _Cart.service.js, Cart.action.js_ and _Cart.reducer.js_
+
+The _add()_ function in _Cart.service.js_ sends a POST request to _/api/cart/add_ (_CartController.cs_) with the article number and quantity. A new cart object will be sent back by _CartController_. This object is then stored in the Redux state named _cart_ by using _receive_ action. The reducer that handles this action is _Cart.reducer.js_. All components that consume this state will be updated, for example the mini cart.
+
+## CartController
+
+When the buy button is clicked, a POST request is sent to the _Add_ action of the _CartController_. The controller then adds the article to the cart, and returns the new cart using _CartViewModelBuilder_.
+
+The _Add_ action is decorated with the _ApiValidateAntiForgeryToken_, to prevent cross-site request forgeries. HTTP requests sent from the client have the token in the header, with _RequestVerificationToken_ as the key. This is done automatically in the HTTP service, of _Client\\Scripts\\Services\\http.js_. So, we do not have to worry about this when sending an HTTP request from the client side, as long as we use the HTTP service:
+
+```javascript
+import { get, post, put, remove as httpRemove } from '../Services/http';
+```
+
+The server side action, however, needs to be decorated with _ApiValidateAntiForgeryToken_ (_Litium.Accelerator.Mvc.Attributes.ApiValidateAntiForgeryToken_). It is used for WebAPI actions, while _System.Web.Mvc.ValidateAntiForgeryToken_ is used for MVC actions.
+
+By looking at the Network tab of Google Chrome's DevTools, we can see the request with the _RequestVerificationToken_ header, and the actual payload. Switching to the Preview tab, we can also see the _Cart_ object that is returned from the _CartController_. This is the object that we store into the _Cart_ state of Redux, and _MiniCart.js_ component presents this data to the UI.
+
+![Devtool.png](/images/accelerators/mvc/develop/Devtool.png)
+
+Updated   2022-11-25

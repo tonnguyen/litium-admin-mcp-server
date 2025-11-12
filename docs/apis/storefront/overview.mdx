@@ -1,0 +1,107 @@
+---
+title: Storefront API
+description: The Storefront API provides a GraphQL API interface to the information in Litium specifically composed to serve public websites, portals or mobile applications. The GraphQL schema is based on the information inside each Litium installation and is automatically updated when changes are done inside Litium.
+---
+
+# Storefront API
+
+## Introduction
+
+The Storefront API provides a GraphQL API interface to the information in Litium specifically composed to serve public websites, portals or mobile applications. The GraphQL schema is based on the information inside each Litium installation and is automatically updated when changes are done inside Litium.
+
+The API can return both published and unpublished information depending on the current user permissions and the requested information.
+
+## Roadmap
+
+Check out the [Storefront API roadmap](/platform/apis/storefront-api/storefront-api-roadmap) for details of future abilities.
+
+## System requirements
+
+Must be hosted on **Litium Serverless Cloud** to operate within the Litium environment.
+
+## Installation
+
+The Storefront API needs to be installed manually into the Litium solution and can be done with the template or with manual steps.
+
+### Automatic
+
+Storefront API can be automatically installed with the [Litium Mvc Accelrator](/accelerators/mvc/install-litium-accelerator) or [Litium Empty Web](/platform/get-started/install-empty-litium) template, see their installation pages for instructions.
+
+### Manual
+
+The Storefront API can manually be installed, add the NuGet package _Litium.Storefront.Application_ to the web project.
+
+## Access the Storefront API playground
+
+The Storefront API can be accessed with a graphical tool for inspection of the GraphQL schema.
+
+You can use the _https://.../storefront.graphql_ to access the graphical tool with the schema in your installation. For a demo you can use the [https://demo.litium.com/storefront.graphql](https://demo.litium.com/storefront.graphql) that represents the GraphQL schema for demo site.
+
+## Cross Origin Request Policy (CORS)
+
+When requesting the Storefront API, the browser will use CORS policy to ensure cross domain request if the current domain name and the domain name for the Storefront API is different. Litium has created a CORS policy that allows requests from the domain information that is setup below the globalization settings page.
+
+## Request method
+
+The Storefront API supports POST request with the required http header “Content-Type: application/json”, the payload should be included and formatted into JSON string.
+
+## Authentication
+
+The Storefront API does not require authentication and will only return information that the everyone can access. To access information that is not accessible for everyone the authentication information needs to be included in the request.
+
+The Storefront API supports:
+
+1.  Authentication header with a bearer token.
+2.  Litium authentication cookie
+
+If the authentication that is provided is invalid or has expired the request will be treated as anonymous and using everyone’s permission for the authorization.
+
+## Field permissions
+
+If the provided authentication lacks permission for a field, the field's value will return null during a query.
+
+## Backend domain url
+
+In case the storefront and the backend has different urls, the callback domain to backend can be configured in the [Configuration](/platform/get-started/configuration) file, section Callback domain for Backend.
+
+## Http-headers
+
+Contextual information about the user (see authentication), current requested url (see context) or cart (see cart and checkout) is passed into the Storefront API as http-headers. The http-headers are included in the downstream GraphQL fenderation request that make the information available also for the extension.
+
+### Context
+
+Context is information about the current request, it is used to resolve information about the current page, website, channel, country, language and more. The context information is parsed out from the requested URL and should be passed in the GraphQL request as an header with name "x-litium-storefront-context-url".
+
+#### Example
+
+```json
+x-litium-storefront-context-url: "https://demo.litium.com"
+```
+
+### Cart
+
+### Checkout
+
+### Persisted queries 
+
+[Persisted queries](https://chillicream.com/docs/hotchocolate/v13/performance/automatic-persisted-queries) is supported in the Storefront API, and 265hash with base64 encoded is used as hash function.
+
+Example : 
+
+Check that the data not exists
+
+```csharp
+curl.exe --insecure -g 'https://localhost:5001/storefront.graphql/?extensions={"persistedQuery":{"version":1,"sha256Hash":"7PTttG20C1EyKVwCkdYvtl1nWanu36TV1hLdXsVKazg="}}'
+```
+
+Create a persisted query, this should return persisted=true, otherwise it will return the expected hash/type/format that should be used.
+
+```csharp
+curl.exe --insecure -g 'https://localhost:5001/storefront.graphql/?query={__typename}&extensions={"persistedQuery":{"version":1,"sha256Hash":"7PTttG20C1EyKVwCkdYvtl1nWanu36TV1hLdXsVKazg="}}'
+```
+
+Check that the query now works
+
+```csharp
+curl.exe --insecure -g 'https://localhost:5001/storefront.graphql/?extensions={"persistedQuery":{"version":1,"sha256Hash":"7PTttG20C1EyKVwCkdYvtl1nWanu36TV1hLdXsVKazg="}}'
+```

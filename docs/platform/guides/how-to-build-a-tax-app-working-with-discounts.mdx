@@ -12,6 +12,7 @@ Your external tax service's API might handle the product level discounts by itse
 
 Product discount rows can be identified as follows.
 
+```csharp
 public static bool IsProductDiscount(this OrderRow discountRow, ICollection<DiscountInfo> discountInfo, out List<string> productRowIds)
 {
     productRowIds = null;
@@ -23,85 +24,87 @@ public static bool IsProductDiscount(this OrderRow discountRow, ICollection<Disc
     }
     return false;
 }
+```
 
 Now we modify our previous example code to handle Litium order rows that represent product discounts:
 
-        private async Task<CalculateSalesOrderTaxResponse> CalculateSalesOrderTax(CalculateSalesOrderTaxRequest request)
+```csharp
+private async Task<CalculateSalesOrderTaxResponse> CalculateSalesOrderTax(CalculateSalesOrderTaxRequest request)
+{
+    var response = new CalculateSalesOrderTaxResponse
+    {
+        TaxRows = new List<TaxRow>()
+    };
+    foreach (var shippingGroup in request.ShippingGroups)
+    {
+        var lineItems = new Dictionary<string, TaxServiceLineItem>();
+
+        foreach (var orderRow in shippingGroup.Rows.ToList())
         {
-            var response = new CalculateSalesOrderTaxResponse()
-            {
-                TaxRows = new List<TaxRow>()
-            };
-            foreach (var shippingGroup in request.ShippingGroups)
-            {
-               
-                var lineItems = new Dictionary<string, TaxServiceLineItem>();
+            //.. convert this orderRow to the tax calculation service order rows.
 
-                foreach (var orderRow in shippingGroup.Rows.ToList())
-                {
-                    //.. convert this orderRow to the tax calculation service order rows.
-
-                    //Note: Not all order rows are products. Apart from product rows, there are discounts, fees and shipping fees.
-                    // Depending on the tax calculation service you are using, you might need to find the product discounts, and pro-rata apportion the order level discounts to product rows.
-                    switch (orderRow.OrderRowType)
+            //Note: Not all order rows are products. Apart from product rows, there are discounts, fees and shipping fees.
+            // Depending on the tax calculation service you are using, you might need to find the product discounts, and pro-rata apportion the order level discounts to product rows.
+            switch (orderRow.OrderRowType)
+            {
+                case OrderRowType.Product:
+                    if (lineItems.ContainsKey(orderRow.Id))
                     {
-                        case OrderRowType.Product:
-                            if (lineItems.ContainsKey(orderRow.Id))
-                            {
-                                var lineItem = lineItems\[orderRow.Id\];
-                                lineItem.Amount += orderRow.TotalExcludingTax;
-                            }
-                            else
-                            {
-                                lineItems.Add(orderRow.Id, new TaxServiceLineItem()
-                                {
-                                    Id = orderRow.Id,
-                                    Amount = orderRow.TotalExcludingTax,
-                                    Quantity = (int)orderRow.Quantity,
-                                    TaxCode = orderRow.TaxData?.TaxCode
-                                });
-                            }
-                            break;
-                        case OrderRowType.Fee:
-                            break;
-                        case OrderRowType.ShippingFee:
-                            break;
-                        case OrderRowType.Discount:
-                            if(orderRow.IsProductDiscount(request.DiscountInfo,out List<string> productRowIds))
-                            {
-                                //in this example, we assume this product discount refer to only one productRow.
-                                //in your implemenation you would need to handle scenarios where multiple product rows are present.
-                                var productRowId = productRowIds.FirstOrDefault();
-                                if (lineItems.ContainsKey(productRowId))
-                                {
-                                    var lineItem = lineItems\[productRowId\];
-                                    lineItem.Amount += orderRow.TotalExcludingTax; //note: for discounts, this is a negative value
-                                }
-                                else
-                                {
-                                    lineItems.Add(orderRow.Id, new TaxServiceLineItem()
-                                    {
-                                        Id = orderRow.Id,
-                                        Amount = orderRow.TotalExcludingTax,
-                                        Quantity = (int)orderRow.Quantity,
-                                        TaxCode = orderRow.TaxData?.TaxCode
-                                    });
-                                }
-                            }
-                            break;
+                        var lineItem = lineItems[orderRow.Id];
+                        lineItem.Amount += orderRow.TotalExcludingTax;
                     }
-                }
-
-                //...call the tax calculation service, such as Avalara and obtain the calculated tax.
-                var taxServiceResponse = ExternalTaxAPI.SimulateCallToExternalTaxService(new TaxServiceRequest() { Items = lineItems.Values.ToList() });
-
-                var taxRow = new TaxRow();
-                //... construct a taxRow for each shipping group, using tax data received from the tax calculation service.
-
-                response.TaxRows.Add(taxRow);
+                    else
+                    {
+                        lineItems.Add(orderRow.Id, new TaxServiceLineItem
+                        {
+                            Id = orderRow.Id,
+                            Amount = orderRow.TotalExcludingTax,
+                            Quantity = (int)orderRow.Quantity,
+                            TaxCode = orderRow.TaxData?.TaxCode
+                        });
+                    }
+                    break;
+                case OrderRowType.Fee:
+                    break;
+                case OrderRowType.ShippingFee:
+                    break;
+                case OrderRowType.Discount:
+                    if (orderRow.IsProductDiscount(request.DiscountInfo, out List<string> productRowIds))
+                    {
+                        //in this example, we assume this product discount refer to only one productRow.
+                        //in your implemenation you would need to handle scenarios where multiple product rows are present.
+                        var productRowId = productRowIds.FirstOrDefault();
+                        if (lineItems.ContainsKey(productRowId))
+                        {
+                            var lineItem = lineItems[productRowId];
+                            lineItem.Amount += orderRow.TotalExcludingTax; //note: for discounts, this is a negative value
+                        }
+                        else
+                        {
+                            lineItems.Add(orderRow.Id, new TaxServiceLineItem
+                            {
+                                Id = orderRow.Id,
+                                Amount = orderRow.TotalExcludingTax,
+                                Quantity = (int)orderRow.Quantity,
+                                TaxCode = orderRow.TaxData?.TaxCode
+                            });
+                        }
+                    }
+                    break;
             }
-            return response;            
         }
+
+        //...call the tax calculation service, such as Avalara and obtain the calculated tax.
+        var taxServiceResponse = ExternalTaxAPI.SimulateCallToExternalTaxService(new TaxServiceRequest { Items = lineItems.Values.ToList() });
+
+        var taxRow = new TaxRow();
+        //... construct a taxRow for each shipping group, using tax data received from the tax calculation service.
+
+        response.TaxRows.Add(taxRow);
+    }
+    return response;
+}
+```
 
 As you can see above we are reducing the product row amount directly by the product discount applied onto it.
 
@@ -109,6 +112,7 @@ As you can see above we are reducing the product row amount directly by the prod
 
 There can be discounts applied to fees and shipping fees. In this case, they are not product discounts, but fee discounts. You can identify them in the following way. Key point is that, SourceOrderRowIds is not null and is pointing to a order row.
 
+```csharp
 public static bool IsCampaignDiscount(this OrderRow discountRow, ICollection<DiscountInfo> discountInfo, out List<string> sourceRowIds)
 {
     sourceRowIds = null;
@@ -120,6 +124,7 @@ public static bool IsCampaignDiscount(this OrderRow discountRow, ICollection<Dis
     }
     return false;
 }
+```
 
 How the shipping and fee rows should be presented depend on the tax calculation provider you are using. However, the way to handle it is similar to the way the product discounts are handled above.
 
@@ -131,20 +136,23 @@ Since you need to calculate proportionate amounts, this has to be done after all
 
 You may find a order level discount row as follows:
 
-        public static bool IsOrderDiscount(this OrderRow discountRow, ICollection<DiscountInfo> discountInfo)
-        {
-            var discount = discountInfo?.FirstOrDefault(x => x.ResultOrderRowId == discountRow.Id);
-            if (discount != null && discount.ProductDiscount == false && (discount.SourceOrderRowIds is null || discount.SourceOrderRowIds.Count == 0))
-            {                
-                return true;
-            }
-            return false;
-        }
+```csharp
+public static bool IsOrderDiscount(this OrderRow discountRow, ICollection<DiscountInfo> discountInfo)
+{
+    var discount = discountInfo?.FirstOrDefault(x => x.ResultOrderRowId == discountRow.Id);
+    if (discount != null && discount.ProductDiscount == false && (discount.SourceOrderRowIds is null || discount.SourceOrderRowIds.Count == 0))
+    {                
+        return true;
+    }
+    return false;
+}
+```
 
 ### Using discount.PromotionDiscountType
 
 For more specific handling of discounts, you may also use the discount.PromotionDiscountType property. To demonstrate the concept, following sample code omitts shipping rows and shipping discounts as non-taxable. 
 
+```csharp
 public static bool IsTaxable(this OrderRow orderRow, ICollection<DiscountInfo> discountInfo)
 {
     if (orderRow == null)
@@ -157,13 +165,13 @@ public static bool IsTaxable(this OrderRow orderRow, ICollection<DiscountInfo> d
         OrderRowType.AlternativePaymentMethod => false,
         OrderRowType.ShippingFee => false,
         OrderRowType.Discount => IsDiscountTaxable(orderRow, discountInfo),
-        \_ => true
+        _ => true
     };
 
     static bool IsDiscountTaxable(OrderRow discountRow, ICollection<DiscountInfo> discountInfo)
     {
         //since shipping fees are not taxed, shipping discounts should not be taxed.
-        var discount = discountInfo?.FirstOrDefault(x=>x.ResultOrderRowId == discountRow.Id);
+        var discount = discountInfo?.FirstOrDefault(x => x.ResultOrderRowId == discountRow.Id);
         if (discount != null && discount.PromotionDiscountType == "FreeDelivery")
         {
             //since shipping fee is not taxable, the FreeDelivery discount is also not taxable.
@@ -173,3 +181,4 @@ public static bool IsTaxable(this OrderRow orderRow, ICollection<DiscountInfo> d
         return true;
     }
 }
+```

@@ -4,6 +4,7 @@ description: "Following methods obtain the list price of an article and a produc
 ---
 Following methods obtain the list price of an article and a product published on a website. Note how the IPriceCalculator implementation is used to get the price.
 
+```csharp
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -19,24 +20,18 @@ namespace Litium.Studio.KC.Samples.ProductCatalog
     /// </summary>
     public class Pricing
     {
-        private readonly IPriceCalculator \_priceCalculator;
-        private readonly SecurityContextService \_securityContextService;
+        private readonly IPriceCalculator _priceCalculator;
+        private readonly SecurityContextService _securityContextService;
 
         public Pricing(IPriceCalculator priceCalculator, SecurityContextService securityContextService)
         {
-            \_priceCalculator = priceCalculator;
-            \_securityContextService = securityContextService;
+            _priceCalculator = priceCalculator;
+            _securityContextService = securityContextService;
         }
 
         /// <summary>
-        ///  Gets the list prices for <paramref name="variant"/>   
+        ///  Gets the list prices for <paramref name="variant"/>
         /// </summary>
-        /// <param name="variant">The variant.</param>
-        /// <param name="quantity">The quantity</param>
-        /// <param name="currency">The currency</param>
-        /// <param name="channel">The channel.</param>
-        /// <param name="country">The country.</param>
-        /// <returns>List<string></returns>
         public List<string> GetListPrices(Variant variant, decimal quantity, Currency currency, Channel channel, Country country)
         {
             List<string> listPrices = new List<string>();
@@ -45,7 +40,7 @@ namespace Litium.Studio.KC.Samples.ProductCatalog
             {
                 CurrencySystemId = currency.SystemId,
                 DateTimeUtc = DateTimeOffset.UtcNow,
-                UserSystemId = \_securityContextService.GetIdentityUserSystemId().GetValueOrDefault(),
+                UserSystemId = _securityContextService.GetIdentityUserSystemId().GetValueOrDefault(),
                 ChannelSystemId = channel.SystemId,
                 CountrySystemId = country.SystemId
             };
@@ -55,7 +50,7 @@ namespace Litium.Studio.KC.Samples.ProductCatalog
                 Quantity = quantity
             };
 
-            if (\_priceCalculator.GetListPrices(priceCalculatorArgs, priceCalculatorItemArgs).TryGetValue(priceCalculatorItemArgs.VariantSystemId, out PriceCalculatorResult priceListResult)
+            if (_priceCalculator.GetListPrices(priceCalculatorArgs, priceCalculatorItemArgs).TryGetValue(priceCalculatorItemArgs.VariantSystemId, out PriceCalculatorResult priceListResult)
                 && priceListResult is not null)
             {
                 listPrices.Add(currency.Format(priceListResult.PriceExcludingVat, false, CultureInfo.CurrentUICulture));
@@ -65,12 +60,8 @@ namespace Litium.Studio.KC.Samples.ProductCatalog
         }
 
         /// <summary>
-        ///  Gets the price lists.   
+        ///  Gets the price lists.
         /// </summary>
-        /// <param name="currency">The currency.</param>
-        /// <param name="channel">The channel.</param>
-        /// <param name="country">The country</param>
-        /// <returns>IDictionary<Guid, PriceCalculatorResult></returns>
         public IDictionary<Guid, PriceCalculatorResult> GetListPrice(Currency currency, Channel channel, Country country)
         {
             // get price from price calculator.
@@ -78,15 +69,16 @@ namespace Litium.Studio.KC.Samples.ProductCatalog
             {
                 CurrencySystemId = currency.SystemId,
                 DateTimeUtc = DateTimeOffset.UtcNow,
-                UserSystemId = \_securityContextService.GetIdentityUserSystemId().GetValueOrDefault(),
+                UserSystemId = _securityContextService.GetIdentityUserSystemId().GetValueOrDefault(),
                 ChannelSystemId = channel.SystemId,
                 CountrySystemId = country.SystemId
             };
 
-            return \_priceCalculator.GetListPrices(priceCalculatorArgs);
+            return _priceCalculator.GetListPrices(priceCalculatorArgs);
         }
     }
 }
+```
 
 ## Obtaining Campaign prices
 

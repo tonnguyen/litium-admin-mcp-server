@@ -1,0 +1,37 @@
+---
+title: SMTP
+description: Configure the Litium SMTP service for the MVC accelerator.
+---
+
+# SMTP
+
+- Litium 8
+
+Information about our SMTP service.
+
+To use our SMTP you need to set up two things, configuration in web.config (For Litium 8, appsettings) and SPF-record on the customer's DNS.
+
+The Litium SMTP is a basic mail service. Litium do not take any responsibility on delivery of mail when using our SMTP service. The service do not have support for TLS or more advanced features like DKIM. If mail is a critical functionality, we recommend configuring Litium to use your own mail service such as Office 365, Gmail suite or Sendgrid.
+
+**Webconfig:**  
+`<smtpServer value="mail3.litiumdrift.se" username="" password="" enableSsl="false" />`
+
+**Appsettings (Litium 8):**
+
+```json
+"Accelerator": {
+  "Smtp": {
+    "Host": "mail3.litiumdrift.se",
+    "Port": 25,
+    "Password": "",
+    "Username": "",
+    "EnableSecureCommunication": false
+  }
+}
+```
+
+**DNS-record:**  
+SPF-record: mail3.litiumdrift.se
+
+If the SPF-record is missing, there is a chance that the emails sent out will end up in the receiver's junk inbox.
+

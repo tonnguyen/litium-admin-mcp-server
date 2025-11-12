@@ -1,0 +1,79 @@
+---
+title: Svea payment
+description: The Svea payment app can be used to integrate with Svea to handle payments in your e-commerce solution. It is developed and maintained by Litium.
+---
+
+# Svea payment
+
+*   Litium 8
+
+The Svea payment app can be used to integrate with Svea to handle payments in your e-commerce solution. It is developed and maintained by Litium.  
+  
+The Svea payment app supports Svea Checkout. The app supports capture, cancel and refund transactions.
+
+## Installation
+
+Litium serverless cloud - Use the [Cloud CLI](https://docs.litium.com/cloud/serverless/get-started/install-payment-and-delivery-apps) to install the app.
+
+Litium legacy cloud - Contact [support](mailto:support@litium.com) to install the app in your test and/or production environment.
+
+Local environment - A [Docker compose template](/add-ons/litium-apps/svea-payment/docker-template) is available for local installation.
+
+## Configuration file
+
+The configuration file must have json format and UTF-8 encoding.
+
+```json
+{
+  "Svea": {
+    "PaymentAccounts": [
+      {
+        "PaymentAccountId": "SE",
+        "MerchantId": "123",
+        "SharedSecret": "...",
+        "Environment": "Test",
+        "Country": "Sweden",
+        "IsCompany": false,
+        "UseValidation": false,
+        "PaymentOptions": [
+          "Checkout"
+        ]
+      },
+      {
+        "PaymentAccountId": "DK",
+        "MerchantId": "123",
+        "SharedSecret": "...",
+        "Environment": "Test",
+        "Country": "Denmark",
+        "IsCompany": false,
+        "UseValidation": false,
+        "PaymentOptions": [
+          "Checkout"
+        ]
+      }
+    ]
+  }
+}
+```
+
+*   PaymentAccountId: Identifier to select the account. Must be a unique string.  
+    **Note:** _PaymentAccountId_ should not contain any spaces. If it contains spaces, it will cause the app to crash when trying to find the correct payment account for the cart's _PaymentOptionId_. The reason for this is that Litium sends it as `<PaymentAccountId> Checkout` and the app splits into spaces to retrieve the id. More than one space causes it to split incorrectly.
+*   MerchantId: Svea UserName, this is Svea merchant id followed by a string. This value is assigned by Svea.
+*   SharedSecret: Svea Password, this value is assigned by Svea.
+*   Environment: Svea environment. It should be "Test" or "Live".
+*   IsCompany: The flag indicates if the account is company or not.
+*   Country: The country of Svea account.
+*   UseValidation: The flag indicates if the account is using validation or not.
+*   PaymentOptions: It must be "Checkout".
+
+## Finnish consumer customers
+
+Due to legislation in Finland that prohibits credit providers to share customer details of private individuals that are the result of a lookup in a registry, the billing address might be null for some Litium orders.
+
+## Refund transactions
+
+For some payments methods, e.g. Trustly, there is a limitation that only one refund transaction per payment can be processing at the same time. If you try to create another SRO before the refund transaction has been finalized for the first one, an error will be thrown.
+
+## Callbacks
+
+Svea requires callbacks to be resolved from outside one's own network. Therefore, when running the Svea Payment app locally, you will not be able to complete an order. Please see [Svea documentation here](https://paymentsdocs.svea.com/docs/getting-started/callback).

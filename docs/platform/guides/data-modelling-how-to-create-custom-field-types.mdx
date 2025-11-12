@@ -46,6 +46,7 @@ For example, the field type can have as settings that it is possible to show the
 
 Let us create a file named _CustomTextFieldTypeMetadata.cs_ under _Litium.Accelerator.FieldTypes_ project:
 
+```csharp
 using Litium.FieldFramework;
 using System;
 using System.Collections.Generic;
@@ -74,10 +75,11 @@ namespace Litium.Accelerator.FieldTypes
 
             public override ICollection<FieldData> PersistFieldData(object item) => PersistFieldDataInternal(item);
 
-            protected override ICollection<FieldData> PersistFieldDataInternal(object item) => new\[\] { new FieldData { TextValue = (string)item } };
+            protected override ICollection<FieldData> PersistFieldDataInternal(object item) => new[] { new FieldData { TextValue = (string)item } };
         }
     }
 }
+```
 
 [Back to steps](#common steps)
 
@@ -91,6 +93,7 @@ The settings component name is used when setting up the field definition in the 
 
 Litium.Accelerator.FieldTypes\\CustomTextEditFieldTypeConverter.cs:
 
+```csharp
 using Litium.FieldFramework;
 using Litium.Runtime.DependencyInjection;
 using Litium.Web.Administration.FieldFramework;
@@ -98,27 +101,27 @@ using Newtonsoft.Json.Linq;
 
 namespace Litium.Accelerator.FieldTypes
 {
-    \[Service(Name = "CustomTextField")\]
+    [Service(Name = "CustomTextField")]
     internal class CustomTextEditFieldTypeConverter : IEditFieldTypeConverter
     {
-        private readonly IFieldTypeMetadata \_fieldTypeMetadata;
+        private readonly IFieldTypeMetadata _fieldTypeMetadata;
 
         public CustomTextEditFieldTypeConverter(FieldTypeMetadataService fieldTypeMetadataService)
         {
-            \_fieldTypeMetadata = fieldTypeMetadataService.Get("CustomTextField");
+            _fieldTypeMetadata = fieldTypeMetadataService.Get("CustomTextField");
         }
 
         public object CreateOptionsModel() => null;
 
         public virtual object ConvertFromEditValue(EditFieldTypeConverterArgs args, JToken item)
         {
-            var fieldTypeInstance = \_fieldTypeMetadata.CreateInstance(args.FieldDefinition);
-            return fieldTypeInstance.ConvertFromJsonValue(item.ToObject(\_fieldTypeMetadata.JsonType));
+            var fieldTypeInstance = _fieldTypeMetadata.CreateInstance(args.FieldDefinition);
+            return fieldTypeInstance.ConvertFromJsonValue(item.ToObject(_fieldTypeMetadata.JsonType));
         }
 
         public virtual JToken ConvertToEditValue(EditFieldTypeConverterArgs args, object item)
         {
-            var fieldTypeInstance = \_fieldTypeMetadata.CreateInstance(args.FieldDefinition);
+            var fieldTypeInstance = _fieldTypeMetadata.CreateInstance(args.FieldDefinition);
             var value = fieldTypeInstance.ConvertToJsonValue(item);
             if (value == null)
             {
@@ -136,12 +139,11 @@ namespace Litium.Accelerator.FieldTypes
         /// </remark>
         public string EditComponentName => "Accelerator#FieldEditorCustomText";
 
-       
         // Since we don't have the setting UI for this CustomText field, we can skip the setting controllers and components.
-       
         public string SettingsComponentName => string.Empty;
     }
 }
+```
 
 _EditComponentName,_ the last property in the code example above, defines which edit components will be used in the UI. 
 
@@ -179,6 +181,7 @@ The Excel field type converter is used to convert the field between entity and E
 
 If this was not implemented then the field will not be imported or exported by the excel importer / exporter.
 
+```csharp
 using Litium.Application.Runtime;
 using Litium.FieldFramework;
 using Litium.Runtime.DependencyInjection;
@@ -186,13 +189,18 @@ using Newtonsoft.Json.Linq;
 
 namespace Litium.Web.Administration.FieldFramework.Excel
 {
-    \[Service(FallbackService = true, Name = "CustomTextField")\]
+    [Service(FallbackService = true, Name = "CustomTextField")]
     internal class CustomTextExcelFieldTypeConverter : IExcelFieldTypeConverter
     {
-        public object ConvertFromExcelValue(ExcelFieldTypeConverterArgs args, object item) => string.IsNullOrEmpty(item as string) ? null : new JValue(item).ToObject<string>(ApplicationConverter.JsonSerializer);
+        public object ConvertFromExcelValue(ExcelFieldTypeConverterArgs args, object item) =>
+            string.IsNullOrEmpty(item as string)
+                ? null
+                : new JValue(item).ToObject<string>(ApplicationConverter.JsonSerializer);
+
         public object ConvertToExcelValue(ExcelFieldTypeConverterArgs args, object item) => item as string;
     }
 }
+```
 
 [Back to steps](#common steps)
 
@@ -212,17 +220,23 @@ _Litium.Accelerator.FieldTypes\\src\\Accelerator\\components\\field-editor-custo
 
 This is what the code looks like:
 
-<field-editor \[field\]="field">
-    <p preview></p>
-    <input edit type="text" \[id\]="name" #control 
-        \[ngModel\]="getValue(editLanguage)" 
-        (ngModelChange)="valueChange($event, editLanguage)"
-    />
+```html
+<field-editor [field]="field">
+  <p preview></p>
+  <input
+    edit
+    type="text"
+    [id]="name"
+    #control
+    [ngModel]="getValue(editLanguage)"
+    (ngModelChange)="valueChange($event, editLanguage)"
+  />
 </field-editor>
+```
 
 _Field-editor_ is the component that should be used when you want to create a field edit component. By using _field-editor_, and setting its _field_ property like in the code above, you don't have to manage the language change or the preview/edit mode.
 
-Inside the _<field-editor>_ tag, you need to define what should be displayed in preview and edit mode. Note the _preview_ and _edit_ attributes in the <p_\> and <input>_ tags. Those are the slot names that are used to project custom content to the pre-defined component _field-editor_. _<p preview>_ defines what will be displayed in preview mode, and _<input edit>_ defines what will be displayed in edit mode.
+Inside the _`<field-editor>`_ tag, you need to define what should be displayed in preview and edit mode. Note the _preview_ and _edit_ attributes in the `<p>` and `<input>` tags. Those are the slot names that are used to project custom content to the pre-defined component _field-editor_. ``<p preview>`` defines what will be displayed in preview mode, and ``<input edit>`` defines what will be displayed in edit mode.
 
 #### Code file
 
@@ -234,19 +248,21 @@ The template is configured in the component annotation, by setting the _template
 
 _Litium.Accelerator.FieldTypes\\src\\Accelerator\\components\\field-editor-custom-text\\field-editor-custom-text.component.ts_
 
+```ts
 import { Component, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { BaseFieldEditor } from 'litium-ui';
 
 @Component({
-    selector: 'field-editor-custom-text',
-    templateUrl: './field-editor-custom-text.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: 'field-editor-custom-text',
+  templateUrl: './field-editor-custom-text.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FieldEditorCustomText extends BaseFieldEditor {
-    constructor(changeDetectorRef: ChangeDetectorRef) {
-        super(changeDetectorRef);
-    }
+  constructor(changeDetectorRef: ChangeDetectorRef) {
+    super(changeDetectorRef);
+  }
 }
+```
 
 [Back to steps](#common steps)
 
@@ -254,6 +270,7 @@ export class FieldEditorCustomText extends BaseFieldEditor {
 
 The next step is to register the components in the module, _extensions.ts_. Note that the "FieldEditorCustomText" component has been imported and registered in _declarations_ in the _Accelerator_ module below:
 
+```ts
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
@@ -265,31 +282,35 @@ import { accelerator } from './redux/stores/accelerator.reducer';
 import { FieldEditorCustomText } from './components/field-editor-custom-text/field-editor-custom-text.component';
 
 @NgModule({
-    declarations: \[
-        FieldEditorFilterFields,
-        FieldEditorCustomText,
-    \],
-    imports: \[ 
-        CommonModule,
-        UiModule,
-        TranslateModule,
-    \]
+  declarations: [
+    FieldEditorFilterFields,
+    FieldEditorCustomText,
+  ],
+  imports: [
+    CommonModule,
+    UiModule,
+    TranslateModule,
+  ]
 })
 export class Accelerator {
-    constructor(private \_reducerRegistery: ReducerRegistry) {
-        this.\_reducerRegistery.register({ accelerator });
-    }
+  constructor(private _reducerRegistery: ReducerRegistry) {
+    this._reducerRegistery.register({ accelerator });
+  }
 }
+```
 
 The component needs to be exposed in webpack.js, under [ModuleFederationPlugin](https://webpack.js.org/concepts/module-federation/) in order for the platform to access them:
 
+```js
 new ModuleFederationPlugin({
-    name: "Accelerator",
-    filename: "remoteEntry.js",
-    exposes: {
-        Accelerator: "./Litium.Accelerator.FieldTypes/src/Accelerator/extensions.ts",
-        FieldEditorCustomText: "./Litium.Accelerator.FieldTypes/src/Accelerator/components/field-editor-custom-text/field-editor-custom-text.component",
-    },
+  name: "Accelerator",
+  filename: "remoteEntry.js",
+  exposes: {
+    Accelerator: "./Litium.Accelerator.FieldTypes/src/Accelerator/extensions.ts",
+    FieldEditorCustomText: "./Litium.Accelerator.FieldTypes/src/Accelerator/components/field-editor-custom-text/field-editor-custom-text.component",
+  },
+});
+```
 
 [Back to steps](#common steps)
 
@@ -299,7 +320,7 @@ If you have modified existing components or created new ones, you have to build 
 
 In Litium Accelerator we are using a client library with name _litium-ui_ which contains the base, common classes, and components. This helps you build the component for the custom field type. As you can see in the code snippets above, you import and use classes from the _litium-ui_ package. 
 
-The client library is automatically downloaded from _https://packages.litium.com/Npm/litium-ui?{version number}_ where you need to ensure that the _{version number}_ is correct for the version you are currently using in your solution. Example  _https://packages.litium.com/Npm/litium-ui?8.0.0_ is used for the Litium version 8.0.0.
+The client library is automatically downloaded from `https://packages.litium.com/Npm/litium-ui?{version number}` where you need to ensure that `{version number}` is correct for the version you are currently using in your solution. Example `https://packages.litium.com/Npm/litium-ui?8.0.0` is used for the Litium version 8.0.0.
 
 After verifying that _litium-ui_ has the correct version number in _package.json_, open a command prompt and change the base path to _src\\Litium.Accelerator.FieldTypes_, then execute the following two commands:
 
@@ -318,8 +339,11 @@ This is needed to deploy and load scripts in a production environment since we o
 
 Here is how script routings are configured in _src\\Litium.Accelerator.FieldTypes\\Properties\\AssemblyInfo.cs_ by using _AngularModuleAttribute_:
 
+```csharp
 using Litium.Web.Administration;
-\[assembly: AngularModule("Accelerator")\]
+
+[assembly: AngularModule("Accelerator")]
+```
 
 _AngularModuleAttribute_ is used to register _Accelerator.js_ and _Accelerator.js.map_ in the routing, under the name Accelerator. Please note:
 

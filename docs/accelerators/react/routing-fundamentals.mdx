@@ -1,0 +1,34 @@
+---
+title: Routing fundamentals
+description: How the Litium React accelerator resolves routes and maps URLs to templates.
+---
+
+# Routing fundamentals
+
+This page explains how to handle routing in React accelerator.
+
+The routing in React accelerator is based on [NextJS's routing](https://nextjs.org/docs/app/building-your-application/routing) where files are defined in `app` directory to handle requests. The [Dynamic routes](https://nextjs.org/docs/app/building-your-application/routing/dynamic-routes) is used to handle requests for each page, product and category templates. For example:
+
+- `app/HomePage/[[...slug]]/page.tsx`: handles requests to *Home* page template like `https://localhost:3001`, where the slug value is `undefined`, or `https://localhost:3001/another-home` where the slug value is an array `[ 'another-home' ]`.
+- `app/ProductWithVariantsProduct/[[...slug]]/page.tsx`: handles requests to ProductWithVariants product template. For example: `https://localhost:3001/woman/tops/court-dress-black_m-638113574893682732`, where the slug value is `[ 'woman', 'tops', 'court-dress-black_m-638113574893682732' ]`
+
+## How does the system map an Url to a template?
+
+Every pages, products and categories have a unique Url. This can be configured by setting the field *Url*.
+
+![Screenshot of URL field](/images/accelerators/react/Screenshot%202023-05-17%20at%2016.06.30.png)
+
+When a request is made to this Url, a file named `middleware.ts`, which is a [NextJS's middleware](https://nextjs.org/docs/app/building-your-application/routing/middleware), is handling the incoming request. What the middleware does is, it sends a GraphQL request to Litium to get the template name of the Url, which is returned by the field `__typename`. Then the request is forwared to the corresponsing `page.tsx` to handle. For example:
+
+- Incoming Url | __typename | File to handle
+- https://localhost:3001 | HomePage | app/HomePage/[[...slug]]/page.tsx
+- https://localhost:3001/woman | CategoryProductCategory | app/CategoryProductCategory/[[...slug]]/page.tsx
+- https://localhost:3001/woman/tops/court-dress-black_m-638113574893682732 | ProductWithVariantsProduct | app/ProductWithVariantsProduct/[[...slug]]/page.tsx
+
+At the end of `middleware.ts`, there is a [Matcher](https://nextjs.org/docs/app/building-your-application/routing/middleware#matcher) config to config what requests are ignored by the middleware.
+
+## Next steps
+
+- [How to create blocks](/platform/guides/how-to-create-blocks-in-react-accelerator)
+- [How to create pages](/platform/guides/how-to-create-pages-in-react-accelerator)
+

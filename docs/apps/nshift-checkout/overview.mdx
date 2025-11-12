@@ -1,0 +1,79 @@
+---
+title: nShift Checkout
+description: The nShift Shipment app is used to integrate Litium with nShift Checkout.
+---
+
+# nShift Checkout
+
+*   Litium 8
+
+The nShift Shipment app is used to integrate Litium with nShift Checkout.
+
+## Version dependencies
+
+*   nShift Shipment app 1.0
+    *   Requires Connect Shipments API 1.2, released with Litium 8.21
+
+## Installation
+
+Litium serverless cloud - Use the [Cloud CLI](https://docs.litium.com/cloud/serverless/get-started/install-payment-and-delivery-apps) to install the app.
+
+Litium legacy cloud - Contact [support](mailto:support@litium.com) to install the app in your test and/or production environment.
+
+Local environment - A [Docker compose template](/add-ons/litium-apps/nshift-checkout/docker-template) is available for local installation.
+
+## Configuration file
+
+The configuration file must have json format and UTF-8 encoding
+
+```json
+{
+  "ShippingConfig": {
+    "DeliveryCheckouts": [
+      {
+        "Id": "nShiftCheckout-widget",
+        "ClientId": "",
+        "ClientSecret": "",
+        "CheckoutConnectionId": "",
+        "IntegrationType": "DeliveryCheckout",
+        "WidgetSettings": {
+            "ThemeOverride": {
+                "ShowLogos": true,
+                "ShowMap": true,
+                "ShowPickupPointInfo": true,
+                "ShowCategories": true,
+                "ShowOriginalPrices": true,
+                "ShowDeliveryTime": true,
+                "NumberOfAlwaysVisibleTextLines": 1
+            },
+            "WidthBreakpoints": {
+                "Narrow": 400,
+                "UltraNarrow": 300
+            }
+        }
+      },
+      {
+        "Id": "nShiftCheckout-options",
+        "ClientId": "",
+        "ClientSecret": "",
+        "CheckoutConnectionId": "",
+        "IntegrationType": "DeliveryOptions"
+      }
+    ]
+  }
+}
+```
+
+*   _Id_ Identifier to select the account. Must be unique string and must not contain any spaces.
+*   _ClientId, ClientSecret_ Credentials used for nShift Checkout, can be retrieved from nShift Portal.
+*   _CheckoutConnectionId_ The nShift Checkout configuration to use, can be retrieved from nShift Portal.
+*   _IntegrationType_ Possible value are _DeliveryCheckout_ or _DeliveryOptions_. _DeliveryCheckout_ will render a delivery widget on the checkout page in Litium. _DeliveryOptions_ will return a list of delivery options from the app.
+*   _WidgetSettings_ When using the DeliveryCheckout integration type you can configure the nShift widget with the _ThemeOverride_ and _WidthBreakpoints_ properties.
+    *   _ThemeOverride_Specify settings to fine-tune the theme of the nShift widget. More information about each setting can be found in [nShift's documentation](https://developers.nshiftone.com/checkout/widget/new-section-2).
+    *   _WidthBreakpoints_Specify breakpoints to adjust styling based on widget width. More information can be found in [nShift's documentation](https://developers.nshiftone.com/checkout/widget/new-section-2).
+
+## Product dimensions, weight and tags
+
+You can use the [field mappings in Litium backoffice](/platform/areas/products-pim/price-agents/field-mappings/shipping-data) to map the dimensions (height. width, length) and weight of products to the appropiate fields in Litium PIM. Please note the restrictions on which field types that can be mapped for each property, as well as Litiums expectations on the unit used (mm for dimensions, grams for weight).
+
+The "Tags" field should be mapped to a _TextOption_ field and can be used to add product properties that affect delivery, eg "bulky" or "flammable". Please note that you need to use the _allarticletags_ parameter when setting up the rules in nShift Checkout. This parameter is currently not shown in nShift Checkout's UI and can only be used in Advanced mode.

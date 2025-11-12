@@ -1,0 +1,328 @@
+---
+title: Page types
+description: A description of the different page types in the Accelerator, their behaviors, and options.
+---
+
+# Page types
+
+*   Litium 8
+
+A description of the different page types in the Accelerator, their behaviors, and options.
+
+- [Home page](#home-page)
+- [Article](#article)
+- [Brand list](#brand-list)
+- [Brand page](#brand-page)
+- [Checkout](#checkout)
+- [Error page](#error-page)
+- [Page not found](#page-not-found)
+- [Forgot password](#forgot-password)
+- [Landing page](#landing-page)
+- [Login](#login)
+- [Main menu link](#main-menu-link)
+- [My pages](#my-pages)
+- [News list](#news-list)
+- [News page](#news-page)
+- [Order](#order)
+- [Order confirmation](#order-confirmation)
+- [Product list](#product-list)
+- [Search result](#search-result)
+- [Welcome email](#welcome-email)
+
+### Home page
+
+A website should have only one Home Page. It is the default or front page of website. It is the first page that visitors see when they hit the URL.
+
+In accelerator, it's an empty page with one block container with multiple block items inside.
+
+#### Properties:
+
+1.  General/ Name: The name of the page
+
+![home props.png](/images/accelerators/mvc/develop/home%20props.png)
+
+### Article
+
+A article page use to present the article in a consistent and structured format, and place it in the center of the page.
+
+![article front.png](/images/accelerators/mvc/develop/article%20front.png)
+
+#### Properties:
+
+1.  General/ Name: the article name that will be showed in the left of the page.
+2.  General/ Url: the url link to article page. 
+3.  Main contents/ Title: expression that indicates the subject of the article.
+4.  Main contents/ Introduction: the beginning section which states the purpose and goals of the article.
+5.  Main contents/ Text: the whole content and information of the article.
+6.  List/ Links: to select additional links and show them in list format.
+7.  File list/ Files: to select additional files and show them in list format.
+8.  Image/ Image: the image that bring more context to the article, showing the subject or something that associate with the article.
+9.  Image/ Alternative Image Description: also called alt tags and alt descriptions, alt text is the written copy that appears in place of an image if the image fails to load on a user's screen.
+
+![article props.png](/images/accelerators/mvc/develop/article%20props.png)
+
+### Brand list
+
+A brand list page use to present all brands that were sub-page of this page. Brands will be show in alphabet and group by letter.
+
+![brands list.png](/images/accelerators/mvc/develop/brands%20list.png)
+
+#### Properties:
+
+1.  General/ Name: The title of brand page.
+2.  General/ Url: the url link to this page. 
+
+### Brand page
+
+This page type should be created under brand list page. It use to present all product under the particular brand. User can search and filter product on this page.
+
+#### Properties:
+
+1.  General/ Name: The brand name, this field value should be the same with the brand name, then Litium can show products using this brand.
+2.  General/ Url: the url link to this page.
+3.  General/ Image:  the image that present the brand or something that associate with it.
+4.  General/ Title: the expression that indicates the subject of the brand.
+5.  General/ Text: bring more information about this brand.
+
+![brand page.png](/images/accelerators/mvc/develop/brand%20page.png)
+
+### Checkout
+
+Checkout page related to payment and shipping/billing details. The checkout page gives customers the opportunity to enter payment details and complete their order.
+
+The checkout page should be configed at back office website setting.
+
+#### Properties:
+
+1.  Terms & Conditions/ Name: The title page.
+2.  Terms & Conditions/ Url: the url link to this page.
+3.  Terms & Conditions/ Terms And Conditions: The link to the term and conditions page.
+
+![checkout page.png](/images/accelerators/mvc/develop/checkout%20page.png)
+
+### Error page
+
+This page designated to be displayed when user ran into some error from server that may not know the reason. 
+
+#### Properties:
+
+1.  General/ Name: the page name.
+2.  General/ Url: the url link to this page. 
+3.  Main content/ Title: the title to be shown on accelerator
+4.  Main content/ Error message: the information about the error.
+
+![error page.png](/images/accelerators/mvc/develop/error%20page.png)
+
+### Page not found
+
+This page designated to be displayed when a request triggers the HTTP 404 response code.
+
+#### Properties:
+
+1.  General/ Name: the page name.
+2.  General/ Url: the url link to this page.
+3.  Main contents/ Title: The title to be shown on accelerator.
+4.  Main contents/ Error message: The information about the 404 message.
+
+![404.png](/images/accelerators/mvc/develop/404.png)
+
+### Forgot password
+
+This page allows users who have forgotten their password to retrieve it, by sending them an e-mail. 
+
+#### Properties:
+
+1.  General/ Url: the url link to this page.
+2.  Forgot password/ Title: the title on forgot password page.
+3.  Forgot password email/ Subject: the email subject that will be sent to user after click forgot password link.
+4.  Forgot password email/ Body: This is the content of the email sent when a user requests a new password. Use {LINK} and {EXPIRES} as placeholders for the link and expiration time.
+
+![forgot password.png](/images/accelerators/mvc/develop/forgot%20password.png)
+
+### Landing page
+
+This page type use to connecting landing page and specific product category. This one have two block containers for user adding blocks. 
+
+All added blocks will be displayed at the top of the selected category page. 
+
+#### Properties:
+
+1.  General/ Name: the page name.
+2.  General/ Product category pointer: the selected product category, use to connecting landing page and category page.
+
+![landing page BO.png](/images/accelerators/mvc/develop/landing%20page%20BO.png)
+
+### Login
+
+A login page requires user identification and authentication, by entering a username and password combination.
+
+#### Properties:
+
+1.  General/ Name: the name of this page
+2.  General/ Url: the url link to this page.
+3.  Login/ Title: the login title screen that will shown on accelerator.
+4.  Login/ After login, go to this page: the page that after login success, will redirect user to. If not config, user will be redirect to the previous page.
+5.  Forgot password/ Link to forgotten password page: the forgot password page should be point at. The forgot password link will use this field to redirect user.
+
+![login.png](/images/accelerators/mvc/develop/login.png)
+
+### Main menu link
+
+This page type use to config menu link at the top of website page. 
+
+![main menu front.png](/images/accelerators/mvc/develop/main%20menu%20front.png)
+
+#### Properties:
+
+1.  General/ Name: The name page, this value will be shown as header of menu link.
+2.  Link/ Category: If a category is chosen, the link will redirect to the category in the first place.
+3.  Link/ Page: If no category is selected, the link will redirect to the page selected.
+4.  Mega menu/ Show mega menu content: When checked, the mega menu opens when the user clicks the link in the menu. If not checked, the user is redirected to the the link's target page or category when clicking the link in the menu.
+5.  Mega menu/ Show sub categories: If a category is selected as the link's target, when checked, the mega menu lists the sub categories of that category.
+6.  Mega menu column/ Column header: the column header.
+7.  Mega menu column/ Categories: Content for the column will be categories, in prioritized order and if any content is selected: categories, pages, filters or the content of the editor.
+8.  Mega menu column/ Pages: Content for the column will be pages, in prioritized order and if any content is selected: categories, pages, filters or the content of the editor.
+9.  Mega menu column/ Filters: Content for the column will be filters, in prioritized order and if any content is selected: categories, pages, filters or the content of the editor.
+10.  Mega menu column/ Editor: Content for the column will be editor, in prioritized order and if any content is selected: categories, pages, filters or the content of the editor.
+11.  Mega menu column/ Additional link. the additional link will be added above column content.
+12.  Mega menu column/ Link to category: The category value for the additional link to redirect. in prioritized order: category, page
+13.  Mega menu column/ Link to page: The page value for the additional link to redirect. in prioritized order: category, page
+
+![mega menu props.png](/images/accelerators/mvc/develop/mega%20menu%20props.png)
+
+### My pages
+
+This page is for user to view and update profile information such as name, address, organization, user name and password. It's aslo help user to check the order history, to re-buy item that they want to buy again. 
+
+My page must be selected when update website settings.
+
+#### Properties:
+
+1.  General/ Name: the page name.
+2.  General/ Url: the url link to this page.
+3.  Main contents/ User can edit login username and password: to determine user can edit login information or not.
+
+![my pages.png](/images/accelerators/mvc/develop/my%20pages.png)
+
+### News list
+
+This page type use to define the conent and structure for the list of article. In accelerator, it's designed with three main contents:
+
+1.  News list: contain all sub-news and list them out by title
+2.  News list details: contain page title, introduction and details information. It list all sub-news with more information, such as published data, title, main image, short description. News items will be shown as paging.
+3.  Additional list: may contain list links and files.
+
+![news list front.png](/images/accelerators/mvc/develop/news%20list%20front.png)
+
+#### Properties:
+
+1.  General/ Name: the page name:
+2.  Genera/ Url: the url link to this page.
+3.  Main Contents/ Title: the title to be shown at front page.
+4.  Main Contents/ Introduction: the page's introduction, which give more details about this list page.
+5.  Main Contents/ Text: the text as editor template, user can use image, link....
+6.  Main Contents/ Number of news per page: to define number of news item to be paging.
+7.  List/ Links: the additional links.
+8.  List/ List/ Files: the additional files.
+
+![news list BO.png](/images/accelerators/mvc/develop/news%20list%20BO.png)
+
+### News page
+
+Basically, this page type is the same with [News list](#News list) type. This type use to delivering the news in a multiple formats with more specific details. 
+
+In accelerator, it's designed with three main contents:
+
+1.  News list: contain all sub-news with same level and list them out by title
+2.  News details: contain page title, introduction, published date and details information.
+3.  Additional list: may contain list links and files.
+
+![news front.png](/images/accelerators/mvc/develop/news%20front.png)
+
+#### Properties:
+
+1.  General/ Name: the page name:
+2.  Genera/ Url: the url link to this page.
+3.  Main Contents/ Title: the title to be shown at front page.
+4.  Main Contents/ Introduction: the page's introduction, which give more details about this list page.
+5.  Main Contents/ Text: the text as editor template, user can use image, link....
+6.  Main Contents/ News date: the published date.
+7.  List/ Links: the additional links.
+8.  List/ List/ Files: the additional files.
+9.  Image/ Image: the news header image.
+
+![news BO.png](/images/accelerators/mvc/develop/news%20BO.png)
+
+### Order
+
+This page type let user to view the specific history order. It will be loaded under the My page/ Order tab.
+
+Not much to config here. One website should have only one page with this type.
+
+![order front.png](/images/accelerators/mvc/develop/order%20front.png)
+
+#### Properties:
+
+1.  General/ Name: the page name.
+2.  General/ Url: the url link to this page.
+
+### Order Confirmation
+
+Once customers completed checkout, this page purpose is for reassure users that they have completed a transaction and helps them understand what to expect next
+
+This page include a reference number, shipping/billing address, customer information, brief information about orderd items.
+
+Order confirmation page must be selected when update website settings.
+
+#### Properties:
+
+1.  Main contents/ Name: the page name
+2.  Main contents/ Url: the url link to this page.
+3.  Main contents/ Title: the confirmation page title, to be shown at front page.
+4.  Main contents/ Text: more information about this page, will be placed in the Information box at the end of front page.
+5.  Main contents/ Use confirmation widget: use the confirmation widget from the payment provider, if supported.
+
+![order confirmation fron.png](/images/accelerators/mvc/develop/order%20confirmation%20fron.png)
+
+### Product list
+
+It is page that contains products from a specifc product list. In this page, user can perfom sorting and filtering. 
+
+#### Properties: 
+
+1.  General/ Name: the page name.
+2.  General/ Url: the url link to this page.
+3.  General/ Image:  the image that present this page content or associate with it.
+4.  General/ Title: the expression that indicates the subject of the product list.
+5.  General/ Alternative Image Description: bring more context to the image.
+6.  General/ Product list pointer: the selected product list.
+
+![product list BO.png](/images/accelerators/mvc/develop/product%20list%20BO.png)
+
+### Search result
+
+This page type use to display the result related to the query that user enter. The result contains product, page, news, articles. User can perform filter and sorting products on this page.
+
+Once created, this page should be configed at website setting for system to know which page is using to display search results. 
+
+![search result front.png](/images/accelerators/mvc/develop/search%20result%20front.png)
+
+#### Properties:
+
+1.  General/ Name: the name page.
+2.  General/ Url: the url link to this page.
+
+### Welcome email
+
+This page type purpose is to display welcome message for new registered user by email. 
+
+#### Properties:
+
+1.  General/ Name: the page name
+2.  General/ Url: the url link to this page.
+3.  General/ Subject: the subject line of the welcome message sent to new customers.
+4.  General/ Welcome email text: this is the editor field, use to display message content. Use {FIRSTNAME}, {LASTNAME} and {LOGINNAME} as placeholders for the user first name, last name and user login name.
+
+![welcome email BO.png](/images/accelerators/mvc/develop/welcome%20email%20BO.png)
+
+Updated   2022-11-25

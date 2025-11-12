@@ -1,0 +1,65 @@
+---
+title: How to prefill customer details
+description: Briqpay offers the capability on how to prefill already logged in users. All data is forwarded to the app using predefined keys in the AdditionalInfo property of the CheckoutFlowInfo.
+---
+
+# How to prefill customer details
+
+*   Litium 8
+
+## Prefill customer details
+
+Briqpay offers the capability on how to prefill already logged in users. All data is forwarded to the app using predefined keys in the AdditionalInfo property of the CheckoutFlowInfo.
+
+```csharp
+Dictionary additionalData = new Dictionary(); // IF Your customer is logged in, you can send in the CIN to tbe briqpay iframe
+additionalData.Add("CompanyIdentificationNumber", "6666666666");
+```
+
+If you have internal addresses on the customer that you wish for them to be able to select inside of the checkout iframe, you can forward those to briqpay
+
+```csharp
+List prefillAddressList = new List();
+var addressFromErp = new MerchantPrefillAddress();
+addressFromErp.Cellno = "087643533";
+addressFromErp.City = "Erp City";
+addressFromErp.Streetaddress = "SreetName";
+addressFromErp.Email = "mymail@erp.com";
+prefillAddressList.Add(addressFromErp);
+additionalData.Add("CustomerPossibleBillingAddressList", JsonConvert.SerializeObject(prefillAddressList));
+```
+
+Prefill custom shipping address:
+
+```csharp
+var address2FromErp = new MerchantPrefillAddress();
+address2FromErp.Cellno = "087643533";
+address2FromErp.City = "Erp City";
+address2FromErp.Streetaddress = "SreetName shpping";
+address2FromErp.Email = "mymail@erp.com";
+address2FromErp.Streetaddress2 = " my other street";
+address2FromErp.Zip = "34533";
+prefillAddressList.Add(address2FromErp);
+additionalData.Add("CustomerPossibleShippingAddressList", JsonConvert.SerializeObject(prefillAddressList));
+```
+
+By default shipping addresses are locked from user edits, but can be enabled on request by the following setting:
+
+```csharp
+additionalData.Add("CustomerIsAllowedEditShippingAddress", "true");
+```
+
+Add to CheckoutFlowinfo:
+
+```csharp
+return new CheckoutFlowInfo 
+    {
+    AllowSeparateShippingAddress = true, 
+    CustomerType = ToCustomerType((CheckoutMode)checkoutModeInt), 
+    CheckoutPageUrl = checkoutPageUrl, 
+    TermsUrl = GetAbsolutePageUrl(checkoutPage?.EntitySystemId.MapTo().GetValue(CheckoutPageFieldNameConstants.TermsAndConditionsPage)), 
+    ReceiptPageUrl = GetAbsolutePageUrl(websiteModel.GetValue(AcceleratorWebsiteFieldNameConstants.OrderConfirmationPage)), 
+    CancelPageUrl = checkoutPageUrl, 
+    AdditionalInfo = additionalData // Make sure to add the additional data to the checkoutflow 
+    };
+```

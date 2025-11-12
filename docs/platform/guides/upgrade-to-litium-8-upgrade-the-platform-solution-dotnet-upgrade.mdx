@@ -16,14 +16,18 @@ The AutoMapper in the Litium project has been updated to version 12 in Litium 8.
 
 Let's look at an example: 
 
-IQueryable<object> source = \_myRepo.GetResult();
+```csharp
+IQueryable<object> source = _myRepo.GetResult();
 List<myObject> dest = mapper.MapTo<myObject>(source).ToList();
+```
 
-We have the automapping rule between object and myObject, and we're trying to map a List<object> to List<myObject>. From Automapper 9 we'll get  the error "Missing type map configuration or unsupported mapping."
+We have the automapping rule between object and myObject, and we're trying to map a `List<object>` to `List<myObject>`. From Automapper 9 we'll get  the error "Missing type map configuration or unsupported mapping."
 
-A quick work around for this is changing the .ToList() line to something like this: 
+A quick workaround for this is changing the `.ToList()` line to something like this: 
 
+```csharp
 List<myObject> dest = source.Select(src => src.MapTo<MyObject>()).ToList();
+```
 
 We'll need to do the mapping for each single object, using linq to create a collection and return.
 
@@ -37,16 +41,20 @@ Example in a _AutoMapper.ITypeConverter_
 
 From
 
- return new Connect.Payments.PaymentInfo
-            {
-                Id = source.Id,
-                AdditionalInfo = source.AdditionalInfo,
-            };
-
-To 
-
+```csharp
 return new Connect.Payments.PaymentInfo
-            {
-                Id = source.Id,
-                AdditionalInfo = source.AdditionalInfo?.ToDictionary(s => s.Key, s => s.Value),
-            };
+{
+    Id = source.Id,
+    AdditionalInfo = source.AdditionalInfo,
+};
+```
+
+To
+
+```csharp
+return new Connect.Payments.PaymentInfo
+{
+    Id = source.Id,
+    AdditionalInfo = source.AdditionalInfo?.ToDictionary(s => s.Key, s => s.Value),
+};
+```

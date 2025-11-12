@@ -1,0 +1,119 @@
+---
+title: How to get started with the Briqpay app
+description: Before you can use the Briqpay Litium app you will need to install it following the default app installation flow of Litium. Once installed you will need to configure the payment widget by uploading a json file in Litium Admin -> Apps > Briqpay.
+---
+
+# How to get started with the Briqpay app
+
+*   Litium 8
+
+Before you can use the Briqpay Litium app you will need to install it following the default app installation flow of Litium. Once installed you will need to configure the payment widget by uploading a json file in Litium Admin -> Apps > Briqpay.
+
+## Example config file
+
+```csharp
+{
+  "Briqpay": {
+    "PaymentAccounts": [
+      {
+        "PaymentAccountId": "SE",
+        "MerchantId": "MERCHANT_ID",
+        "Secret": "API_SECRET",
+        "Environment": "Test", // or Live
+        "PaymentOptions": [ "v3Payments" ],
+        "IntegrationType": "paymentWidgets" // or iframeCheckout
+      },
+    ]
+  }
+}
+```
+
+## Sending Data in the Checkout Flow
+
+The system integrator who manages the e-commerce solution will at some point call `TryInitializeCheckoutFlowAsync` on the `cartContext`, initiating a request to Briqpay services to return the payment widget.
+
+In this request, the system integrator must include additional data to customise the checkout experience. Here’s an example setup:
+
+```csharp
+if (!await cartContext.TryInitializeCheckoutFlowAsync(() => new CheckoutFlowInfoArgs
+{
+    CheckoutFlowInfo = GetCheckoutFlowInfo()
+}))
+```
+
+In this example, `GetCheckoutFlowInfo` must include settings like essential URLs for terms, receipt, and checkout pages.
+
+It is also in this step that you define the customertype, terms url, checkout url and confirmation page url to briqpay services.
+
+## Define Payment Type
+
+As a merchant, you must choose how payments should be finalised, whether as a one-time charge or by securely saving the customer’s payment method for future use. This feature supports two main types:
+
+*   **One-Time Payment:** A single, immediate transaction.
+*   **Tokenize and Charge:** Creates a regular immediate transaction but also saves the payment method for potential future purchases, enabling easier checkouts.
+*   **Tokenize:** Creates no immediate transaction but saves the payment method for potential future purchases, enabling easier checkouts. Subscription token is shared in the payment.additionalinfo dictionary after the purchase flow has completed.
+
+To set this up in your integration:
+
+```csharp
+var product = new { intent = "payment_one_time", type = "payment" };
+additionalData.Add("ProductConfig", JsonConvert.SerializeObject(product));
+```
+
+Possible Values for intent:
+
+*   `payment_one_time`
+*   `payment_tokenize_and_charge`
+*   `payment_tokenize`
+
+This configuration must be added to the `AdditionalInfo` dictionary within the `CheckoutFlowInfo` object, as shown in this example:
+
+```csharp
+return new CheckoutFlowInfo
+{
+    AllowSeparateShippingAddress = true,
+    CustomerType = ToCustomerType((CheckoutMode)checkoutModeInt),
+    CheckoutPageUrl = checkoutPageUrl,
+    TermsUrl = GetAbsolutePageUrl(checkoutPage?.EntitySystemId.MapTo<PageModel>().GetValue<PointerPageItem>(CheckoutPageFieldNameConstants.TermsAndConditionsPage)),
+    ReceiptPageUrl = GetAbsolutePageUrl(websiteModel.GetValue<PointerPageItem>(AcceleratorWebsiteFieldNameConstants.OrderConfirmationPage)),
+    CancelPageUrl = checkoutPageUrl,
+    AdditionalInfo = additionalData // Includes the formatted data.
+};
+```
+
+### Important mentions
+
+The `CustomerType` value will be forwarded to briqpay and dictate what payment methods are offered.
+
+The `CheckoutPageUrl` and the `TermsUrl` are also forwarded to briqpay and where applicable also forwarded to the underlying PSPs
+
+The `ReceiptPageUrl` is the confirmation page that should be displayed to the user after a successful purchase. Briqpay will handle this redirection as part of the integration.
+
+## Handling Parsing Errors in Configuration
+
+It’s crucial to ensure correct entries for all keys in the additionalInfo dictionary to prevent errors during checkout:
+
+*   **Product Configuration:** If `ProductConfig` is missing, the system defaults to `{ type = "payment", intent = "payment_one_time" }`. However, if the key is present but incorrectly formatted, checkout won’t load, and an error will be logged in Litium.
+
+To avoid issues, double-check all configurations for accuracy.
+
+## Development locally
+
+In order to make local development easier a system Integrator can define an environment variable on their local environment `Briqpay_Disable_Async_Order_Flow` with the value of `true` in order to skip all hooks and asynchronous actions. If this variable is not set, you will need to support callbacks for all order actions as [documented here](/add-ons/litium-apps/briqpay-payment/payment-flow).
+
+This setting should only be used for local development and debugging purposes. Using this setting in a production environment can lead to unforeseen loss of funds and/or orders.
+
+## Common errors
+
+Below is a list of common errors that are easily remedied.
+
+*   Briqpay not visible in checkout?
+    *   Remember to add the Briqpay payment method to your selected channel in the Litium Admin
+*   Error in checkout “Unable to change the payment method”
+    *   Verify that your briqpay account is set up for the correct user type (b2b/b2c) in the country you are testing.
+    *   Verify that your api credentials are correct, if missing you can create new ones in the [Briqpay Backoffice Developer Keys Section](https://app.briqpay.com/dashboard/developers/keys).
+    *   Verify that the correct product configuration is shared in the CheckoutFlowInfo
+*   Incorrect payment methods
+    *   Add or remove methods in the [Briqpay Backoffice Payment Method Section](https://app.briqpay.com/dashboard/payment-methods/display).
+*   Payments stuck in “Pending”?
+    *   Verify that you are accepting the callbacks from the briqpay services or if developing locally have enabled the `Disable Async Order Flow` variable.

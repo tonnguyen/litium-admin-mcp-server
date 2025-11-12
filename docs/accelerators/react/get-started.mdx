@@ -1,0 +1,247 @@
+---
+title: Get started
+description: System requirements, installation, and configuration instructions for the Litium React accelerator.
+---
+
+# Get started
+
+System requirement, installation and configuration instructions for React accelerator.
+
+## System requirements
+
+- [Node.js](https://nodejs.org/en/) 20 or later version.
+- Yarn 1.22 is recommended. Using npm might lead to some issues. ([1](https://github.com/vercel/next.js/issues/72204)) ([2](https://github.com/vercel/next.js/issues/72026))
+- Litium 8.19 or later version including Storefront API, see [Litium Empty template](/platform/get-started/install-empty-litium) for installation.
+
+**Note**: Installation based on Litium Mvc Accelerator have conflicting fields, field templates and settings and can't be run in the same installation without manual modification of templates to contain fields and settings for both the Mvc Accelerator and React Accelerator as well that all field template that exist for Mvc Accelerator also need to exist in React if the page should work. This setup is not recommended for easy maintenance.
+
+## Install the template package
+
+The React accelerator template package is a pre-created package. Installation of the template package is only needed the first time the version is created. Only one version of the template package can exist at the same time.
+
+1. Open Powershell command prompt
+2. Install the template package with:
+
+```powershell
+dotnet new --install "Litium.Accelerator.React.Templates"
+```
+
+## Install the React accelerator
+
+1. Open the Powershell command prompt in the folder where the template should be installed.
+2. Install the React accelerator with the following ​command:
+
+```powershell
+dotnet new litreactacc
+```
+
+3. Install dependencies:
+
+```powershell
+yarn install
+```
+
+## Install Storefront CLI
+
+Litium.Storefront.Cli is a command line tool which is used to forward requests to React accelerator site. To install the tool, execute the following command in Powershell command prompt:
+
+```powershell
+dotnet tool update -g Litium.Storefront.Cli
+```
+
+For more information regarding Storefront CLI, please click [here](/platform/get-started/developer-tools-storefront-cli).
+
+## Configure the React accelerator
+
+Prepare the environment with an `.env.local` (or `.env.test.local` if running tests) file that contains the following information to run the development environment:
+
+```powershell
+# The domain name for you Litium platform installation.
+RUNTIME_LITIUM_SERVER_URL=https://litium.localtest.me:5001
+# If you using self-signed certificate for the Litium platform
+# you may also need to add the following line to turn off certificate validation.
+NODE_TLS_REJECT_UNAUTHORIZED="0"
+```
+
+Start the project by running:
+
+```powershell
+yarn dev
+```
+
+Start Litium storefront proxy:
+
+```powershell
+litium-storefront proxy --litium https://litium.localtest.me:5001 --storefront http://localhost:3000
+```
+
+- port - represents the port the proxy should listen to
+- litium - url to the litium installation
+- storefront - url to the storefront application
+
+## Import definitions
+
+To ensure the React accelerator functions correctly, you need to import default data such as fields and field templates using the Storefront CLI. Go to the Back-office, navigate to the Customers module to create an administrator user with Content permisison for all modules and then use the account to perform the import by executing:
+
+```powershell
+litium-storefront definition import --file "../Litium.Storefront/litium-definitions/**/*.yaml" --litium https://localhost:5001 --litium-username admin --litium-password Password!
+```
+
+For more info, please check the [Storefront CLI](/platform/get-started/developer-tools-storefront-cli#gen-excel).
+
+## Import website texts
+
+Storefront uses the website texts to populate values for translatable fields. To have these texts populated in the default installation, the default website text value need to be imported using WebsiteText import function (Setting / Websites / Texts / Import). The text file, which is in Excel format, can be generated using the Storefront CLI. For more info, please check the [Storefront CLI](/platform/get-started/developer-tools-storefront-cli#gen-excel).
+
+## Configure SMTP server
+
+This section describes how to configure a SMTP server for the Litium React accelerator.
+
+1\. SMTP configuration
+
+You can setup an SMTP server to send emails for example order confirmations to customers. The SMTP settings can be updated in `.env.local` (or `.env.test.local` if running tests) file that contains the following information to run the development environment:
+
+```json
+RUNTIME_SMTP_HOST: the host name or ip-address of smtp service.
+RUNTIME_SMTP_PORT: the port of the smtp service.
+RUNTIME_SMTP_SECURE: if set to True, the TLS communication should be used for smtp service communication.
+RUNTIME_SMTP_AUTH_USER: the user name for the smtp service.
+RUNTIME_SMTP_AUTH_PASS: the password for the smtp service.
+```
+
+2\. A sender email address is required to send emails from the application
+
+- In Litium backoffice, go to *Setting > Globalization > Channels* and double-click your channel
+- Find the Send email address setting and add a valid email as value
+- Click Save
+
+This section provides an overview of how to send emails in the React Accelerator.
+
+- Litium uses **React Email** to create new email templates and then converts them into HTML email templates.
+- To send emails in the React accelerator, Litium utilizes the **Nodemailer SDK**.
+- In the React accelerator, an API route is defined in `src/app/api/email/[[...slug]]/route.ts` with the endpoint specified as `api/email/[[...slug]]`. The 'slug' is used to handle requests with different translation cases. For instance, you can have an endpoint like `api/email` where the slug value is undefined, or `api/email/language` where the slug value is an array `[language]`.
+- Once you have created this endpoint, you can send it to the backend using a `createCheckoutSession` mutation. In the Litium platform, this endpoint can be called when an order is confirmed.
+
+```json
+await createCheckoutSession({
+    orderConfirmedUrl: `${host}/api/email${pathname}`,
+})
+```
+
+## Configure Litium for an external storefront
+
+Open the `appsettings.json` and add `Storefronts` configurations below the `Websites` element.
+
+```json
+{
+  "Litium": {
+    "Websites": {
+      "Storefronts": {
+        "headless-accelerator": {
+          "host": "https://localhost:3001"
+        }
+      }
+    }
+  }
+}
+```
+
+- `headless-accelerator` is the name on the installation
+- `host` is the url where this accelerator is found. The address should point to the litium storefront proxy
+
+Then open Litium back office to configure:
+
+- Edit the website. On the tab for *settings*, select the *external storefront* that was configured in appsettings.
+- On the website page, ensure that every setting in the Properties tab is completed with information, and that published pages are used for page pointer fields.
+- Add a domain name named *localhost*, then navigate to the working channel, add this domain in *Domain URL* tab.
+
+## Start a development environment
+
+Run the following command to ensure the proxy is active:
+
+```powershell
+litium-storefront proxy --litium https://litium.localtest.me:5001 --storefront http://localhost:3000
+```
+
+- port - represents the port the proxy should listen to
+- litium - url to the litium installation
+- storefront - url to the storefront application
+
+Execute `yarn dev` to start the development environment. After that, open [https://localhost:3001](https://localhost:3001/) with your browser to see the outcome. You can start editing the page by modifying files under the `app` folder. The page will auto-updates as you make changes.
+
+## Build a production build
+
+By executing the following command, a `.next` folder will be created which contains the production build of the project.
+
+```powershell
+yarn build
+```
+
+Then execute this command to start the web server:
+
+```powershell
+yarn start
+```
+
+## Available commands
+
+To run the project at development mode:
+
+```powershell
+yarn dev
+```
+
+To generate block components after creating new Block template:
+
+```powershell
+yarn generate-block-components
+```
+
+For more information regarding creating new Block template, please check out [How to create custom block](/platform/guides/how-to-create-blocks-in-react-accelerator).
+
+To execute lint check:
+
+```powershell
+yarn lint
+```
+
+To fix lint error:
+
+```powershell
+yarn lint:fix
+```
+
+To check code formatting/style:
+
+```powershell
+yarn prettier
+```
+
+To fix code formatting, simply save the file, or execute:
+
+```powershell
+yarn prettier:fix
+```
+
+To run tests, make sure `.env.test.local` is available and configured, then execute:
+
+Unit tests:
+
+```powershell
+yarn test
+```
+
+End to end tests:
+
+```powershell
+yarn test:e2e
+```
+
+## Next steps
+
+- [Import definitions](/platform/get-started/developer-tools-storefront-cli)
+- [Routing fundamentals](/accelerators/react/routing-fundamentals)
+- [How to create blocks](/platform/guides/how-to-create-blocks-in-react-accelerator)
+- [How to create pages](/platform/guides/how-to-create-pages-in-react-accelerator)
+- [Working with shopping cart and checkout](/accelerators/react/working-with-shopping-cart-and-checkout)
+

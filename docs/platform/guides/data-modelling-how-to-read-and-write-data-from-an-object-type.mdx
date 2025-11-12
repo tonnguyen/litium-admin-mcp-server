@@ -7,6 +7,7 @@ In this guide we show how to read and write data from an Object type
 Create a class to use as object type  
 ​
 
+```csharp
 public class MyFieldData : ObjectBase
 {
     private string name;
@@ -17,9 +18,11 @@ public class MyFieldData : ObjectBase
         set => name = this.ThrowIfReadOnly(value);
     }
 }
+```
 
 Example on how to use the class when creating the field definition:
 
+```csharp
 var fieldDefinition = new FieldDefinition<ProductArea>("MyObjectFieldId", SystemFieldTypeConstants.Object)
 {
     MultiCulture = false,
@@ -29,11 +32,13 @@ var fieldDefinition = new FieldDefinition<ProductArea>("MyObjectFieldId", System
     }
 };
 
-\_fieldDefinitionService.Create(fieldDefinition);
+_fieldDefinitionService.Create(fieldDefinition);
+```
 
 Example on how to use the class to read field data:
 
-var baseProduct = new BaseProduct("my-id", \_productFieldTemplate.SystemId);
+```csharp
+var baseProduct = new BaseProduct("my-id", _productFieldTemplate.SystemId);
 
 baseProduct.Fields.AddOrUpdateValue("MyObjectFieldId", new MyFieldData
 {
@@ -42,3 +47,4 @@ baseProduct.Fields.AddOrUpdateValue("MyObjectFieldId", new MyFieldData
 
 var myField = baseProduct.Fields.GetValue<MyFieldData>("MyObjectFieldId");
 myField.Name = "My updated name";
+```

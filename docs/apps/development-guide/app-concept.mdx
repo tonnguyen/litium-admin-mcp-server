@@ -1,0 +1,43 @@
+---
+title: App concept
+description: A Litium app allows you to extend the functionality of the Litium platform. A typical use-case for an app is to integrate a Litium solution with a third-party system that provide a specialized service within the e-commerce ecosystem, like payment service providers, transport management systems or the company’s ERP system.
+---
+
+# App concept
+
+*   Litium 8
+
+A Litium app allows you to extend the functionality of the Litium platform. A typical use-case for an app is to integrate a Litium solution with a third-party system that provide a specialized service within the e-commerce ecosystem, like payment service providers, transport management systems or the company’s ERP system.
+
+The Litium apps are designed to be decoupled from the Litium platform itself. Apps are running as separate applications in the Litium Commerce Cloud and are communicating with Litium using the platform’s APIs. This has several important advantages:
+
+1.  Less dependency on Litium  
+    To develop an extension (an add-on that is installed into the Litium solution) you would need extensive knowledge of the inner working of the platform. When implementing the same solution as an app you only need knowledge of the interface between your app and Litium. That is one or more of the Litium Connect APIs.
+2.  Freedom of choice  
+    Litium is built using Microsoft .NET, but an app can be built using the programming language and framework that you prefer.
+3.  Cloud compatible  
+    The app architecture of Litium supports the advantages of the Litium Commerce Cloud, such as autoscaling and ability for partners to manage the deployment of environments.
+
+Litium apps works with Litium 8. For Litium 7 and earlier versions add-ons can be implemented by building an extension.
+
+## Communication between an app and Litium
+
+Litium will communicate with an app via HTTP. Litium will notify the app of any events happening inside the platform for which the app has registered for the corresponding webhook. You can find all available events in the API Reference.
+
+When processing these events, the app can request additional information using the Litium Connect APIs. These APIs can also be used to send data and requests to Litium.
+
+IMAGE
+
+A Litium service account is used to secure the communication between the app and Litium. More information about authentication and authorization for apps is in the app development guide.
+
+## Public and private apps
+
+Litium apps can be divided into two groups: public and private.
+
+A public app is available to all Litium customers. Public apps can be installed to any customer environment in Litium Commerce Cloud through the [Litium Cloud CLI](/platform/get-started/developer-tools/litium-cloud-cli). Public apps can be developed and maintained by Litium, eg the [Klarna payment app](/add-ons/litium-apps/klarna-payment) and the [Direct shipment app](/add-ons/litium-apps/direct-shipment), but can also be owned by a Technology Partner, eg the [Briqpay payment app](/add-ons/litium-apps/briqpay-payment). Before a public app built by a Technology Partner can be released, a Public app agreement must be signed between Litium and the partner. If you are interested in building a public app, please [contact Litium](mailto:support@litium.com).
+
+A private app is on the other hand an app that is developed for a specific Litium customer and installed only in that customer's environment. These apps are, unlike the public apps, not available in the central Litium registry. They are commonly developed and maintained by the Solution Partner as part of a customer's Litium solution.
+
+Both private and public apps run in Litium's cloud and can be managed using the Litium Cloud CLI. More information about considerations to keep in mind regarding the cloud environment when developing your app can be found in this guide. Detailed information about services available to private apps can be found in the [Litium Commerce Cloud documentation](/cloud/serverless/apps/private-apps).
+
+Updated   2024-08-20

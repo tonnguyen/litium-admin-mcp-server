@@ -1,0 +1,57 @@
+---
+title: "Configure Redis"
+description: "Connect Litium to the Redis container"
+---
+Connect Litium to the Redis container
+
+To do this task you first need to complete the [Docker task](/platform/guides/local-installation-guide-setup-docker)
+
+## Configuration
+
+A container with Redis was set up in the Docker task, you just need to add the connection.
+
+Make the changes below in the Redis section in `appsettings.json`:
+
+1.  Set connectionstring for _Cache_, _DistributedLock_ and _ServiceBus_ to `localhost:6379`
+2.  Set _Prefix_ to `LitiumTutorial`. By setting a value for _Prefix_ you can use the same Redis container for multiple local Litium installations - just use a unique prefix for each installation.
+
+Finished example:
+
+```json
+"Redis": {
+  "Prefix": "LitiumTutorial",
+  "Cache": {
+    "ConnectionString": "localhost:6379",
+    "Password": null
+  },
+  "DistributedLock": {
+    "ConnectionString": "localhost:6379",
+    "Password": null
+  },
+  "ServiceBus": {
+    "ConnectionString": "localhost:6379",
+    "Password": null
+  }
+}
+```
+
+Optionally you can also adjust cache-settings to limit the time items are stored in Redis (this is useful for local testing but keep the long cache times in production):
+
+```json
+"Cache": {
+  "Distributed": {
+    "DefaultMemorySlidingExpiration": 120,
+    "DefaultDistributedSlidingExpiration": 600
+  }
+}
+```
+
+Additional cache configuration options can be found in the [Configuration](https://docs.litium.com/documentation/get-started/configuration) page.
+
+## Verify
+
+After startup you can use a tool such as for example [Another Redis Desktop Manager](https://github.com/qishibo/AnotherRedisDesktopManager) to connect to Redis and view, delete or edit the data stored in Redis. The data is stored encrypted and not human readable.
+
+## Next step
+
+[Configure SMTP](/platform/guides/local-installation-guide-configure-smtp)

@@ -1,0 +1,54 @@
+---
+title: Docker template for local installation
+description: "Values to replace in the template:"
+---
+
+# Docker template for local installation
+
+*   Litium 8
+
+Values to replace in the template:
+
+*   ports
+*   environment
+    *   ASPNETCORE\_HTTPS\_PORT
+    *   AppMetadata\_\_AppUrl
+    *   LitiumApi\_\_ApiUrl
+
+```csharp
+version: '3'
+services:
+  qliro-payment:
+    image: registry.litium.cloud/apps/qliro-payment:1.6.2
+    dns: 
+    - 192.168.65.254
+    restart: unless-stopped
+    ports:
+    - "10070:80"
+    - "10071:443"
+    environment:
+    # Enable HTTPS binding
+    - ASPNETCORE_URLS=https://+;http://+
+    - ASPNETCORE_HTTPS_PORT=10071
+    # Configuration for HTTPS inside the container, exported dotnet dev-certs with corresponding password
+    - ASPNETCORE_Kestrel__Certificates__Default__Password=${CERT_PWD}
+    - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/localhost.pfx
+    # Folder for the configuraiton, this is volume-mapped
+    - CONFIG_PATH=/app_config
+    # Folder where logfiles should be placed, this is volume-mapped
+    - APP_LOG_PATH=/logs
+    # Don't validate certificates
+    - AppConfiguration__ValidateCertificate=false
+    # Url to this app
+    - AppMetadata__AppUrl=https://customer-app-qliro-payment.localtest.me:10071
+    # Url to the litium installation
+    - LitiumApi__ApiUrl=https://customer.localtest.me:5001
+    volumes:
+    - ./data/qliro-payment/config:/app_config
+    - ./data/qliro-payment/data:/app_data
+    - ./data/qliro-payment/logs:/logs
+    - ./data/qliro-payment/DataProtection-Keys:/root/.aspnet/DataProtection-Keys
+    - ./data/https:/https:ro
+```
+
+**Note!** When using Qliro payment app in local environment, the app need to use a public accessible domain that are secured with https, otherwise requests to Qliro may fail.

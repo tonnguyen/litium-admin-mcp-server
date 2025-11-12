@@ -17,49 +17,46 @@ If you need more information you can read more in the docs for Elasticsearch [he
 
 - We added a custom analyzer in _ProductIndexConfiguration_
 
-        protected override void Configure(CultureInfo cultureInfo, IndexConfigurationBuilder builder)
-        {
-                builder
-                .Setting(UpdatableIndexSettings.MaxNGramDiff, 3)
-                .Analysis(a => a
-                .Analyzers(az => az
-                        .Custom("custom\_ngram\_analyzer", c => c
-                        .Tokenizer("custom\_ngram\_tokenizer")
-                        .Filters(new string\[\] { "lowercase", "truncate"})))
-                .Tokenizers(t => t
-                        .EdgeNGram("custom\_ngram\_tokenizer", ng => ng
-                        .MinGram(2)
-                        .MaxGram(5)
-                        .TokenChars(new TokenChar\[\] { TokenChar.Letter, TokenChar.Digit })
-                        )
-                )
-                )
-                .Map(m => m
-                .Properties(p => p
-                        .Text(k => k
-                        .Name(n => n.Name)
-                        .Fields(ff => ff
-                                .Keyword(tk => tk
-                                .Name("keyword")
-                                .IgnoreAbove(256))
-                                .Text(tt => tt
-                                .Name("ngram")
-                                .Analyzer("custom\_ngram\_analyzer")
-                                )
-                        )
-                        )
-                )
-                );
+```csharp
+protected override void Configure(CultureInfo cultureInfo, IndexConfigurationBuilder builder)
+{
+    builder
+        .Setting(UpdatableIndexSettings.MaxNGramDiff, 3)
+        .Analysis(a => a
+            .Analyzers(az => az
+                .Custom("custom_ngram_analyzer", c => c
+                    .Tokenizer("custom_ngram_tokenizer")
+                    .Filters(new[] { "lowercase", "truncate" })))
+            .Tokenizers(t => t
+                .EdgeNGram("custom_ngram_tokenizer", ng => ng
+                    .MinGram(2)
+                    .MaxGram(5)
+                    .TokenChars(new[] { TokenChar.Letter, TokenChar.Digit }))))
+        .Map(m => m
+            .Properties(p => p
+                .Text(k => k
+                    .Name(n => n.Name)
+                    .Fields(ff => ff
+                        .Keyword(tk => tk
+                            .Name("keyword")
+                            .IgnoreAbove(256))
+                        .Text(tt => tt
+                            .Name("ngram")
+                            .Analyzer("custom_ngram_analyzer"))))));
 
-                base.Configure(cultureInfo, builder);
-        }
+    base.Configure(cultureInfo, builder);
+}
+```
 
 - After adding the configuration, we use it in a query defined in _SearchQueryBuilder_
 
-        allQueries.Add((qc.Match(x => x.Field(z => z.Name).Query(searchQuery.Text).Fuzziness(Fuzziness.Auto).Boost(10).SynonymAnalyzer())
-                                 || qc.Match(x => x.Field(z => z.Name.Suffix("ngram")).Query(searchQuery.Text).Boost(20).SynonymAnalyzer())
-                                 || qc.Match(x => x.Field(z => z.ArticleNumber).Query(searchQuery.Text.ToLower()).Boost(2))
-                                 || qc.Match(x => x.Field(z => z.Content).Query(searchQuery.Text).Fuzziness(Fuzziness.Auto).SynonymAnalyzer())));
+```csharp
+allQueries.Add(
+    qc.Match(x => x.Field(z => z.Name).Query(searchQuery.Text).Fuzziness(Fuzziness.Auto).Boost(10).SynonymAnalyzer())
+    || qc.Match(x => x.Field(z => z.Name.Suffix("ngram")).Query(searchQuery.Text).Boost(20).SynonymAnalyzer())
+    || qc.Match(x => x.Field(z => z.ArticleNumber).Query(searchQuery.Text.ToLower()).Boost(2))
+    || qc.Match(x => x.Field(z => z.Content).Query(searchQuery.Text).Fuzziness(Fuzziness.Auto).SynonymAnalyzer()));
+```
 
 ## Configuration
 

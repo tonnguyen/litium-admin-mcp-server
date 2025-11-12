@@ -1,0 +1,102 @@
+---
+title: Briqpay payment
+description: The Briqpay Payment App seamlessly connects your Litium 8 e-commerce solution to Briqpay’s composable payment platform. Developed and maintained by Briqpay, the app empowers you to optimize and control the entire global payment ecosystem through a single point of contact.
+---
+
+# Briqpay payment
+
+*   Litium 8
+
+The Briqpay Payment App seamlessly connects your Litium 8 e-commerce solution to Briqpay’s composable payment platform. Developed and maintained by Briqpay, the app empowers you to optimize and control the entire global payment ecosystem through a single point of contact.
+
+For earlier versions of Litium, please see the [Briqpay extension](/add-ons/add-ons-as-extensions/payment-extensions/briqpay).
+
+## Installation
+
+Litium serverless cloud - Use the [Cloud CLI](/cloud/serverless/get-started/install-payment-and-delivery-apps) to install the app.
+
+Litium legacy cloud - Contact [support](mailto:support@litium.com) to install the app in your test and/or production environment.
+
+Local environment - See details below. 
+
+## Local installation - Docker compose template
+
+Values to replace in the template:
+
+*   ports
+*   environment
+    *   ASPNETCORE\_HTTPS\_PORT
+    *   AppMetadata\_\_AppUrl
+    *   LitiumApi\_\_ApiUrl
+
+```plain
+version: '3'
+services:
+  briqpay-payment:
+    image: registry.litium.cloud/apps/briqpay-payment:1.10.1
+    dns: 
+    - 192.168.65.254
+    restart: unless-stopped
+    ports:
+    - "10030:80"
+    - "10031:443"
+    environment:
+    # Enable HTTPS binding
+    - ASPNETCORE_URLS=https://+;http://+
+    - ASPNETCORE_HTTPS_PORT=10031
+    # Configuration for HTTPS inside the container, exported dotnet dev-certs with corresponding password
+    - ASPNETCORE_Kestrel__Certificates__Default__Password=${CERT_PWD}
+    - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/localhost.pfx
+    # Folder for the configuraiton, this is volume-mapped
+    - CONFIG_PATH=/app_config
+    # Folder where logfiles should be placed, this is volume-mapped
+    - APP_LOG_PATH=/logs
+    # Don't validate certificates
+    - AppConfiguration__ValidateCertificate=false
+    # Disable callbacks
+    - AppConfiguration__DisableCallbacks=true
+    # Url to this app
+    - AppMetadata__AppUrl=https://customer-app-briqpay-payment.localtest.me:10031
+    # Url to the litium installation
+    - LitiumApi__ApiUrl=https://customer.localtest.me:5001
+    volumes:
+    - ./data/briqpay-payment/config:/app_config
+    - ./data/briqpay-payment/data:/app_data
+    - ./data/briqpay-payment/logs:/logs
+    - ./data/briqpay-payment/DataProtection-Keys:/root/.aspnet/DataProtection-Keys
+    - ./data/https:/https:ro
+```
+
+## Configuration file
+
+The configuration file must have json format and UTF-8 encoding
+
+```json
+{
+  "Briqpay": {
+    "PaymentAccounts": [
+      {
+        "PaymentAccountId": "SE",
+        "MerchantId": "",
+        "Secret": "",
+        "Environment": "Test",
+        "PaymentOptions": [ "Checkout" ],
+        "IntegrationType": "iframeCheckout"
+      },
+    ]
+  }
+}
+```
+
+*   Merchant ID: Your account ID provided by Briqpay
+*   Secret: Your API secret provided by Briqpay (You can sign up for a test-account instantly at https://app.briqpay.com )
+*   Environment: Test or Live depending on what environment you want to target
+*   IntegrationType: What version of the Briqpay product you want to use. Allowed values are "iframeCheckout" or "paymentWidgets".
+
+## Sales tax
+
+Sales tax is currently only supported in the US and requires a specific order line to be added to the cart. The cart item must conform to the following:
+
+*   Row tax rate must be 0
+*   Row type must be "fee"
+*   Row article number must be "sales\_tax"

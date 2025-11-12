@@ -59,14 +59,18 @@ dotnet litium-db update --connection \[connectionstring\]
 
 if you have the connection string in your json-config file you can directly use that for migration
 
-dotnet litium-db update --file \[path to the config.json file\]
+```bash
+dotnet litium-db update --file [path-to-config.json]
+```
 
 ### \- Manual upgrade: Generate script
 
 With the _pre-script_ and _script_ command, you can create the database script that is needed for the manual upgrade of the database. For example, if the scripts should be sent to Litium Support for applying to the customer database.
 
+```bash
 dotnet litium-db pre-script -o prerequisite.sql
 dotnet litium-db script -o upgrade.sql
+```
 
 The _pre-script_ is used to validate the information in the database before starting the migration. If the validation script is failing with an error message the upgrade should be aborted and the database needs to be corrected regarding the instructions in the error.
 
@@ -74,7 +78,8 @@ The _pre-script_ is used to validate the information in the database before star
 
 Not all orders have base currencies and exchange rates. This script will fill in that data, and update the exchange rate value on historical orders. Updating the exchange rates on already placed orders may provide improved statistical reports.
 
-\--Finds and updates historical Orders that are missing BaseCurrencyCode and ExchangeRate.
+```sql
+--Finds and updates historical Orders that are missing BaseCurrencyCode and ExchangeRate.
 --Defines the Base currency code to set for historical Orders
 DECLARE @baseCurrencyCode nvarchar(5) = 'SEK'
 --Defines the Currency code which Orders were paid with
@@ -86,6 +91,7 @@ DECLARE @fromDate datetimeoffset(7) = '2022/04/25'
 --Defines to date, to get orders in the specific date range
 DECLARE @toDate datetimeoffset(7) = '2022/05/27'
 
-UPDATE \[Sales\].\[Order\]
+UPDATE [Sales].[Order]
 SET BaseCurrencyCode = @baseCurrencyCode, ExchangeRate = @exchangeRate
 WHERE BaseCurrencyCode IS NULL AND CurrencyCode = @currencyCode AND OrderDate >= @fromDate AND OrderDate <= @toDate
+```

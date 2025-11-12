@@ -57,6 +57,7 @@ Next classes must be added to the **Litium.Accelerator.Elasticsearch** applicati
 
 1\. **OrganizationDocument**
 
+```csharp
 using System;
 using System.Collections.Generic;
 using Litium.Search;
@@ -66,7 +67,7 @@ namespace Litium.Accelerator.Search
 {
     public class OrganizationDocument : IDocument
     {
-        \[Keyword(Ignore = true)\] public string Id => OrganizationSystemId.ToString();
+        [Keyword(Ignore = true)] public string Id => OrganizationSystemId.ToString();
 
         public Guid OrganizationSystemId { get; set; }
 
@@ -75,9 +76,11 @@ namespace Litium.Accelerator.Search
         public string Name { get; set; }
     }
 }
+```
 
 2\. **OrganizationIndexConfiguration**, it will be no lingual index.
 
+```csharp
 using System.Threading.Tasks;
 using Litium.Customers;
 using Litium.Data;
@@ -89,19 +92,19 @@ namespace Litium.Accelerator.Search.Indexing.Organizations
 {
     public class OrganizationIndexConfiguration : IndexConfigurationBase<OrganizationDocument>
     {
-        private readonly DataService \_dataService;
-        private readonly IStringLocalizer \_localizer;
+        private readonly DataService _dataService;
+        private readonly IStringLocalizer _localizer;
 
         public OrganizationIndexConfiguration(IndexConfigurationDependencies dependencies, DataService dataService, IStringLocalizer<IndexConfigurationActionResult> localizer)
             : base(dependencies)
         {
-            \_dataService = dataService;
-            \_localizer = localizer;
+            _dataService = dataService;
+            _localizer = localizer;
         }
 
         protected override Task<IndexConfigurationActionResult> QueueIndexRebuildAsync(IndexQueueService indexQueueService)
         {
-            using (var query = \_dataService.CreateQuery<Organization>())
+            using (var query = _dataService.CreateQuery<Organization>())
             {
                 foreach (var systemId in query.ToSystemIdList())
                 {
@@ -112,14 +115,16 @@ namespace Litium.Accelerator.Search.Indexing.Organizations
             return Task.FromResult(new IndexConfigurationActionResult
             {
                 //Need to add "index.organizations.queued" to Administration.resx
-                Message = \_localizer.GetString("index.organizations.queued")
+                Message = _localizer.GetString("index.organizations.queued")
             });
         }
     }
 }
+```
 
 3\. **OrganizationIndexDocumentBuilder**
 
+```csharp
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -132,17 +137,18 @@ namespace Litium.Accelerator.Search.Indexing.Organizations
 {
     public class OrganizationIndexDocumentBuilder : IndexDocumentBuilderBase<OrganizationDocument>
     {
-        private readonly OrganizationService \_organizationService;
-        private readonly ContentBuilderService \_contentBuilderService;
+        private readonly OrganizationService _organizationService;
+        private readonly ContentBuilderService _contentBuilderService;
 
         public OrganizationIndexDocumentBuilder(IndexDocumentBuilderDependencies dependencies, OrganizationService organizationService, ContentBuilderService contentBuilderService) : base(dependencies)
         {
-            \_organizationService = organizationService;
-            \_contentBuilderService = contentBuilderService;
+            _organizationService = organizationService;
+            _contentBuilderService = contentBuilderService;
         }
+
         public override IEnumerable<IDocument> BuildIndexDocuments(IndexQueueItem item)
         {
-            var organization = \_organizationService.Get(item.SystemId);
+            var organization = _organizationService.Get(item.SystemId);
             if (organization == null)
             {
                 yield break;
@@ -151,19 +157,25 @@ namespace Litium.Accelerator.Search.Indexing.Organizations
             yield return new OrganizationDocument
             {
                 OrganizationSystemId = organization.SystemId,
-                Content = \_contentBuilderService.BuildContent<OrganizationFieldTemplate, CustomerArea>(organization.FieldTemplateSystemId, CultureInfo.CurrentUICulture, organization.Fields),
+                Content = _contentBuilderService.BuildContent<OrganizationFieldTemplate, CustomerArea>(
+                    organization.FieldTemplateSystemId,
+                    CultureInfo.CurrentUICulture,
+                    organization.Fields),
                 Name = organization.Name,
             };
         }
+
         public override IEnumerable<IDocument> BuildRemoveIndexDocuments(IndexQueueItem item)
         {
             yield return RemoveByFieldDocument.Create<OrganizationDocument, Guid>(x => x.OrganizationSystemId, item.SystemId);
         }
     }
 }
+```
 
 4\. **OrganizationEventListener**
 
+```csharp
 using Litium.Events;
 using Litium.Search.Indexing;
 using Litium.Customers.Events;
@@ -180,6 +192,7 @@ namespace Litium.Accelerator.Search.Indexing.Organizations
         }
     }
 }
+```
 
 The **OrganizationDocument** index will appear in the settings for Elasticsearch, now you can build indices for organizations
 

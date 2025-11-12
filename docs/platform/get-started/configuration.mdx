@@ -34,7 +34,7 @@ appsettings.json file is used to set up settings and general behaviors of Litium
 
 [Callback domain for backend](#callbackdomain)
 
-Please find the [configuration for the accelerator](/accelerators/mvc-accelerator/configure) here. 
+Please find the [configuration for the accelerator](/accelerators/mvc/configure) here. 
 
 * * *
 
@@ -48,24 +48,26 @@ Here you can find all the settings for the system user.
 
 - _allowWindowsCredential_: if the user can log in to Litium with Windows credentials from a remote site (login is always enabled when browsing the site from localhost), only members of the local group **Administrators** can log in. To change group to not use local administrators, see the _WindowsCredentialGroup_ attribute.
 - _useSecureConnectionRedirection_: if the system should try to redirect the administrator to use https instead of http.
-- _windowsCredentialGroup_: change group to another group than the local **Administrators** group. Set the name or the SID of the group name according to the pattern "\[computername\]\\\[Groupname\]" as the value. To allow the local group _LitiumBackoffice_ to access the administration interface, the value _computer\\LitiumBackoffice_ should be set, where _computer_ is your local computer name. If any built-in group should be used, the computer should be replaced with _builtin_.
+- _windowsCredentialGroup_: change group to another group than the local **Administrators** group. Set the name or the SID of the group name according to the pattern `"[computername]\\[Groupname]"` as the value. To allow the local group _LitiumBackoffice_ to access the administration interface, set the value to `computer\\LitiumBackoffice`, where _computer_ is your local computer name. If any built-in group should be used, replace the computer name with _builtin_.
 - _requiredClaims_: key/value for claims that the identity needs to have to be able to access Litium administration
 - _signInUrl_: alternative path for sign in page, used to replace Litium administration login functionality with your own
 - _signOutUrl_: alternative path for sign out page, used to replace Litium administration logout functionality with your own
 
 To use the system account, log in using an account with admin privileges on the local machine or domain.
 
+```json
 "AdministrationSecurity": {
-      "AllowWindowsCredential": true,
-      "WindowsCredentialGroup": "YourDomain\\\\Your Group",
-      "UseSecureConnectionRedirection": true,
-      "RequiredClaims": {
-        "FirstClaim": "FirstClaimValue",
-        "SecondClaim": "SecondClaimValue"
-      },
-      "SignInUrl": "https://your-sign-in-url",
-      "SignOutUrl": "https://your-sign-out-url"
-    }
+  "AllowWindowsCredential": true,
+  "WindowsCredentialGroup": "YourDomain\\\\Your Group",
+  "UseSecureConnectionRedirection": true,
+  "RequiredClaims": {
+    "FirstClaim": "FirstClaimValue",
+    "SecondClaim": "SecondClaimValue"
+  },
+  "SignInUrl": "https://your-sign-in-url",
+  "SignOutUrl": "https://your-sign-out-url"
+}
+```
 
 ### Password policy
 
@@ -80,15 +82,17 @@ Define the password policy, used for all users in Litium.
 - _requireNonLetterOrDigit_: if set to _true,_ the password requires a character that is not a letter and not a digit.
 - _requiredLength_: the minimum number of characters that the password must contain. 
 
+```json
 "PasswordPolicy": {
-      "LockoutCount": 3,
-      "LockoutSeconds": 300,
-      "RequireUppercase": false,
-      "RequireDigit": false,
-      "RequireLowercase": false,
-      "RequireNonLetterOrDigit": false,
-      "RequiredLength": 2
-    }
+  "LockoutCount": 3,
+  "LockoutSeconds": 300,
+  "RequireUppercase": false,
+  "RequireDigit": false,
+  "RequireLowercase": false,
+  "RequireNonLetterOrDigit": false,
+  "RequiredLength": 2
+}
+```
 
 [Back to the top](#topofpage)
 
@@ -110,14 +114,16 @@ The Scheduler Policy attribute contains 5 parameters:
 - _executionRestriction_: the execution restriction that can disallow concurrent executions on a local machine or disallow concurrent execution in the cluster of applications (distributed lock). Users can define it as none.
 - _cronTimeZone:_ the cron time zone for the scheduler policy. With no time zone defined, default is UTC.
 
-"Scheduler": { 
- "Policy": { 
-   "Litium.Auditing.CleanupScheduler": { 
-     "CronExpression": "0 0/1 \* 1/1 \* ? \*", 
-     "CronTimeZone": "Central Standard Time" 
-   } 
- } 
+```json
+"Scheduler": {
+  "Policy": {
+    "Litium.Auditing.CleanupScheduler": {
+      "CronExpression": "0 0/1 * 1/1 * ? *",
+      "CronTimeZone": "Central Standard Time"
+    }
+  }
 }
+```
 
 [Back to the top](#topofpage)
 
@@ -134,9 +140,14 @@ This section describes the data and files directory configuration.
 - _connectionString_: the connection string that links to the database server.
 - _enableSensitiveDataLogging_: if set to _True_, the sensitive data will be logged.
 
+```json
 "Litium": {
-    "Data": {
-        "ConnectionString": "Pooling=true;User Id=sa;Password=Pass@word;Database=LitiumEducation;Server=host.docker.internal,5434"
+  "Data": {
+    "ConnectionString": "Pooling=true;User Id=sa;Password=Pass@word;Database=LitiumEducation;Server=host.docker.internal,5434",
+    "EnableSensitiveDataLogging": false
+  }
+}
+```
 
 ### Files directory
 
@@ -146,10 +157,12 @@ This section describes the data and files directory configuration.
 - _shared_: upload folder where files that are common to all servers are stored. When using multiserver environments, the _Shared_ should be set. This directory is used to store all the information that is common between the servers.  
     If this element is not present, the _Local_ will be used instead.
 
+```json
 "Folder": {
-    "Local": "../files/local",
-    "Shared": "../files/shared"
+  "Local": "../files/local",
+  "Shared": "../files/shared"
 }
+```
 
 [Back to the top](#topofpage)
 
@@ -164,10 +177,12 @@ Settings for handling thumbnail generator configuration.
 - _navigationTimeoutMilliseconds_: maximum navigation time in milliseconds, defaults to 30 seconds, pass 0 to disable timeout.
 - _browserExecutablePath_: gets the executable path to use a specific, custom version of Chrome or Chromium; no support in Litium Serverless Cloud.
 
+```json
 "ThumbnailGenerator": {
-      "NavigationTimeoutMilliseconds": 30000,
-      "BrowserExecutablePath": "C:\\\\Program Files (x86)\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe"
-    }
+  "NavigationTimeoutMilliseconds": 30000,
+  "BrowserExecutablePath": "C:\\\\Program Files (x86)\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe"
+}
+```
 
 [Back to the top](#topofpage)
 
@@ -183,11 +198,13 @@ Settings for the **Sales** area.
 - _orderNumberPrefix_: the prefix for the order number, the default value is _"LS"_.
 - _paymentNumberPrefix_: the prefix for payment number, the default value is _"LSP"_.
 
+```json
 "Sales": {
-      "SynchronizationLockTimeout": 10,
-      "OrderNumberPrefix": "LS",
-      "PaymentNumberPrefix": "LSP"
-    }
+  "SynchronizationLockTimeout": 10,
+  "OrderNumberPrefix": "LS",
+  "PaymentNumberPrefix": "LSP"
+}
+```
 
 [Back to the top](#topofpage)
 
@@ -199,9 +216,12 @@ Settings for the storage handler contain the list of CDN hosts.
 
 **Section:** Litium / MediaLocation / CdnHosts
 
-"CdnHosts": \[
-        "https://cdn.company.com", "http://cdn.se"
-      \]
+```json
+"CdnHosts": [
+  "https://cdn.company.com",
+  "http://cdn.se"
+]
+```
 
 [Back to the top](#topofpage)
 
@@ -213,21 +233,22 @@ Settings for the Storefront API.
 
 **Section:** Litium / Storefront
 
+```jsonc
 "Storefront": {
-    // Authentication token lifetime. (int?)
-    "AuthenticationTokenLifetime": null,
-    // Disable introspection. (boolean)
-    "DisableIntrospection": false,
-    // Define max allowed field cycle depth rule. (ushort?)
-    "DefaultCycleLimit": null,
-    // Define maximum numbers of returned category facets.(int)
-    "MaximumNumberOfCategoryFacet": 100,
-    // Define maximum numbers of returned term facets. (int)
-    "MaximumNumberOfTermFacet": 100,
-    // Define maximum numbers of returned price facets. (int)
-    "MaximumNumberOfPriceFacet": 10000
-    
+  // Authentication token lifetime. (int?)
+  "AuthenticationTokenLifetime": null,
+  // Disable introspection. (boolean)
+  "DisableIntrospection": false,
+  // Define max allowed field cycle depth rule. (ushort?)
+  "DefaultCycleLimit": null,
+  // Define maximum numbers of returned category facets.(int)
+  "MaximumNumberOfCategoryFacet": 100,
+  // Define maximum numbers of returned term facets. (int)
+  "MaximumNumberOfTermFacet": 100,
+  // Define maximum numbers of returned price facets. (int)
+  "MaximumNumberOfPriceFacet": 10000
 }
+```
 
 [Back to the top](#topofpage)
 
@@ -245,23 +266,27 @@ Settings for loading/ignoring plugin assemblies.
 
 The format for the assembly name is "Lititum.Dummy.Web".
 
+```json
 "Assembly": {
-        "Firsts": \[\],
-        "Lasts": \[\],
-        "Ignores": \[
-          "Litium.Dummy.Web"
-        \]
-      }
+  "Firsts": [],
+  "Lasts": [],
+  "Ignores": [
+    "Litium.Dummy.Web"
+  ]
+}
+```
 
 **Section:** Litium / Plugin / Type
 
 - _ignores_: the full type name of the types that should be ignored when loaded in the Dependency Injection. The format for the type name is "Litium.Dummy.Web.MyClass"
 
+```json
 "Type": {
-        "Ignores": \[
-            "Litium.Dummy.Web.MyClass, Litium.Dummy.Web"
-        \]
-      }
+  "Ignores": [
+    "Litium.Dummy.Web.MyClass, Litium.Dummy.Web"
+  ]
+}
+```
 
 [Back to the top](#topofpage)
 
@@ -276,10 +301,12 @@ Settings for the identity server.
 - _certificatePfxPath_: the path to the certificate in pfx format.
 - _certificatePassword_: the certificate password.
 
+```json
 "IdentityServer": {
-    "CertificatePfxPath": "C:\\\\path-to-certificatePfx",
-    "CertificatePassword": "your-certificate-password"
+  "CertificatePfxPath": "C:\\\\path-to-certificatePfx",
+  "CertificatePassword": "your-certificate-password"
 }
+```
 
 [Back to the top](#topofpage)
 
@@ -296,23 +323,24 @@ Settings to handling the url validator:
 - _invalidExtensions_: extensions that not an url-segments is allowed to use.
 - CharacterReplacements is a dictionary structured to contain character substitution mappings for URLs. These mappings are also employed by the GraphQLNamingService to replace special characters.
 
+```json
 "UrlValidator": {
-  "InvalidCharacters": \[
-    "\*"
-  \],
-  "InvalidWords": \[
-  \],
-  "InvalidExtensions": \[
+  "InvalidCharacters": [
+    "*"
+  ],
+  "InvalidWords": [],
+  "InvalidExtensions": [
     ".ashx"
-  \],
+  ],
   "CharacterReplacements": {
     "œ": "oe",
     "đ": "d",
     "ý": "y",
     "ÿ": "y",
     "þ": "th"
-  }      
+  }
 }
+```
 
 [Back to the top](#topofpage)
 
@@ -329,18 +357,20 @@ Settings to handle distributed cache. Use a negative value to disable the cache 
 - _entity / useDistributedCache:_ the value indicating whether to use distributed cache.
 - _entity / slidingExpiration_: contains the full type name of the types and the value the sliding interval for the cache item. The format for the type name is "Litium.Dummy.Web.MyClass, AssemblyName"
 
+```json
 "Cache": {
-      "Distributed": {
-        "DefaultMemorySlidingExpiration": 120,
-        "DefaultDistributedSlidingExpiration": 86400
-      },
-      "Entity": {
-        "UseDistributedCache": true,
-        "SlidingExpiration": {
-          "Litium.Dummy.Web.MyClass, AssemblyName": 3600
-        }
-      }
+  "Distributed": {
+    "DefaultMemorySlidingExpiration": 120,
+    "DefaultDistributedSlidingExpiration": 86400
+  },
+  "Entity": {
+    "UseDistributedCache": true,
+    "SlidingExpiration": {
+      "Litium.Dummy.Web.MyClass, AssemblyName": 3600
     }
+  }
+}
+```
 
 [Back to the top](#topofpage)
 
@@ -355,12 +385,15 @@ Ghostscript requires two setting keys and works only on Windows; no support in L
 - _directory_: where the ghostscript DLLs are located.
 - _convertExtensions_: the image extensions that are accepted to convert.
 
+```json
 "Ghostscript": {
-      "Directory": "ghostscript-dlls",
-      "ConvertExtensions": \[
-        ".ept", ".eps"
-      \]
-    }
+  "Directory": "ghostscript-dlls",
+  "ConvertExtensions": [
+    ".ept",
+    ".eps"
+  ]
+}
+```
 
 [Back to the top](#topofpage)
 
@@ -372,14 +405,16 @@ Settings for the **Media** area.
 
 In **MimeTypes** section administrator can add additional file types.
 
- "Media": {
-      "MimeTypes": {
-        ".ez": "application/andrew-inset",
-        ".ma": "application/mathematica",
-        ".mb": "application/mathematica",
-        ".pdf": "application/pdf"
-      }
-    }
+```json
+"Media": {
+  "MimeTypes": {
+    ".ez": "application/andrew-inset",
+    ".ma": "application/mathematica",
+    ".mb": "application/mathematica",
+    ".pdf": "application/pdf"
+  }
+}
+```
 
 [Back to the top](#topofpage)
 
@@ -387,11 +422,13 @@ In **MimeTypes** section administrator can add additional file types.
 
 When we have a headless solution where the backend and frontend ([Storefront](/platform/apis/storefront-api)) have different subdomains, the backend url can be configured as a setting in appsetting.json file . The config should look like this: 
 
+```json
 {
-    "Litium": {
-        "CallbackDomain": "domain.to.litium",
-    }
+  "Litium": {
+    "CallbackDomain": "domain.to.litium"
+  }
 }
+```
 
 In case "https://" is missing from the domain, the code will add it automatically. Also if the frontend and backend has the same domain then this setting is not needed.
 

@@ -1,0 +1,58 @@
+---
+title: "Managing extensions"
+description: "Use the extension management Web API to register, update, and inspect Litium backoffice extensions."
+---
+
+Extensions in Litium are seamlessly managed through the dedicated Web API endpoint `/Litium/api/extensions-management/extensions`. This endpoint serves as the central hub for integrating and overseeing extensions, enabling teams to enhance functionality and tailor the Litium backoffice to business needs.
+
+To perform extension-management operations, use a **service account**. It provides the required permissions and security credentials so that calls can be executed safely. The same endpoint is exposed in Swagger UI, offering an interactive way to explore and test its capabilities.
+
+This combination empowers organisations to maintain a scalable, adaptable, and secure digital infrastructure.
+
+## Extension schema
+
+The payload for creating or updating an extension follows this schema:
+
+```json
+{
+  "type": "string",
+  "id": "string",
+  "name": "string",
+  "description": "string",
+  "targets": [
+    {
+      "target": "string",
+      "additionalProp1": "string",
+      "additionalProp2": "string"
+    }
+  ],
+  "texts": {
+    "culture1": {
+      "additionalProp1": "string",
+      "additionalProp2": "string"
+    },
+    "culture2": {
+      "additionalProp1": "string",
+      "additionalProp2": "string"
+    }
+  }
+}
+```
+
+- `type`: indicates the area the extension targets.
+- `id`: the unique system identifier for the extension.
+- `targets`: the extension points you want to extend.
+  - `target`: the specific target identifier.
+  - `additional data`: key/value pairs required by the target.
+- `texts`: translation data.
+  - `culture`: the culture code (ISO 639 language + ISO 3166 region).
+  - `additional data`: translation key/value pairs prefixed with `extensions.{id}.`.
+- `name`: display name. Prefix with `t:` to refer to a translation key.
+- `description`: display description. Prefix with `t:` to refer to a translation key.
+
+## Targets
+
+Targets represent the extension points within Litium, defining where and how your integration can modify or extend the platform. Retrieve the available targets programmatically from `/Litium/api/extension-management/targets`. The response describes each target and the data it expects.
+
+Each target exposes specific fields that you configure to ensure the extension interacts correctly with the system component you aim to extend. By leveraging these targets, teams can customise Litium while keeping upgrades safe and predictable.
+

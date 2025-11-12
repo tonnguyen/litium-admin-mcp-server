@@ -35,6 +35,7 @@ We need a controller to render _Text block_, configured as a display template.
 
 Create _TextBlockViewModel_ under _Litium.Accelerator\\ViewModels\\Block:_
 
+```csharp
 using AutoMapper;
 using JetBrains.Annotations;
 using Litium.Accelerator.Builders;
@@ -48,7 +49,7 @@ namespace Litium.Accelerator.ViewModels.Block
     {
         public string Text { get; set; }
 
-        \[UsedImplicitly\]
+        [UsedImplicitly]
         void IAutoMapperConfiguration.Configure(IMapperConfigurationExpression cfg)
         {
             cfg.CreateMap<BlockModel, TextBlockViewModel>()
@@ -56,13 +57,15 @@ namespace Litium.Accelerator.ViewModels.Block
         }
     }
 }
+```
 
 ### Create a builder
 
-The builder is a component of the Business Logic Layer (BLL), to create a common layer that can be consumed by the MVC or Web API. We will create _TextBlockController_ and use the builder in the next step, but this is not mandatory. We can also choose to use only the controller. The builder, however, will help us if we want to use another approach than MVC to render a block, since we have a common layer to reuse. Please read more about the [BLL and the architecture of Litium Accelerator here](/accelerators/mvc-accelerator).
+The builder is a component of the Business Logic Layer (BLL), to create a common layer that can be consumed by the MVC or Web API. We will create _TextBlockController_ and use the builder in the next step, but this is not mandatory. We can also choose to use only the controller. The builder, however, will help us if we want to use another approach than MVC to render a block, since we have a common layer to reuse. Please read more about the [BLL and the architecture of Litium Accelerator here](/accelerators/mvc/overview).
 
 Create a builder under _Litium.Accelerator\\Builders\\Block:_
 
+```csharp
 using Litium.Accelerator.ViewModels.Block;
 using Litium.Runtime.AutoMapper;
 using Litium.Runtime.DependencyInjection;
@@ -70,7 +73,7 @@ using Litium.Web.Models.Blocks;
 
 namespace Litium.Accelerator.Builders.Block
 {
-    \[Service(ServiceType = typeof(TextBlockViewModelBuilder))\]
+    [Service(ServiceType = typeof(TextBlockViewModelBuilder))]
     public class TextBlockViewModelBuilder : IViewModelBuilder<TextBlockViewModel>
     {
         public virtual TextBlockViewModel Build(BlockModel blockModel)
@@ -79,8 +82,9 @@ namespace Litium.Accelerator.Builders.Block
         }
     }
 }
+```
 
-In this builder we use _AutoMapper_ to map the text field from the field we named **Text** in our **Text block** template. So when _blockModel.MapTo<TextBlockViewModel>()_ is executed, the value of the **Text** field in the **Text block** template is set to the text field of the _TextBlockViewModel_.
+In this builder we use _AutoMapper_ to map the text field from the field we named **Text** in our **Text block** template. So when `blockModel.MapTo<TextBlockViewModel>()` is executed, the value of the **Text** field in the **Text block** template is set to the text field of the _TextBlockViewModel_.
 
 We created the model and builder in the _Litium.Accelerator_ project, which is a common one. Go to the _Litium.Accelerator.Mvc_ project to create a controller and a view that use the model and builder we just created.
 
@@ -88,6 +92,7 @@ We created the model and builder in the _Litium.Accelerator_ project, which is a
 
 Create _TextBlockController_ under _Litium.Accelerator.Mvc\\Controllers\\Blocks:_
 
+```csharp
 using Litium.Web.Models.Blocks;
 using Litium.Accelerator.Builders.Block;
 using Microsoft.AspNetCore.Mvc;
@@ -110,16 +115,19 @@ namespace Litium.Accelerator.Mvc.Controllers.Blocks
         }
     }
 }
+```
 
 The controller does not do much work. It just asks _TextBlockViewModelBuilder_ to build the model, and render a partial view using _Text.cshtml_. All block controllers must inherit the _ViewComponent_ base class and implement the Invoke-method that returns an IViewComponentResult.
 
 Create the view under _Litium.Accelerator.Mvc\\Views\\Blocks_:
 
+```cshtml
 @model Litium.Accelerator.ViewModels.Block.TextBlockViewModel
 
 <div className="grid grid-cols-2">
     <p>@Model.Text</p>
 </div>
+```
 
 ## Configure a display template
 
@@ -149,12 +157,14 @@ When adding a container to a page template, remember to add the following snippe
 
 _@Component.BlockContainerAsync_ is an extension method for _IViewComponentHelper_, which is defined in _Litium.Accelerator.Mvc\\BlockContainerHelperExtension.cs_. This extension method makes sure that we render the container's blocks with the following tag builder section. 
 
+```csharp
 var tagBuilder = new TagBuilder("section");
-tagBuilder.Attributes\["data-litium-block-id"\] = blockModel.SystemId.ToString();
+tagBuilder.Attributes["data-litium-block-id"] = blockModel.SystemId.ToString();
 tagBuilder.InnerHtml.AppendHtml(await component.InvokeAsync(controllerType, blockModel));
 
 builder.AppendHtml(tagBuilder);
 builder.AppendLine();
+```
 
 It renders all blocks, and every block should be rendered inside a section tag with the _data-litium-block-id_ attribute. This attribute is a special one, and must be added to every block. The page edit engine uses the attribute to find a block, in order generate a thumbnail for it. Without this attribute, the system cannot find the block in the HTML code, so it cannot extract the thumbnail. Note that this only impacts the page edit feature in back office, not how the block is rendered in the website. Without that attribute, the block will still be rendered correctly.
 
@@ -168,21 +178,23 @@ Nested blocks feature was introduced in Litium 8.9, which allows editors to add 
 
 Create _TwoColumnsBlockController_ for display _TwoColumns_ block.
 
+```csharp
 public class TwoColumnsBlockController : ViewComponent
 {
-    private readonly TwoColumnsBlockViewModelBuilder \_builder;
+    private readonly TwoColumnsBlockViewModelBuilder _builder;
 
     public TwoColumnsBlockController(TwoColumnsBlockViewModelBuilder builder)
     {
-        \_builder = builder;
+        _builder = builder;
     }
 
     public IViewComponentResult Invoke(BlockModel currentBlockModel)
     {
-        var model = \_builder.Build(currentBlockModel);
+        var model = _builder.Build(currentBlockModel);
         return View("~/Views/Blocks/TwoColumns.cshtml", model);
     }
 }
+```
 
 Create a _TwoColumns_ block template:
 
@@ -193,7 +205,8 @@ Create a _TwoColumns_ block template:
 
 Create _TwoColumnsBlockViewModelBuilder,_ _TwoColumnsBlockViewModel._
 
-\[Service(ServiceType = typeof(TwoColumnsBlockViewModelBuilder))\]
+```csharp
+[Service(ServiceType = typeof(TwoColumnsBlockViewModelBuilder))]
 public class TwoColumnsBlockViewModelBuilder : IViewModelBuilder<TwoColumnsBlockViewModel>
 {
     public virtual TwoColumnsBlockViewModel Build(BlockModel blockModel)
@@ -206,15 +219,17 @@ public class TwoColumnsBlockViewModel : IViewModel, IAutoMapperConfiguration
 {
     public IList<BlockModel> Children { get; set; }
 
-    \[UsedImplicitly\]
+    [UsedImplicitly]
     void IAutoMapperConfiguration.Configure(IMapperConfigurationExpression cfg)
     {
         cfg.CreateMap<BlockModel, TwoColumnsBlockViewModel>();
     }
 }
+```
 
 The _BlockContainerAsync_ is need to updated to support show nested blocks. We can modify it like this sample.
 
+```csharp
 public static async Task<IHtmlContent> BlockContainerAsync(this IViewComponentHelper component, Dictionary<string, List<BlockModel>> containers, string containerId)
 {
     if (containers == null || !containers.TryGetValue(containerId, out var blocks) || blocks.Count == 0)
@@ -241,7 +256,7 @@ public static async Task<IHtmlContent> BlocksAsync(this IViewComponentHelper com
     async Task<TagBuilder> BuildTag(BlockModel blockModel)
     {
         var tagBuilder = new TagBuilder("section");
-        tagBuilder.Attributes\["data-litium-block-id"\] = blockModel.SystemId.ToString();
+        tagBuilder.Attributes["data-litium-block-id"] = blockModel.SystemId.ToString();
         tagBuilder.InnerHtml.AppendHtml(await component.InvokeAsync(GetControllerType(blockModel), blockModel));
 
         return tagBuilder;
@@ -249,7 +264,7 @@ public static async Task<IHtmlContent> BlocksAsync(this IViewComponentHelper com
 
     Type GetControllerType(BlockModel blockModel)
     {
-        var fieldTemplate = \_fieldTemplateService.Value.Get<BlockFieldTemplate>(blockModel.FieldTemplateSystemId);
+        var fieldTemplate = _fieldTemplateService.Value.Get<BlockFieldTemplate>(blockModel.FieldTemplateSystemId);
         if (string.IsNullOrWhiteSpace(fieldTemplate?.TemplatePath) || fieldTemplate.TemplatePath.IndexOf("MVC:", StringComparison.OrdinalIgnoreCase) == -1)
         {
             throw new InvalidOperationException("Could not find template for block.");
@@ -261,7 +276,7 @@ public static async Task<IHtmlContent> BlocksAsync(this IViewComponentHelper com
             throw new InvalidOperationException("Could not find template for block.");
         }
 
-        var controllerType = Type.GetType(templateDefaults\[0\], true, true);
+        var controllerType = Type.GetType(templateDefaults[0], true, true);
         if (controllerType == null)
         {
             throw new InvalidOperationException("Could not find template for block.");
@@ -270,9 +285,12 @@ public static async Task<IHtmlContent> BlocksAsync(this IViewComponentHelper com
         return controllerType;
     }
 }
+```
 
 And then, create new _view_ file under Litium.Accelerator.Mvc\\Views\\Blocks and named it TwoColumns.cshtml, add the _BlocksAsync_ extension to render nested blocks
 
+```cshtml
 @model Litium.Accelerator.ViewModels.Block.TwoColumnsBlockViewModel 
 
 @await Component.BlocksAsync(Model.Children)
+```

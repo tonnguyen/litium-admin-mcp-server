@@ -16,23 +16,24 @@ Before starting you need to ensure that you have the following installed:
 
 Create a file with the name _docker-compose.yaml with the_ following content, this will describe the shared services that are needed.
 
+```yaml expandable
 services:
   dnsresolver:
     image: cytopia/bind:stable-0.28
-    container\_name: dnsresolver
+    container_name: dnsresolver
     ports:
     - "127.0.0.1:53:53/tcp"
     - "127.0.0.1:53:53/udp"
     environment: 
-    - DNS\_CNAME=\*.localtest.me=host.docker.internal
-    - DNS\_FORWARDER=192.168.65.7
+    - DNS_CNAME=*.localtest.me=host.docker.internal
+    - DNS_FORWARDER=192.168.65.7
     dns: 192.168.65.7
     restart: unless-stopped
-
+ 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.17.9
-    container\_name: elasticsearch
-    depends\_on:
+    container_name: elasticsearch
+    depends_on:
     - dnsresolver
     dns: 
     - 192.168.65.254
@@ -43,7 +44,7 @@ services:
     - discovery.type=single-node
     # Allocate 2GB RAM instead of the default 512MB
     # comment out the line below for additional memory allocation
-    # - "ES\_JAVA\_OPTS=-Xms2g -Xmx2g"
+    # - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
     volumes:
     - ./volumes/elasticsearch/data:/usr/share/elasticsearch/data
     entrypoint: 
@@ -53,36 +54,36 @@ services:
     # The plugin refreshes the list of synonyms in Elasticsearch every minute allowing synonyms 
     # to be added/modified in Litium backoffice and updated in Elasticsearch without downtime.
     - "chown -R 1000:1000 /usr/share/elasticsearch/data && (./bin/elasticsearch-plugin list | grep -q analysis-dynamic-synonym || ./bin/elasticsearch-plugin install -b https://github.com/Tasteful/elasticsearch-analysis-dynamic-synonym/releases/download/v7.17.9/elasticsearch-analysis-dynamic-synonym.zip) && /usr/local/bin/docker-entrypoint.sh"
-
+ 
   kibana:
     # The Kibana image tries, by default, to connect to a host/container called elasticsearch.
     image: docker.elastic.co/kibana/kibana:7.17.9
-    container\_name: kibana
-    depends\_on:
+    container_name: kibana
+    depends_on:
     - elasticsearch
     restart: unless-stopped
     ports:
     - "5601:5601"
-
+ 
   synonymserver:
     # Synonym server to provide elasticsearch with synonyms without needing that the customer application is running.
     image: registry.litium.cloud/apps/synonym-server:1.4.0
-    container\_name: synonymserver
+    container_name: synonymserver
     restart: unless-stopped
     ports:
     - "9210:80"
     environment:
-    - DataFolder=/app\_data
+    - DataFolder=/app_data
     volumes:
-    - ./volumes/synonymserver/data:/app\_data
-
+    - ./volumes/synonymserver/data:/app_data
+ 
   redis:
     image: redis:5.0.5-alpine
-    container\_name: redis
+    container_name: redis
     restart: unless-stopped
     ports:
     - "6379:6379"
-
+ 
   mailhog:
     image: mailhog/mailhog:latest
     restart: unless-stopped
@@ -91,19 +92,19 @@ services:
     ports:
       - 1025:1025 # SMTP-server
       - 8025:8025 # Web UI
-
+ 
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2019-latest
     environment:
-      - SA\_PASSWORD=Pass@word
-      - ACCEPT\_EULA=Y
+      - SA_PASSWORD=Pass@word
+      - ACCEPT_EULA=Y
     restart: unless-stopped
     ports:
       # Make the SQL Container available on port 5434 to not conflict with a previously installed local SQL instance.
       # If you do not have SQL Server installed you can use 1433:1433 as mapping and skip port number in connectionstrings.
       - "5434:1433"
     volumes:
-      # Map \[local directory:container directory\] - this is so that db/log files are
+      # Map [local directory:container directory] - this is so that db/log files are
       # stored on the "host" (your local computer, outside of container) and thereby 
       # persisted when container restarts.
       # by starting local path with "." it gets relative to current folder, meaning that the database
@@ -112,15 +113,17 @@ services:
       - ./data/mssql/log:/var/opt/mssql/log
     entrypoint: 
       # Due to an issue with the sqlserver image, permissions to db-files may be lost on container restart
-      # by using the specific permissions\_check entrypoint you assert that permissions are set on every restart
+      # by using the specific permissions_check entrypoint you assert that permissions are set on every restart
       - /bin/sh
       - -c
-      - "/opt/mssql/bin/permissions\_check.sh && /opt/mssql/bin/sqlservr"
-      
+      - "/opt/mssql/bin/permissions_check.sh && /opt/mssql/bin/sqlservr"
+```
 
 To start the services in the docker-compose file you must run the following command within the folder where you placed the _docker-compose.yaml_\-file.
 
+```
 docker-compose up
+```
 
 Docker containers will now be created for the following services. If any of the assigned ports already are in use you will get an error message. Please solve the errors by either changing the port, remove the old service or remove the service from the _docker-compose.yaml_ file.
 

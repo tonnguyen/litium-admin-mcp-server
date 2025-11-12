@@ -53,51 +53,14 @@ These build-steps are there to get you up and running quickly. Please see the [o
 
 3\. Add the following variables:
 
-| 
-**Name**
-
- | 
-
-**Value**
-
- |
+| Name | Value |
 | --- | --- |
-| PublishName | 
-
-<< value of msdeploySite>>
-
-
- |
-| PublishUsername | 
-
-<< Litiumdrift-user>>
-
-
- |
-| PublishPassword (make it secret) | 
-
-<< password of Litiumdrift-user>>
-
-
- |
-| PublishServer | 
-
-https://\[SERVER\].litiumdrift.se:8172/msdeploy.axd
-
-
- |
-| Source | 
-
-$(System.DefaultWorkingDirectory)/\_<<Name of project>>/LitiumBuildArtifact (Name of project with leading “\_”)
-
-
- |
-| ExtractedSource | 
-
-$(System.DefaultWorkingDirectory)/\_<<Name of project>>/LitiumBuildArtifact/Publish
-
-
- |
+| PublishName | `<< value of msdeploySite>>` |
+| PublishUsername | `<< Litiumdrift-user>>` |
+| PublishPassword (make it secret) | `<< password of Litiumdrift-user>>` |
+| PublishServer | `https://[SERVER].litiumdrift.se:8172/msdeploy.axd` |
+| Source | `$(System.DefaultWorkingDirectory)/_<Name of project>/LitiumBuildArtifact (Name of project with leading "_")` |
+| ExtractedSource | `$(System.DefaultWorkingDirectory)/_<Name of project>/LitiumBuildArtifact/Publish` |
 
 Some of the settings found in PublishSettings-file can also be found on the customer website.
 
@@ -144,23 +107,10 @@ Select the artifact that is created with your release pipeline:
     - Paste content from [Deploypsscript.txt](https://docs.litium.com/documentation/litium-cloud/deployment/azure-devops-and-webdeploy/script)
         
     - Add following variable in this task:
-        
 
-| 
-**Name**
-
- | 
-
-**Value**
-
- |
-| --- | --- |
-| PublishPassword | 
-
-$(PublishPassword)
-
-
- |
+        | Name | Value |
+        | --- | --- |
+        | PublishPassword | `$(PublishPassword)` |
 
 This is a necessary step since passwords in the variable group are tagged as Secret. 
 

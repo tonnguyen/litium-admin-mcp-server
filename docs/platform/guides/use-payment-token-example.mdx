@@ -20,20 +20,22 @@ When creating the initial order to get a payment token, the payment app should b
 
 #### Example code using Litium Accelerator:
 
-This method GetCheckoutFlowInfo() is at: _\\Src\\Litium.Accelerator.Mvc\\Controllers\\Checkout\\CheckoutController.cs_
+This method `GetCheckoutFlowInfo()` is at: _\Src\Litium.Accelerator.Mvc\Controllers\Checkout\CheckoutController.cs_
 
+```csharp
 private CheckoutFlowInfo GetCheckoutFlowInfo()
-    {
-        //...other code
-            
-        return new CheckoutFlowInfo
-        {
-           //..Other code
+{
+    //...other code
 
-           //Enable Recurring payment.
-           InitializePaymentToken = true,
-        };
-    }
+    return new CheckoutFlowInfo
+    {
+        //..Other code
+
+        //Enable Recurring payment.
+        InitializePaymentToken = true,
+    };
+}
+```
 
 Once you have created an order with the InitializePaymentToken set, you can use its payment.SystemId to create subsequent orders and pay with the payment token as shown below.
 
@@ -43,14 +45,15 @@ Following is code for a Web API method called "subscriptionOrder".
 
 Once it is added, the webapi url will be: 
 
-https://mysite.localtest.me/api/subscriptionOrder/createFrom/<externalOrderId>
+`https://mysite.localtest.me/api/subscriptionOrder/createFrom/<externalOrderId>`
 
-You need to replace the mysite.localtest.me and <externalOrderId> above.
+You need to replace `mysite.localtest.me` and `<externalOrderId>` above.
 
 Code to create the above endpoint is below, and it should be placed in following location:
 
-..\\Src\\Litium.Accelerator.Mvc\\Controllers\\Api\\SubscriptionOrderController.cs
+..\Src\Litium.Accelerator.Mvc\Controllers\Api\SubscriptionOrderController.cs
 
+```csharp
 using System;
 using System.Linq;
 using System.Threading;
@@ -70,23 +73,23 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Litium.Accelerator.Mvc.Controllers.Api
 {
-    \[Authorize\]
-    \[Route("api/subscriptionOrder")\]
+    [Authorize]
+    [Route("api/subscriptionOrder")]
     public class SubscriptionOrderController : ApiControllerBase
     {
-        private readonly SubscriptionService \_subscriptionService;
+        private readonly SubscriptionService _subscriptionService;
 
         public SubscriptionOrderController(SubscriptionService subscriptionService)
         {
-            \_subscriptionService = subscriptionService;
+            _subscriptionService = subscriptionService;
         }
+
         /// <summary>
         /// Creates a subscription order.
         /// </summary>
-        /// <param name="srcOrderId"> Original order id of the subscription.</param>
-        /// <returns></returns>
-        \[HttpPost\]
-        \[Route("createFrom/{srcOrderId}")\]
+        /// <param name="srcOrderId">Original order id of the subscription.</param>
+        [HttpPost]
+        [Route("createFrom/{srcOrderId}")]
         public async Task<IActionResult> CreateFrom(string srcOrderId)
         {
             try
@@ -94,8 +97,8 @@ namespace Litium.Accelerator.Mvc.Controllers.Api
                 var cartContext = await HttpContext.GetCartContextAsync();
                 //await HttpContext.SwitchCartContextAsync(cartContext.Cart.SystemId);
 
-                var subscriptionOrder = await \_subscriptionService.CreateSubscriptionOrder(cartContext, srcOrderId);
-                return (subscriptionOrder != null)
+                var subscriptionOrder = await _subscriptionService.CreateSubscriptionOrder(cartContext, srcOrderId);
+                return subscriptionOrder != null
                     ? Ok(subscriptionOrder)
                     : NotFound($"Order {srcOrderId} not found");
             }
@@ -106,19 +109,20 @@ namespace Litium.Accelerator.Mvc.Controllers.Api
         }
     }
 
-    \[Service(ServiceType = typeof(SubscriptionService), Lifetime = DependencyLifetime.Singleton)\]
+    [Service(ServiceType = typeof(SubscriptionService), Lifetime = DependencyLifetime.Singleton)]
     public class SubscriptionService
     {
-        private readonly PaymentService \_paymentService;
-        private readonly PaymentProviderService \_paymentProviderService;
-        private readonly OrderOverviewService \_orderOverviewService;
-        private readonly DistributedLockService \_distributedLockService;
-        private readonly ChannelService \_channelService;
-        private readonly KeyLookupService \_keyLookupService;
-        private readonly PersonService \_personService;
-        private readonly EventBroker \_eventBroker;
+        private readonly PaymentService _paymentService;
+        private readonly PaymentProviderService _paymentProviderService;
+        private readonly OrderOverviewService _orderOverviewService;
+        private readonly DistributedLockService _distributedLockService;
+        private readonly ChannelService _channelService;
+        private readonly KeyLookupService _keyLookupService;
+        private readonly PersonService _personService;
+        private readonly EventBroker _eventBroker;
 
-        public SubscriptionService(PaymentService paymentService,
+        public SubscriptionService(
+            PaymentService paymentService,
             PaymentProviderService paymentProviderService,
             OrderOverviewService orderOverviewService,
             DistributedLockService distributedLockService,
@@ -127,39 +131,40 @@ namespace Litium.Accelerator.Mvc.Controllers.Api
             PersonService personService,
             EventBroker eventBroker)
         {
-            \_paymentService = paymentService;
-            \_paymentProviderService = paymentProviderService;
-            \_orderOverviewService = orderOverviewService;
-            \_distributedLockService = distributedLockService;
-            \_channelService = channelService;
-            \_keyLookupService = keyLookupService;
-            \_personService = personService;
-            \_eventBroker = eventBroker;
+            _paymentService = paymentService;
+            _paymentProviderService = paymentProviderService;
+            _orderOverviewService = orderOverviewService;
+            _distributedLockService = distributedLockService;
+            _channelService = channelService;
+            _keyLookupService = keyLookupService;
+            _personService = personService;
+            _eventBroker = eventBroker;
         }
+
         public async Task<OrderOverview> CreateSubscriptionOrder(CartContext cartContext, string srcOrderId)
         {
             //Note: Following code can be used as a starting point of creating an order and making a payment using a PaymentToken.
             //The code is tested using Qliro payment app.
             //For this to work, your payment account should be enabled to use recurring/subscription payments. Contact payment provider customer service to enable it.
-            using (\_distributedLockService.AcquireLock(srcOrderId, TimeSpan.FromSeconds(5)))
+            using (_distributedLockService.AcquireLock(srcOrderId, TimeSpan.FromSeconds(5)))
             {
-                //Makesure we have a totally new cart context.
+                //Make sure we have a totally new cart context.
                 await cartContext.ClearCartContextAsync();
-                if (await cartContext.TryInitializeCheckoutFlowAsync(() => new CheckoutFlowInfoArgs() { CheckoutFlowInfo = new CheckoutFlowInfo() }))
+                if (await cartContext.TryInitializeCheckoutFlowAsync(() => new CheckoutFlowInfoArgs { CheckoutFlowInfo = new CheckoutFlowInfo() }))
                 {
-                    var srcOrderOverview = \_orderOverviewService.Get(srcOrderId);
+                    var srcOrderOverview = _orderOverviewService.Get(srcOrderId);
                     if (srcOrderOverview != null)
                     {
                         var srcOrder = srcOrderOverview.SalesOrder;
-                        //Following methods sets the channel and country, and internally selects the currency for the order.
-                        //These methods need not be called, because the CartContextDefaultFactoryDecorator is setting them. 
-                        //await cartContext.SelectChannelAsync(new SelectChannelArgs() { ChannelSystemId = srcOrder.ChannelSystemId.Value });
-                        //await cartContext.SelectCountryAsync(new SelectCountryArgs() { CountryCode = srcOrder.CountryCode });
+                        //Following methods set the channel and country, and internally select the currency for the order.
+                        //These methods need not be called, because the CartContextDefaultFactoryDecorator is setting them.
+                        //await cartContext.SelectChannelAsync(new SelectChannelArgs { ChannelSystemId = srcOrder.ChannelSystemId.Value });
+                        //await cartContext.SelectCountryAsync(new SelectCountryArgs { CountryCode = srcOrder.CountryCode });
 
-                        //prepare a new order with same items as the src order.
+                        //Prepare a new order with same items as the src order.
                         foreach (var item in srcOrder.Rows.Where(x => x.OrderRowType == OrderRowType.Product))
                         {
-                            var addOrUpdateItemArgs = new AddOrUpdateCartItemArgs()
+                            var addOrUpdateItemArgs = new AddOrUpdateCartItemArgs
                             {
                                 ArticleNumber = item.ArticleNumber,
                                 Quantity = item.Quantity,
@@ -174,27 +179,27 @@ namespace Litium.Accelerator.Mvc.Controllers.Api
                         await AddPaymentDetails(cartContext, srcOrderOverview);
 
                         //if a paymentToken is found in the original order, we try to use it with calling SetPaymentTokenAsync method.
-                        //Some payment apps (e.g. Qliro) allows to create a order using Invoice method, even without payment tokens for credit accepted buyers.
+                        //Some payment apps (e.g. Qliro) allow creating an order using Invoice method, even without payment tokens for credit accepted buyers.
                         //So, following call is not necessary to create invoice payments in certain payment apps when using invoice methods. Note that, CustomerInfo.NationalIdentificationNumber is required to create invoice payments.
-                                                //if (srcOrder.AdditionalInfo.TryGetValue("PaymentToken", out object tokenObj)) //Note: Following code assumes that payment token is saved with the original order additionalInfo.
-                        //{
-                        //    if (Guid.TryParse(tokenObj as string, out Guid token))
-                        //    {
-                        //        await cartContext.SetPaymentTokenAsync(new SetPaymentTokenArgs() { PaymentToken = token });
-                        //    }
-                        //}
+                        ////if (srcOrder.AdditionalInfo.TryGetValue("PaymentToken", out object tokenObj)) //Note: Following code assumes that payment token is saved with the original order additionalInfo.
+                        ////{
+                        ////    if (Guid.TryParse(tokenObj as string, out Guid token))
+                        ////    {
+                        ////        await cartContext.SetPaymentTokenAsync(new SetPaymentTokenArgs { PaymentToken = token });
+                        ////    }
+                        ////}
 
                         var paymentToken = srcOrderOverview.PaymentOverviews.FirstOrDefault().Payment.SystemId;
-                        await cartContext.SetPaymentTokenAsync(new SetPaymentTokenArgs() { PaymentToken = paymentToken });
+                        await cartContext.SetPaymentTokenAsync(new SetPaymentTokenArgs { PaymentToken = paymentToken });
 
                         //await cartContext.ConfirmOrderAsync();
 
                         //we should get a confirmed order.
-                        var result = await \_eventBroker.WaitForEventAsync<Sales.Events.SalesOrderConfirmed>(
-                           x => Task.FromResult(x.Item.SystemId == cartContext.Cart.Order.SystemId),
-                           async () => await cartContext.ConfirmOrderAsync());
+                        var result = await _eventBroker.WaitForEventAsync<Sales.Events.SalesOrderConfirmed>(
+                            x => Task.FromResult(x.Item.SystemId == cartContext.Cart.Order.SystemId),
+                            async () => await cartContext.ConfirmOrderAsync());
 
-                        var subscriptionOrderOverview = \_orderOverviewService.Get(cartContext.Cart.Order.SystemId);
+                        var subscriptionOrderOverview = _orderOverviewService.Get(cartContext.Cart.Order.SystemId);
                         return subscriptionOrderOverview;
                     }
                     else
@@ -320,13 +325,15 @@ namespace Litium.Accelerator.Mvc.Controllers.Api
         }
     }
 }
+```
 
 ### Initializing CartContext:
 
 The above method causes the CartContext to be initialized. Since we are calling this from a Web API, the Accelerator as run in a website is not initialized. Therefore, we need to modify the CartContextDefaultFactoryDecorator to match our requirements.
 
-Code is in: ..\\Src\\Litium.Accelerator\\Services\\CartContextDefaultFactoryDecorator.cs
+Code is in: ..\Src\Litium.Accelerator\Services\CartContextDefaultFactoryDecorator.cs
 
+```csharp
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -341,17 +348,17 @@ using Microsoft.AspNetCore.Http;
 
 namespace Litium.Accelerator.Services
 {
-    \[ServiceDecorator(typeof(CartContextDefaultFactory))\]
+    [ServiceDecorator(typeof(CartContextDefaultFactory))]
     public class CartContextDefaultFactoryDecorator : CartContextDefaultFactory
     {
-        private readonly CartContextDefaultFactory \_parent;
-        private readonly RequestModelAccessor \_requestModelAccessor;
-        private readonly PersonStorage \_personStorage;
-        private readonly KeyLookupService \_keyLookupService;
-        private readonly SecurityContextService \_securityContextService;
-        private readonly OrderOverviewService \_orderOverviewService;
-        private readonly ChannelService \_channelService;
-        private readonly IHttpContextAccessor \_httpContextAccessor;
+        private readonly CartContextDefaultFactory _parent;
+        private readonly RequestModelAccessor _requestModelAccessor;
+        private readonly PersonStorage _personStorage;
+        private readonly KeyLookupService _keyLookupService;
+        private readonly SecurityContextService _securityContextService;
+        private readonly OrderOverviewService _orderOverviewService;
+        private readonly ChannelService _channelService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public CartContextDefaultFactoryDecorator(
             CartContextDefaultFactory parent,
@@ -363,19 +370,19 @@ namespace Litium.Accelerator.Services
             ChannelService channelService,
             IHttpContextAccessor httpContextAccessor)
         {
-            \_parent = parent;
-            \_requestModelAccessor = requestModelAccessor;
-            \_personStorage = personStorage;
-            \_keyLookupService = keyLookupService;
-            \_securityContextService = securityContextService;
-            \_orderOverviewService = orderOverviewService;
-            \_channelService = channelService;
-            \_httpContextAccessor = httpContextAccessor;
+            _parent = parent;
+            _requestModelAccessor = requestModelAccessor;
+            _personStorage = personStorage;
+            _keyLookupService = keyLookupService;
+            _securityContextService = securityContextService;
+            _orderOverviewService = orderOverviewService;
+            _channelService = channelService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public override Task<CreateCartContextArgs> CreateAsync(CancellationToken cancellationToken = default)
         {
-            var requestModel = \_requestModelAccessor.RequestModel;
+            var requestModel = _requestModelAccessor.RequestModel;
             if (requestModel != null)
             {
                 return Task.FromResult(new CreateCartContextArgs
@@ -383,11 +390,11 @@ namespace Litium.Accelerator.Services
                     ChannelSystemId = requestModel.ChannelModel.SystemId,
                     MarketSystemId = requestModel.ChannelModel.Channel.MarketSystemId ?? Guid.Empty,
                     CountryCode = requestModel.CountryModel.Country.Id,
-                    CurrencyCode = \_keyLookupService.TryGetId<Currency>(requestModel.CountryModel.Country.CurrencySystemId, out var currencyCode) ? currencyCode : null,
-                    PersonSystemId = \_securityContextService.GetIdentityUserSystemId() ?? null,
-                    OrganizationSystemId = \_personStorage.CurrentSelectedOrganizationSystemId,
-                    ClientIp = \_httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString(),
-                    ClientBrowser = \_httpContextAccessor.HttpContext?.Request.Headers\["User-Agent"\].ToString(),
+                    CurrencyCode = _keyLookupService.TryGetId<Currency>(requestModel.CountryModel.Country.CurrencySystemId, out var currencyCode) ? currencyCode : null,
+                    PersonSystemId = _securityContextService.GetIdentityUserSystemId() ?? null,
+                    OrganizationSystemId = _personStorage.CurrentSelectedOrganizationSystemId,
+                    ClientIp = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString(),
+                    ClientBrowser = _httpContextAccessor.HttpContext?.Request.Headers["User-Agent"].ToString(),
                     ShowPricesWithVat = requestModel.ChannelModel.Channel.ShowPricesWithVat
                 });
             }
@@ -422,6 +429,7 @@ namespace Litium.Accelerator.Services
         }
     }
 }
+```
 
 ## Using the Web API
 

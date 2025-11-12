@@ -1,0 +1,71 @@
+---
+title: Working with shopping cart and checkout
+description: Understand how the Litium React accelerator manages cart handling and checkout flows.
+---
+
+# Working with shopping cart and checkout
+
+This page will introduce you to how to work with shopping cart and checkout page.
+
+## Working with shopping cart
+
+Every visitors visiting a site should have their own shopping cart. A shopping cart is created if Cart context is not available in Cookies. The check and creation of Cart is done in [middleware.ts](/accelerators/react/routing-fundamentals). React accelerator queries and mutates Cart, processes checkout flow by consuming the Storefront API. For more information regarding how to work with cart and checkout in Storefront API, click [here](/platform/guides/how-to-work-with-cart-and-checkout-using-the-storefront-api).
+
+A cart object, together with website settings, are loaded when visitor visits the site, by using CartContext and WebsiteContext in `app/layout.tsx`. Because the root layout `app/layout.tsx` is a [Server component](https://nextjs.org/docs/getting-started/react-essentials#server-components), these data are loaded at the server. Client components use these data by using [useContext](https://react.dev/reference/react/useContext) hook. For example, to access the Cart:
+
+```javascript
+const cartContext = useContext(CartContext);
+```
+
+To add a product to shopping cart, `components/BuyButton.tsx` component should be used. Here is an example:
+
+```tsx
+<BuyButton
+  label="Add to cart"
+  successLabel="Added to cart"
+  articleNumber={articleNumber}
+></BuyButton>
+```
+
+## Checkout page
+
+After adding products to shopping cart, visitor can click on a button in Cart to navigate to Checkout page to place an order. `components/checkout/CheckoutWizard.tsx` is the component which handles the checkout process, which is divided into three steps:
+
+1. Enter delivery address
+2. Choose delivery option
+3. Payment
+
+CheckoutWizard access Cart via CartContext and maintain the Checkout state as its own state. After every step, a request is sent to the server to save information, by using `checkoutService.client`. At the *Payment* step, depending on what payment and delivery methods are configured, different components are shown because only a set of providers can be combined. Below is the list of methods that can be combined, but let's take a look at the terms being used first:
+
+**Payment methods**
+
+- Inline - solution implementation form, for example, DirectPay.
+- Iframe checkout - iframe with customer information form such as Klarna, Qliro and Svea.
+- Payment checkout - iframe with only payment, no customer information form, for example, Adyen.
+
+**Delivery methods**
+
+- Inline - solution implementation form, for example, DirectShipment.
+- Payment checkout - contains customer information forms and delivery option selection, as part of the iframe checkout in the "payment method" (example Klarna with KSA)
+- Delivery checkout - example Ingrid, contain delivery option selection and maybe delivery information form
+
+**Combination**
+
+- If multiple iframe checkouts are configured for a channel, only the first one will be used in the checkout.
+- An iframe checkout cannot be combined with an inline or a payment checkout. The system should render the iframe checkout and ignore the inline and payment checkout.
+- An inline or a payment checkout can be combined.
+
+## Render payment widget for Iframe and Payment checkouts
+
+Iframe and Payment checkouts have their own payment widgets, which are a set of HTML and Javascript. This is returned by the server as `paymentHtmlSnippet`. By giving the `paymentHtmlSnippet` to `PaymentWdiget` component, we can render payment widget by adding HTML and Javascript into the DOM and execute them. The payment is then handled by the payment widget.
+
+## Show order confirmation
+
+After an order is placed, visitor is redirected to Order confirmation page, which is handled by `app/(StickyHeader)/OrderConfirmationPage/[[...slug]]/page.tsx`. Depending on what payment method was used, different content is displayed.
+
+If the payment method was used support sending back a receipt, we can display it just like we display payment widget. Otherwise, a message will be displayed to inform the order has been placed. This will be changed in the future to show the order detail.
+
+## See also
+
+- [How to work with cart and checkout using the Storefront API](/platform/guides/how-to-work-with-cart-and-checkout-using-the-storefront-api)
+

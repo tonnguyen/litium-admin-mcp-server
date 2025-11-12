@@ -1,0 +1,13 @@
+---
+title: "Manage extensions with Litium apps"
+description: "Declare extension metadata directly in your Litium app manifest and reuse runtime configuration."
+---
+
+Apps can manage their extensions declaratively through the app manifest. Add an `extensions` array to the manifest file and describe each extension using the same structure documented on the [`Managing extensions`](./back-office-ui-extensions-managing-extensions) page. This keeps extension metadata together with the app that owns it.
+
+## Target URLs
+
+When a target definition includes a field named `url`, the placeholder `{appurl}` can be used. At runtime Litium resolves and replaces it with the app URL from the app configuration.
+
+In Litium Serverless Cloud the app URL is automatically set to the deployed app's domain, ensuring the extension target points to the correct environment without extra configuration.
+

@@ -1,0 +1,52 @@
+---
+title: Docker template for local installation
+description: "Values to replace in template:"
+---
+
+# Docker template for local installation
+
+*   Litium 8
+
+Values to replace in template:
+
+*   ports
+*   environment
+    *   ASPNETCORE\_HTTPS\_PORT
+    *   AppMetadata\_\_AppUrl
+    *   LitiumApi\_\_ApiUrl
+
+```
+version: '3'
+services:
+  direct-shipment:
+    image: registry.litium.cloud/apps/direct-shipment:1.5.0
+    dns: 
+    - 192.168.65.254
+    restart: unless-stopped
+    ports:
+    - "10020:80"
+    - "10021:443"
+    environment:
+    # Enable HTTPS binding
+    - ASPNETCORE_URLS=https://+;http://+
+    - ASPNETCORE_HTTPS_PORT=10021
+    # Configuration for HTTPS inside the container, exported dotnet dev-certs with corresponding password
+    - ASPNETCORE_Kestrel__Certificates__Default__Password=${CERT_PWD}
+    - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/localhost.pfx
+    # Folder for the configuraiton, this is volume-mapped
+    - CONFIG_PATH=/app_config
+    # Folder where logfiles should be placed, this is volume-mapped
+    - APP_LOG_PATH=/logs
+    # Don't validate certificates
+    - AppConfiguration__ValidateCertificate=false
+    # Url to this app
+    - AppMetadata__AppUrl=https://customer-app-direct-shipment.localtest.me:10021
+    # Url to the litium installation
+    - LitiumApi__ApiUrl=https://customer.localtest.me:5001
+    volumes:
+    - ./data/direct-shipment/config:/app_config
+    - ./data/direct-shipment/data:/app_data
+    - ./data/direct-shipment/logs:/logs
+    - ./data/direct-shipment/DataProtection-Keys:/root/.aspnet/DataProtection-Keys
+    - ./data/https:/https:ro
+```

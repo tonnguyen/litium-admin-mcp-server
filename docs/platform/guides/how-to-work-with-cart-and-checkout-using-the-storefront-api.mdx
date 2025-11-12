@@ -26,6 +26,7 @@ First of all, we need to create a cart to get a cart identifer. This value will 
 
 In order to create a cart, we use the mutation _createCart._ The query should be
 
+```graphql
 mutation {
   createCart {
     cart {
@@ -46,11 +47,13 @@ mutation {
     }
   }
 }
+```
 
 ### Add a variant to the cart
 
 Now we can add a variant to the cart through the query.
 
+```graphql
 mutation  {
   addVariantToCart (input: {
     articleNumber: "courtdress-l-002-638084429722135317"
@@ -67,6 +70,7 @@ mutation  {
     }
   }
 }
+```
 
 ### Update and remove a variant
 
@@ -74,6 +78,7 @@ In the preceding query, the server will return the _rowId_. We use the value of 
 
 To update the quantity of variant, we use the query
 
+```graphql
 mutation {
   updateVariantInCart(
     input: {
@@ -92,9 +97,11 @@ mutation {
     }
   }
 }
+```
 
 Or we can remove it by using the query
 
+```graphql
 mutation {
   removeVariantFromCart(
     input: {
@@ -111,28 +118,33 @@ mutation {
     }
   }
 }
+```
 
 ### Add and remove a discount code
 
 If you want to add a discount code you can do so from Litium backoffice, and we can use the query
 
+```graphql
 mutation {
-  addDiscountCodesToCart(input: { codes: \["code"\] }) {
+  addDiscountCodesToCart(input: { codes: ["code"] }) {
     cart {
         discountCodes
     }
   }
 }
+```
 
 We remove this code by using the query
 
+```graphql
 mutation {
-  removeDiscountCodesFromCart(input: { codes: \["code"\] }) {
+  removeDiscountCodesFromCart(input: { codes: ["code"] }) {
     cart {
       discountCodes
     }
   }
 }
+```
 
 ## Work with the Checkout
 
@@ -140,6 +152,7 @@ mutation {
 
 After adding variants to the cart, we need to create a checkout session by using the query
 
+```graphql
 mutation {
   createCheckoutSession(
     input: {
@@ -150,7 +163,7 @@ mutation {
         termUrl: "dummy.com/term"
         allowSeparateShippingAddress: true
         customerType: PERSON
-        shippingTags: \["shipping free"\]
+        shippingTags: ["shipping free"]
         disablePaymentShippingOptions: false
         additionalInfo: { key: "test", value: "test" }
       },
@@ -177,6 +190,7 @@ mutation {
     }
   }
 }
+```
 
 In the preceding mutation, we also input the URL to the \`orderConfirmedUrl\` field. The URL has to be an absolute URL and the domain has to be registered to Litium BO. When the order is confirmed, system will send a webhook \`SalesOrderConfirmed\` event to this URL. This URL can be used for example, send order confirmation email.
 
@@ -184,10 +198,11 @@ In the preceding mutation, we also input the URL to the \`orderConfirmedUrl\` fi
 
 Then, we add checkout details by using the query
 
+```graphql
 mutation (
   $address: OrderAddressInput
   $note: String
-  $additionalInfo: \[KeyValuePairOfStringAndStringInput!\]
+  $additionalInfo: [KeyValuePairOfStringAndStringInput!]
   $customer: OrderCustomerDetailsInput
 ) {
   updateCheckoutDetails(
@@ -246,53 +261,57 @@ fragment Address on OrderAddress {
   phoneNumber
   zipCode
 }
+```
 
 In the preceding query, there are _$address, $note​, $additionalInfo​, $customer​_ variables, which are defined in the variables window of the Storefront playground
 
+```json
 {
-    "address": {
-        "firstName": "Sonja",
-        "lastName": "Åberg",
-        "title": "Dr.",
-        "email": "Magnus69@gmail.com",
-        "mobilePhone": "59-749549-082573-5",
-        "fax": "48044",
-        "organizationName": "Cameron Cormier",
-        "reference": null,
-        "address1": "45769",
-        "address2": "712",
-        "careOf": "Jakob Martinsson",
-        "city": "Kungmora",
-        "country": "Belize",
-        "houseExtension": "56",
-        "houseNumber": "11",
-        "state": "Älvsborg",
-        "phoneNumber": "0024-437322",
-        "zipCode": "31649"
-    },
-    "note": "South asynchronous primary",
-    "customer": {
-        "firstName": "Malin",
-        "lastName": "Ström",
-        "title": "PhD.",
-        "email": "Caroline\_Bjrklund@gmail.com",
-        "phone": "28-987660-450958-3",
-        "businessRegistrationNumber": "l",
-        "nationalIdentificationNumber": "11234",
-        "vatRegistrationNumber": "11234",
-        "customerType": "PERSON",
-        "customerNumber": "12345"
-    },
-    "additionalInfo": {
-        "key": "KeyOne",
-        "value": "blanditiis"
-    }
+  "address": {
+    "firstName": "Sonja",
+    "lastName": "Åberg",
+    "title": "Dr.",
+    "email": "Magnus69@gmail.com",
+    "mobilePhone": "59-749549-082573-5",
+    "fax": "48044",
+    "organizationName": "Cameron Cormier",
+    "reference": null,
+    "address1": "45769",
+    "address2": "712",
+    "careOf": "Jakob Martinsson",
+    "city": "Kungmora",
+    "country": "Belize",
+    "houseExtension": "56",
+    "houseNumber": "11",
+    "state": "Älvsborg",
+    "phoneNumber": "0024-437322",
+    "zipCode": "31649"
+  },
+  "note": "South asynchronous primary",
+  "customer": {
+    "firstName": "Malin",
+    "lastName": "Ström",
+    "title": "PhD.",
+    "email": "Caroline_Bjrklund@gmail.com",
+    "phone": "28-987660-450958-3",
+    "businessRegistrationNumber": "l",
+    "nationalIdentificationNumber": "11234",
+    "vatRegistrationNumber": "11234",
+    "customerType": "PERSON",
+    "customerNumber": "12345"
+  },
+  "additionalInfo": {
+    "key": "KeyOne",
+    "value": "blanditiis"
+  }
 }
+```
 
 ### Update checkout options
 
 In this step, we will select the payment option and shipping option by using the query
 
+```graphql
 mutation {
   updateCheckoutOptions(
     input: {
@@ -319,9 +338,11 @@ fragment CheckoutOption on CheckoutOption {
   price
   selected
 }
+```
 
 If you want to find the _shippingOptionId_, and _paymentOptionId_, you can query the data of checkout, it contains a list of options that were set up in Litium backoffice
 
+```graphql
 query {
   checkout {
     shippingOptions {
@@ -340,60 +361,65 @@ fragment CheckoutOption on CheckoutOption {
   price
   selected
 }
+```
 
 If you select DirectPay payment app, you can move to the next step to place an order.
 
-If you select other payments such as Klarna or Adyen, they have their own widget. It will be populated into _paymentHtmlSnippet_ field. Read this [article](/accelerators/react-accelerator/working-with-shopping-cart-and-checkout) to see how React Accelerator renders the widget.
+If you select other payments such as Klarna or Adyen, they have their own widget. It will be populated into _paymentHtmlSnippet_ field. Read this [article](/accelerators/react/working-with-shopping-cart-and-checkout) to see how React Accelerator renders the widget.
 
 ### Place an Order
 
 Now all data is entered, we use _placeOrder_ mutation to place the order
 
-mutation  {
-  placeOrder   {
-    receipt { 
+```graphql
+mutation {
+  placeOrder {
+    receipt {
       order {
-    
-      country {
-        name
-        code
-      }
-      currency {
-        code
-        minorCurrencyUnit
-      }
-      rows {
-        articleNumber
-        quantity
-        totalIncludingVat
-        additionalInfo {key value}
-      }, 
+        country {
+          name
+          code
+        }
+        currency {
+          code
+          minorCurrencyUnit
+        }
+        rows {
+          articleNumber
+          quantity
+          totalIncludingVat
+          additionalInfo { key value }
+        }
         customerDetails {
-        firstName
-        lastName
-        # more fields...
-      },
-      billingAddress {
-        ...Address
+          firstName
+          lastName
+          # more fields...
+        }
+        billingAddress {
+          ...Address
+        }
+        shippingAddress {
+          ...Address
+        }
+        additionalInfo { key value }
+        additionalShippingInfo { key value }
       }
-      shippingAddress {
-        ...Address
-      },
-      additionalInfo {key value},
-      additionalShippingInfo {key value}
-    },
-    htmlSnippet
+      htmlSnippet
     }
   }
 }
+```
 
+```graphql
 fragment Address on OrderAddress {
   firstName
   # more fields...
 }
+```
 
 Finally, since the order is placed, we need to clear the cart
 
+```graphql
 mutation {
   clearCart {
     cart {
@@ -406,6 +432,7 @@ mutation {
     }
   }
 }
+```
 
 ## Query the cart, checkout, and receipt
 
@@ -413,6 +440,7 @@ In the Storefront API, there are three queries to help us get data on the cart, 
 
 ### Query to get the cart
 
+```graphql
 query {
   cart {
     rows {
@@ -427,9 +455,11 @@ query {
     # more fields...
   }
 }
+```
 
 ### Query to get checkout details
 
+```graphql
 query {
   checkout {
     shippingOptions {
@@ -441,9 +471,11 @@ query {
     paymentHtmlSnippet
     # more fields...
 }
+```
 
 ### Query to get receipt
 
+```graphql
 query {
   receipt {
     order {
@@ -476,5 +508,6 @@ query {
     htmlSnippet
   }
 }
+```
 
-In case of the payment providers having their own receipt page, it will be populated in _htmlSnippet_ field. Read this [article](/accelerators/react-accelerator/working-with-shopping-cart-and-checkout) to see how React Accelerator uses this property.
+In case of the payment providers having their own receipt page, it will be populated in _htmlSnippet_ field. Read this [article](/accelerators/react/working-with-shopping-cart-and-checkout) to see how React Accelerator uses this property.

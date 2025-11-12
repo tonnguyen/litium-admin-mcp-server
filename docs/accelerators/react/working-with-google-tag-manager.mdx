@@ -1,0 +1,56 @@
+---
+title: Working with Google Tag Manager
+description: Configure Google Tag Manager and Google Analytics in the Litium React accelerator.
+---
+
+# Working with Google Tag Manager
+
+This page is an introduction to how to work with Google Analytics and Google Tag Manager.
+
+## How to configure Google Tag Manager
+
+Create an account and container in [Google Tag Manager](http://support.google.com/tagmanager/answer/14842164?hl=en).
+
+Find your **GTM container ID** in the **Workspace** tab of the Tag Manager panel.
+
+![Google Tag Manager workspace](/images/accelerators/react/t4wGEAOrWkZs591dHapOLPu53wqdwpSVlVYa.png)
+
+Login to Litium and go to Settngs > Globalization > Channels. Select your channel, and in the Settins tab, enter the **GTM container ID** into the "Google Tag Manager Container ID (GTM)" field .
+
+**Note:** In React Accelerator, only this field is used to configure GTM, while the other fields are used on the MVC Accelerator.
+
+![Channel settings for GTM](/images/accelerators/react/Screenshot%202024-11-18%20103104.png)
+
+Here is the code to query **GTM container ID** in `websiteService.server.ts` file from Storefront API.
+
+```javascript
+query GetWebsite {
+    channel {
+      ... on DefaultChannelFieldTemplateChannel {
+        analytics {
+          googleTagManager
+        }
+      }
+    }
+}
+```
+
+In the React accelerator, third-party Google services for Next.js are implemented. After configuring the GTM container ID in the TrackingManager component and including it in the layout, the service automatically generates and injects the GTM script during setup.
+
+## Configure Google Analytics through Google Tag Manager
+
+**Google Analytics** (GA) is implemented and managed exclusively through **Google Tag Manager** (GTM). GTM acts as the intermediary platform that manages all GA tags, triggers, and variables required for data collection and reporting.
+
+- No Direct GA Code Implementation: There is no standalone or hardcoded GA script in the application.
+- Centralized Tag Management: All configurations, including page views, events, and custom dimensions/metrics, are controlled via GTM.
+
+Here is a guide to [configure Google Analytics in Tag Manager](http://support.google.com/tagmanager/answer/9442095?hl=en).
+
+## How to send custom events?
+
+To send custom events, use the trackEvent function in the TrackingManager.tsx component. Here is an example:
+
+```javascript
+trackEvent({ event: 'MyTest', value: 'hello-world' })
+```
+

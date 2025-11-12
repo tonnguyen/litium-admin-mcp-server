@@ -1,0 +1,122 @@
+---
+title: App installation and registration
+description: A Litium app needs to register with the Litium instance that it will be connected to. The app will then be available on the apps page in Settings in Litium backoffice. On the apps page the user can install and uninstall apps and upload configuration files to installed apps.
+---
+
+# App installation and registration
+
+*   Litium 8
+
+A Litium app needs to register with the Litium instance that it will be connected to. The app will then be available on the apps page in Settings in Litium backoffice. On the apps page the user can install and uninstall apps and upload configuration files to installed apps.
+
+The app registration and installation flow looks like this:![litium-app-installation.png](/images/apps/development-guide/litium-app-installation.png)
+
+The installation flow is initiated by directing the user to an endpoint in the App Management API. The URL to this endpoint looks like this:
+
+```plain
+https://<Litium URL>/Litium/api/app-management/install?url=<App metadata URL>
+```
+
+The app metadata URL should be an endpoint in the app where the app will return the metadata needed for Litium to create and install the app. Litium will call the metadata endpoint and once the data is returned Litium will create an entry for the app in Litium's database and load the App Detail page of the Litium Backoffice.
+
+On the App Detail page, the user clicks the _Install_ button. Litium will then create a service account with the permissions that the app has requested and call the configuration endpoint of the app (defined in the metadata) with the token for the service account. This token will be used to secure the communication between Litium and the app.
+
+Once the app has been installed, the app detail page of the Litium backoffice provides a UI to upload configuration files to the app. Litum currently supports configuration files in JSON format. When a user uploads a file, Litium will call the configuration file endpoint of the app with the uploaded data, see App configuration section below for more details.
+
+## App metadata definition
+
+The definition of the metadata Litium expects to be returned from the app looks like this:
+
+```json
+{
+    "id": "app-id",
+    "version": "1.0.0",
+    "displayName":"Display name for the app",
+    "requestedPermissions":[
+        "Function/Products/Content",
+        "Permissions/in/Litium/defined/way"
+    ],
+    "configurationUrl": "absolut url for the configuration endpoint",
+    "metadataUrl": "absolut url for the metadata endpoint",
+    "appUrl": "absolut domain for the app including scheme",
+    "authorizedRedirectUrls":[
+        "absolut urls for allowed url redirects for authentication request"
+    ],
+    "ConfigFiles":[
+        {
+            "id": "config.json",
+            "displayName": "Configuration file",
+            "description": "Configuration file for the application."
+        }
+    ],
+    "Subscribers": [
+        {
+            "event": "webhook event to listen on",
+            "url": "absolute url for callback"
+        }
+    ],
+    "SupportedOperations":[
+        "Supported operations"
+    ]
+}
+```
+
+The endpoint for the metadata needs to be accessible by everyone when the application isn’t yet installed in an Litium instance.
+
+## App configuration
+
+The configuration endpoint defined in the above metadata needs to accept three different operations. In the following example “/configuration” is the endpoint defined in the configurationUrl metadata property.
+
+**POST /configuration**
+
+This endpoint will receive the “installation” request from Litium. This request contains the following payload:
+
+```json
+{
+    "clientSecret": "secret for the registered client",
+    "clientId": "client identification"
+}
+```
+
+The information in the payload needs to be stored with the application. The clientId and clientSecret should be used when creating the token for communication with Litium as well as validating incoming requests from Litium to the application.
+
+**POST /configuration/files**
+
+An admin user can upload configuration files to the app from the Litium backoffice. The configuration file are sent to this endpoint as a file upload request. The filename on the request will correspond to the id from the metadata configuration section configFiles.
+
+The endpoint should respond with either OK 200 if the configuration is accepted, or BadRequest 400 with the following data if there is an error:
+
+```json
+{
+    "isError": true,
+    "message": "Value for property X in the file has an unsupported value."
+}
+```
+
+**GET /configuration/files/{id}**
+
+This endpoint should return the data of the corresponding configuration file, in raw format. The {id} will be the id from the metadata configuration section configFiles.
+
+## Supported operations
+
+The SupportedOperations metadata property lets Litium know which actions this app can perform. The possible values for the supported operations property is defined in the Connect APIs. See for example the supported operations of the [Connect Payments API](/api-reference/api?product=Litium.Connect.Payments&version=1.1&xref=Payments.#Litium_Connect_Payments_PaymentOperations).
+
+## Security
+
+To secure the app, Litium will act as an OpenIdConnect provider, so after the initialization where the client information is provided we can start validating the authentication of the request with the regular OpenIdConnect protocol.
+
+When the app has been installed, Litium will include an Authentication header with a bearer token that represents the Litium application The token contains the claim "http://schemas.litium.com/identity/claims/application" that contains the value that previously was sent as clientId in the app installation.
+
+## Uninstalling an app
+
+The user can uninstall an installed app by clicking the _Uninstall_ button on the app details page of the Litium backoffice. This will start the app uninstallation flow that looks like this:![litium-app-uninstallation-2.png](/images/apps/development-guide/litium-app-uninstallation-2.png)
+
+Litium will call the configuration endpoint of the app with a _null_ value for the service account. If the app responds to the request with something other than a 200 OK, Litium will throw an exception. If the app response with 200 OK, Litium deletes the app's service account and removes the app information from the database. The user can delete the app from the Apps page of the backoffice.
+
+If the app has responded with an error on the request to the configuration endpoint, the user can select to force-delete the app. Litium will then delete the app's service account and remove the app from the database without sending a request to the configuration endpoint of the app.
+
+If the app is forced delete, the file "LitiumApi.json" need to be removed also because it still contains connection information for Litium. The app can't be reinstalled until the "LitiumApi.json" file is removed. 
+
+A Litium service account is used to secure the communication between the app and Litium. This info will help to ensure that the correct Litium instance is calling the app.
+
+Updated   2023-09-21

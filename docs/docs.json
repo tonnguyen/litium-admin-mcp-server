@@ -22,74 +22,8 @@
             "pages": [
               "platform/get-started/overview",
               "platform/get-started/concepts",
-              {
-                "group": "Developer introduction",
-                "pages": [
-                  "platform/get-started/developer-introduction",
-                  "platform/get-started/developer-introduction-data-modeling",
-                  "platform/get-started/developer-introduction-dependency-injection",
-                  "platform/get-started/developer-introduction-jobs",
-                  "platform/get-started/developer-introduction-events",
-                  "platform/get-started/developer-introduction-security-context",
-                  "platform/get-started/developer-introduction-object-validation",
-                  "platform/get-started/developer-introduction-logging",
-                  "platform/get-started/developer-introduction-entity-model",
-                  "platform/get-started/developer-introduction-data-service",
-                  "platform/get-started/developer-introduction-web-apis",
-                  "platform/get-started/developer-introduction-mvc-accelerator-development",
-                  "platform/get-started/developer-introduction-react-accelerator-development",
-                  "platform/get-started/developer-introduction-e-commerce-development",
-                  "platform/get-started/developer-introduction-database-management",
-                  "platform/get-started/developer-introduction-versioning-and-upgrades",
-                  "platform/get-started/developer-introduction-performance",
-                  "platform/get-started/developer-introduction-headless-storefronts-and-page-previews"
-                ]
-              },
               "platform/get-started/system-requirements",
-              {
-                "group": "Local installation guide",
-                "pages": [
-                  "platform/get-started/local-installation-guide",
-                  "platform/get-started/local-installation-guide-certificate",
-                  "platform/get-started/local-installation-guide-setup-docker",
-                  "platform/get-started/local-installation-guide-setup-litium-mvc-accelerator",
-                  "platform/get-started/local-installation-guide-configure-litium-search",
-                  "platform/get-started/local-installation-guide-configure-payment-and-shipment-apps",
-                  "platform/get-started/local-installation-guide-configure-redis",
-                  "platform/get-started/local-installation-guide-configure-smtp",
-                  "platform/get-started/local-installation-guide-configure-test-project"
-                ]
-              },
-              {
-                "group": "Customization guide",
-                "pages": [
-                  "platform/get-started/customization-guide",
-                  "platform/get-started/customization-guide-author-page",
-                  "platform/get-started/customization-guide-author-service",
-                  "platform/get-started/customization-guide-price-calculator",
-                  "platform/get-started/customization-guide-field-and-validation",
-                  "platform/get-started/customization-guide-data-service",
-                  "platform/get-started/customization-guide-web-api",
-                  "platform/get-started/customization-guide-author-block"
-                ]
-              },
-              "platform/get-started/deployment-guide",
-              {
-                "group": "Multi-server installation",
-                "pages": [
-                  "platform/get-started/multi-server-installation",
-                  "platform/get-started/multi-server-installation-redis"
-                ]
-              },
-              "platform/get-started/configuration",
-              "platform/get-started/create-admin-user-and-log-in",
-              {
-                "group": "Custom developer certificate",
-                "pages": [
-                  "platform/get-started/custom-developer-certificate",
-                  "platform/get-started/custom-developer-certificate-custom-developer-certificate-non-windows"
-                ]
-              },
+
               "platform/get-started/litium-packages",
               {
                 "group": "Shared dependencies",
@@ -104,6 +38,20 @@
             "group": "Guides",
             "pages": [
               "platform/guides/overview",
+              {
+                "group": "Local installation guide",
+                "pages": [
+                  "platform/guides/local-installation-guide",
+                  "platform/guides/local-installation-guide-certificate",
+                  "platform/guides/local-installation-guide-setup-docker",
+                  "platform/guides/local-installation-guide-setup-litium-mvc-accelerator",
+                  "platform/guides/local-installation-guide-configure-litium-search",
+                  "platform/guides/local-installation-guide-configure-payment-and-shipment-apps",
+                  "platform/guides/local-installation-guide-configure-redis",
+                  "platform/guides/local-installation-guide-configure-smtp",
+                  "platform/guides/local-installation-guide-configure-test-project"
+                ]
+              },
               {
                 "group": "Commerce & accelerator",
                 "pages": [
@@ -130,21 +78,16 @@
                 "group": "Back office UI extensions",
                 "pages": [
                   "platform/guides/back-office-ui-extensions",
+                  "platform/guides/back-office-ui-extensions-managing-extensions",
+                  "platform/guides/back-office-ui-extensions-manage-with-litium-apps",
+                  "platform/guides/back-office-ui-extensions-how-to-create-a-decoupled-ui-extension",
+                  "platform/guides/back-office-ui-extensions-how-to-create-admin-action-extensions-for-orders",
                   "platform/guides/back-office-ui-extensions-how-to-create-a-custom-panel",
                   "platform/guides/back-office-ui-extensions-how-to-create-a-custom-page-under-settings",
                   "platform/guides/back-office-ui-extensions-display-dialogs",
                   "platform/guides/back-office-ui-extensions-configure-html-editor",
                   "platform/guides/back-office-ui-extensions-translations",
                   "platform/guides/back-office-ui-extensions-upgrade-extensions-to-latest-version"
-                ]
-              },
-              {
-                "group": "Deployment & DevOps",
-                "pages": [
-                  "platform/guides/deployment",
-                  "platform/guides/deployment-azure-devops-and-webdeploy",
-                  "platform/guides/deployment-azure-devops-and-webdeploy-azure-devops-pipelines-yml",
-                  "platform/guides/deployment-azure-devops-and-webdeploy-script"
                 ]
               },
               {
@@ -157,49 +100,6 @@
                   "platform/guides/litiumsearch-kibana-to-inspect-search-index",
                   "platform/guides/litiumsearch-how-to-set-fields-to-searchable",
                   "platform/guides/litiumsearch-how-to-add-an-edge-ngram-analyzer-to-litium-search"
-                ]
-              },
-              {
-                "group": "Upgrade to Litium 8",
-                "pages": [
-                  "platform/guides/upgrade-to-litium-8",
-                  "platform/guides/upgrade-to-litium-8-before-upgrading",
-                  "platform/guides/upgrade-to-litium-8-before-upgrading-previous-versions",
-                  "platform/guides/upgrade-to-litium-8-before-upgrading-sales-in-litium-8",
-                  "platform/guides/upgrade-to-litium-8-before-upgrading-integrations",
-                  "platform/guides/upgrade-to-litium-8-upgrade-alternatives",
-                  "platform/guides/upgrade-to-litium-8-upgrade-the-platform-solution",
-                  "platform/guides/upgrade-to-litium-8-upgrade-the-platform-solution--net-upgrade-assistant",
-                  "platform/guides/upgrade-to-litium-8-upgrade-the-platform-solution-dotnet-upgrade",
-                  "platform/guides/upgrade-to-litium-8-upgrade-the-platform-solution-independent-script",
-                  "platform/guides/upgrade-to-litium-8-upgrade-the-platform-solution-litium-app-proxy",
-                  "platform/guides/upgrade-to-litium-8-upgrade-the-platform-solution-upgrade-solution-steps",
-                  "platform/guides/upgrade-to-litium-8-upgrade-the-database",
-                  "platform/guides/upgrade-to-litium-8-upgrade-to-angular-20",
-                  "platform/guides/upgrade-to-litium-8-state-mapping",
-                  "platform/guides/upgrade-to-litium-8-comparing-versions-7-and-8"
-                ]
-              },
-              {
-                "group": "Tax app blueprint",
-                "pages": [
-                  "platform/guides/how-to-build-a-tax-app",
-                  "platform/guides/how-to-build-a-tax-app-requesting-tax-from-external-web-api",
-                  "platform/guides/how-to-build-a-tax-app-working-with-discounts",
-                  "platform/guides/how-to-build-a-tax-app-customersubtype",
-                  "platform/guides/how-to-build-a-tax-app-tax-exemptions",
-                  "platform/guides/how-to-build-a-tax-app-getting-taxcode",
-                  "platform/guides/how-to-build-a-tax-app-calculated-tax-response"
-                ]
-              },
-              {
-                "group": "Additional guides",
-                "pages": [
-                  "platform/guides/sync-over-async-pattern",
-                  "platform/guides/customizing-the-gdpr-features",
-                  "platform/guides/custom-pre-order-validation-rule",
-                  "platform/guides/use-payment-token-example",
-                  "platform/guides/trouble-shooting"
                 ]
               }
             ]
@@ -215,34 +115,184 @@
       },
       {
         "tab": "Accelerators",
-        "groups": [
+        "pages": [
+          "accelerators/overview"
+        ],
+        "dropdowns": [
           {
-            "group": "Overview",
-            "pages": [
-              "accelerators/overview"
+            "dropdown": "React Accelerator",
+            "icon": "react",
+            "groups": [
+              {
+                "group": "Overview",
+                "pages": [
+                  "accelerators/react/overview",
+                  "accelerators/react/get-started",
+                  "accelerators/react/release-notes",
+                  "accelerators/react/routing-fundamentals",
+                  "accelerators/react/working-with-shopping-cart-and-checkout",
+                  "accelerators/react/settings",
+                  "accelerators/react/working-with-google-tag-manager",
+                  "accelerators/react/web-content-accessibility-guidelines"
+                ]
+              }
             ]
           },
           {
-            "group": "React Accelerator",
-            "pages": [
-              "accelerators/react/overview"
-            ]
-          },
-          {
-            "group": "MVC Accelerator",
-            "pages": [
-              "accelerators/mvc/overview"
+            "dropdown": "MVC Accelerator",
+            "icon": "code",
+            "groups": [
+              {
+                "group": "MVC Accelerator",
+                "pages": [
+                  "accelerators/mvc/overview",
+                  "accelerators/mvc/install-litium-accelerator",
+                  "accelerators/mvc/upgrade-and-maintenance",
+                  "accelerators/mvc/configure",
+                  "accelerators/mvc/configure/smtp",
+                  "accelerators/mvc/develop",
+                  "accelerators/mvc/release-notes",
+                  {
+                    "group": "Develop",
+                    "pages": [
+                      "accelerators/mvc/develop/setting-up-the-development-environment",
+                      "accelerators/mvc/develop/accelerator-architecture",
+                      "accelerators/mvc/develop/front-end-coding",
+                      "accelerators/mvc/develop/page-types",
+                      "accelerators/mvc/develop/search-filter-and-navigation",
+                      "accelerators/mvc/develop/product-recommendations",
+                      "accelerators/mvc/develop/the-buy-button",
+                      "accelerators/mvc/develop/the-shopping-cart",
+                      "accelerators/mvc/develop/the-checkout",
+                      "accelerators/mvc/develop/state-transitions"
+                    ]
+                  }
+                ]
+              }
             ]
           }
         ]
       },
       {
         "tab": "Apps",
-        "groups": [
+        "pages": [
+          "apps/overview"
+        ],
+        "dropdowns": [
           {
-            "group": "Overview",
+            "dropdown": "Development",
+            "icon": "book",
+            "groups": [
+              {
+                "group": "Guides",
+                "pages": [
+                  "apps/development-guide/overview",
+                  "apps/development-guide/app-concept",
+                  "apps/development-guide/development-environment",
+                  "apps/development-guide/app-installation",
+                  "apps/development-guide/using-the-app-management-package",
+                  "apps/development-guide/deployment-in-lcc"
+                ]
+              },
+              {
+                "group": "Installation flow",
+                "pages": [
+                  "apps/litium-app/overview"
+                ]
+              }
+            ]
+          },
+          {
+            "dropdown": "Adyen",
+            "icon": "layer-group",
             "pages": [
-              "apps/overview"
+              "apps/adyen-payment/overview",
+              "apps/adyen-payment/release-notes",
+              "apps/adyen-payment/docker-template"
+            ]
+          },
+          {
+            "dropdown": "Briqpay",
+            "icon": "layer-group",
+            "pages": [
+              "apps/briqpay-payment/overview",
+              "apps/briqpay-payment/get-started",
+              "apps/briqpay-payment/prefill-customer-details",
+              "apps/briqpay-payment/payment-flow",
+              "apps/briqpay-payment/reading-data",
+              "apps/briqpay-payment/order-management",
+              "apps/briqpay-payment/advanced-use-case",
+              "apps/briqpay-payment/release-notes"
+            ]
+          },
+          {
+            "dropdown": "Direct payment",
+            "icon": "layer-group",
+            "pages": [
+              "apps/direct-payment/overview",
+              "apps/direct-payment/handling-the-checkout",
+              "apps/direct-payment/release-notes",
+              "apps/direct-payment/docker-template"
+            ]
+          },
+          {
+            "dropdown": "Direct shipment",
+            "icon": "layer-group",
+            "pages": [
+              "apps/direct-shipment/overview",
+              "apps/direct-shipment/release-notes",
+              "apps/direct-shipment/docker-template"
+            ]
+          },
+          {
+            "dropdown": "Enlink AI",
+            "icon": "layer-group",
+            "pages": [
+              "apps/enlink-ai/overview",
+              "apps/enlink-ai/release-notes"
+            ]
+          },
+          {
+            "dropdown": "Klarna",
+            "icon": "layer-group",
+            "pages": [
+              "apps/klarna-payment/overview",
+              "apps/klarna-payment/release-notes",
+              "apps/klarna-payment/docker-template"
+            ]
+          },
+          {
+            "dropdown": "nShift Checkout",
+            "icon": "layer-group",
+            "pages": [
+              "apps/nshift-checkout/overview",
+              "apps/nshift-checkout/release-notes",
+              "apps/nshift-checkout/docker-template"
+            ]
+          },
+          {
+            "dropdown": "Qliro",
+            "icon": "layer-group",
+            "pages": [
+              "apps/qliro-payment/overview",
+              "apps/qliro-payment/release-notes",
+              "apps/qliro-payment/docker-template"
+            ]
+          },
+          {
+            "dropdown": "Svea",
+            "icon": "layer-group",
+            "pages": [
+              "apps/svea-payment/overview",
+              "apps/svea-payment/release-notes",
+              "apps/svea-payment/docker-template"
+            ]
+          },
+          {
+            "dropdown": "Litium app",
+            "icon": "layer-group",
+            "pages": [
+              "apps/litium-app/overview"
             ]
           }
         ]
@@ -305,6 +355,19 @@
             ]
           },
           {
+            "dropdown": "Storefront API",
+            "icon": "network-wired",
+            "groups": [
+              {
+                "group": "Storefront API",
+                "pages": [
+                  "apis/storefront/overview",
+                  "apis/storefront/changing-email-with-verification"
+                ]
+              }
+            ]
+          },
+          {
             "dropdown": "Connect Shipment API",
             "icon": "truck",
             "groups": [
@@ -342,7 +405,8 @@
               "platform/get-started/developer-tools-db-tool",
               "platform/get-started/setting-up-a-test-project",
               "platform/get-started/macos-front-end-development",
-              "platform/get-started/install-empty-litium"
+              "platform/get-started/install-empty-litium",
+              "platform/get-started/create-admin-user-and-log-in"
             ]
           },
           {
@@ -353,6 +417,13 @@
               "platform/get-started/developer-tools-storefront-cli-proxy",
               "platform/get-started/developer-tools-storefront-cli-import-and-export-definitions",
               "platform/get-started/developer-tools-storefront-cli-how-to-handle-website-texts"
+            ]
+          },
+          {
+            "group": "Custom developer certificate",
+            "pages": [
+              "platform/get-started/custom-developer-certificate",
+              "platform/get-started/custom-developer-certificate-custom-developer-certificate-non-windows"
             ]
           },
           {

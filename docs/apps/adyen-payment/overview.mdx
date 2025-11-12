@@ -1,0 +1,143 @@
+---
+title: Adyen payment
+description: The Adyen payment app can be used to integrate with Adyen to handle payments in your e-commerce solution. It is developen and maintained by Litium.
+---
+
+# Adyen payment
+
+*   Litium 8
+
+The Adyen payment app can be used to integrate with Adyen to handle payments in your e-commerce solution. It is developen and maintained by Litium.  
+  
+The Adyen payment app supports Web Drop-in (version 6). The app supports capture, cancel and refund transactions.
+
+## Installation
+
+Litium serverless cloud - Use the [Cloud CLI](https://docs.litium.com/cloud/serverless/get-started/install-payment-and-delivery-apps) to install the app.
+
+Litium legacy cloud - Contact [support](mailto:support@litium.com) to install the app in your test and/or production environment.
+
+Local environment - A [Docker compose template](/add-ons/litium-apps/adyen-payment/docker-template) is available for local installation.
+
+## App configuration file
+
+The configuration file must have JSON format and UTF-8 encoding.
+
+```javascript
+{
+  "Adyen": {
+    "PaymentAccounts": [
+      {
+        "PaymentAccountId": "SE",
+        "MerchantAccount": "",
+        "ApiKey": "",
+        "ApiUsername": "",
+        "ApiPassword": "",
+        "ClientKey": "",
+        "HmacKey": "",
+        "Environment": "Test",
+        "PaymentOptions": [
+          "Dropin"
+        ],
+        "LiveUrlPrefix": null,
+        "PaymentDeadlineMinutes": 5
+      }
+    ]
+  }
+}
+```
+
+*   PaymentAccountId: Identifier to select the account. It must be a unique string.
+    
+    **Note:** PaymentAccountId should not contain any spaces. If it contains spaces, it will cause the app to crash when trying to find the correct payment account for the cart's PaymentOptionId. The reason for this is that Litium sends it as `<PaymentAccountId> Dropin` and the app splits into spaces to retrieve the id. More than one space causes it to split incorrectly.
+    
+*   MerchantAccount: This is Adyen merchant account name, followed by a string. This value is assigned by Adyen.
+    
+*   ApiKey: The Adyen API key, used to authenticate from a client application. More information in Adyens [API credentials](https://docs.adyen.com/development-resources/api-credentials) documentation.
+    
+*   ApiUserName: The web service username.
+    
+*   ApiPassword: The Adyen API password.
+    
+*   ClientKey: To authenticate requests from payment environment, provided by Adyen. More information about the client key can be found in Adyens documentation on [client side authentication](https://docs.adyen.com/development-resources/client-side-authentication).
+    
+*   HmacKey: To protect your server from unauthorised notifications each webhook from Adyen is signed with a HMAC key. Please see the section below about Setting up webhooks for more information.
+    
+*   Environment: The Adyen environment, It must be either "Test" or "Live".
+    
+*   PaymentOptions: It must be "Dropin".
+    
+*   LiveUrlPrefix: When communicating with Adyen's live environment, the app needs the live url prefix to generate the correct URLs. This prefix is the combination of a \[random string\] and \[company name\] from the live endpoint. For more information, please see the Adyen documentation about [Live URL Prefix](https://docs.adyen.com/development-resources/live-endpoints#live-url-prefix).
+    
+*   PaymentDeadlineMinutes: The minutes that payment session will be end. When not specified, the expiry date is set to 1 hour after session creation. You cannot set the session expiry to more than 24 hours after session creation.
+    
+
+## Setting up the Adyen webhook
+
+The communication between Adyen and the Adyen payment app is asynchronous and handled through webhooks. For the app to be able to receive webhooks from Adyen, the proper endpoint need to be configured in the Adyen backoffice.
+
+1.  Login to the [Adyen Customer Area](https://ca-test.adyen.com/) using your merchant account.
+2.  In the menu, go to the Developers > Webhooks page.
+3.  Add a new Standard webhook.
+4.  Under Server configuration enter the following values:  
+    URL `https://<your-adyen-payment-app-url>/api/notifications`  
+    Method: JSON  
+    Encryption protocol: TLSv1.2
+5.  Under Security, generate a HMAC key to secure the webhook. Copy the generated HMAC key to the HmacKey property in the app configuration (see above). Note that you need to copy the HMAC key before saving your security settings, you will not be able to retrieve it later. More information about HMAC keys can be found in [Adyen documentation](http://docs.adyen.com/development-resources/webhooks/verify-hmac-signatures).
+6.  Save the webhook.
+7.  Make sure to update the Adyen app with the configuration file containing the correct HMAC key.
+
+## Adyen webhook retry queue
+
+If an exception occurs when handling a webhook notification from Adyen, the Adyen app will respond with a status code reflecting the error. Adyen will then attempt to resend the failed notification at increasing time intervals. Other webhooks for the same endpoint will be queued until Adyen receives a status code indicating success  Further details are available in [Adyen's documentation](https://docs.adyen.com/development-resources/webhooks/troubleshoot/#retry-queue).
+
+**Note:** If the E_nvironment_ configuration parameter is set to "test", the Adyen app will respond with success status code to all webhook notifications from Adyen.
+
+**Note:** This behaviour was introduced in the Adyen payment app 1.3.0. 
+
+## AutoCapture
+
+Adyen's AutoCapture feature is not supported by the Adyen app. Please set the Capture delay to Manual in the Adyen Customer Area.
+
+## Multiple partial captures
+
+The Adyen app supports multiple captures per payment, to enable part shipments of an order in Litium. However, [support for multiple partial captures are turned off by default](https://docs.adyen.com/online-payments/capture/#multiple-partial-captures) in Adyens system. Please contact Adyen's support to enable this feature as needed.
+
+Also, there are some payment methods that do not support multiple partial captures. You can find [more information about what each payment method supports](https://docs.adyen.com/payment-methods/) in Adyen's documentation.
+
+## Additional information from Adyen webhook
+
+Adyen sends some additional information about the payment in the `additionalData` property of webhook to the Adyen app. This data is saved by the app as Additional Info on the transaction in Litium. Details on what data is available can be found in [Adyen's documentation](https://docs.adyen.com/api-explorer/Webhooks/1/post/AUTHORISATION#request-notificationItems-NotificationRequestItem-additionalData). In addition to the `additionalData` property, the payment method name in the `paymentMethod` property is also saved in Litium.
+
+## Drop-in widget version
+
+The Adyen app is tested with a specific version of the Adyen Drop-in widget. Litium supports the Adyen app when using this default version of Drop-in. If you need to use a another version of the widget you can override the default by adding the following properties to the app configuration file:
+
+```
+{
+  "Adyen": {
+    "DropinWidget": {
+      "ScriptSrc": "https://checkoutshopper-[environment].adyen.com/checkoutshopper/sdk/VERSION/adyen.js",
+      "ScriptIntegrity": "JS_INTEGRITY_HASH_FOR_YOUR_VERSION"
+      "StylesheetHref": "https://checkoutshopper-[environment].adyen.com/checkoutshopper/sdk/VERSION/adyen.css",
+      "StylesheetIntegrity": "CSS_INTEGRITY_HASH_FOR_YOUR_VERSION",
+    }
+  }
+}
+```
+
+**Note!** Please keep \[environment\] in the URLs, as it will be automatically replaced with the environment (test or live) configured for the payment account.
+
+The integrity hashes for each version can be found in [Adyen's documentation](https://docs.adyen.com/development-resources/live-endpoints/#subresource-integrity-hashes).
+
+## Working with the Drop-in widget
+
+You can attach a function, adyenAppExtensions, to the window object. This function will be called during initialization of the Drop-In widget on the Litium checkout page and can be used to add customisation, like custom event listeners or configuration object with specific settings for certain payment methods.
+
+```javascript
+window.adyenAppExtensions = { 
+    init: function (data) {
+        console.log(data);
+    }
+};
+```

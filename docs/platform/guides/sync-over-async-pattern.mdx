@@ -13,7 +13,7 @@ Here is a breakdown of the Sync over Async pattern in .NET:
 
 ### Async Methods
 
-Developers create asynchronous methods using the \`async\` keyword, returning a \`Task\` or \`Task<T>\` to indicate that the method can run asynchronously.
+Developers create asynchronous methods using the `async` keyword, returning a `Task` or `Task<T>` to indicate that the method can run asynchronously.
 
 ### Synchronous Wrappers
 
@@ -21,7 +21,7 @@ To use these asynchronous methods synchronously, developers create synchronous w
 
 ### Blocking
 
-Within the synchronous wrapper, developers block the execution by calling the \`Result\` property of the \`Task\` or \`Task<T>\`. This effectively transforms an asynchronous method into a synchronous one, which can be useful in scenarios like console applications or unit testing.
+Within the synchronous wrapper, developers block the execution by calling the `Result` property of the `Task` or `Task<T>`. This effectively transforms an asynchronous method into a synchronous one, which can be useful in scenarios like console applications or unit testing.
 
 ## Performance Issues with Sync over Async
 
