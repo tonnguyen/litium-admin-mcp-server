@@ -1,0 +1,61 @@
+---
+title: "Output console logs"
+description: "For certain apps it's possible to get console output generated to logs."
+---
+For certain apps it's possible to get console output generated to logs.
+
+**Prerequirements**
+
+- An app that has the action "console-output" available - currently available for Litium platform, Litium Next.js, Next.js web, Nuxt.js web, Node.js web. .NET web
+
+## Execute action
+
+This action is especially useful when your app doesn't start for some reason, and logs isn't sent to Litium Insights because your app haven't started. In other "normal" cases this action shouldn't be needed because your logs are collected and displayed in Litium Insights.  
+
+Example action command:
+
+```powershell
+litium-cloud app action --action console-output --app litium
+```
+
+_Note. above command assumes that you have an app with id 'litium' and that you have set subscription and enviornment to the context_
+
+This action results in a job where the logs are collected. 
+
+1.  Execute status show command to get id of related console-output job, litium-cloud status show --job bb5d847eaehidden  
+    
+    ```csharp
+    Status: completed
+    Action: console-output
+    Created by: hidden@litium.com
+    Insights trace id: 7e85ac58hidden
+    
+    Details
+    =======
+        Status: succeeded
+        Action: console-output
+        Job id: bb5d847eaehidden
+        Document id: subscriptions/hidden/environments/hidden/apps/hidden
+        Created: 2024-10-14 09:15:07
+        Started: 2024-10-14 09:15:08
+        Completed: 2024-10-14 09:15:17
+    
+        Related items
+        =============
+            Status: succeeded
+            Action: console-output
+            Job id: 923bd63cbchidden
+            Document id: subscriptions/hidden/environments/hidden/apps/hidden/resources/app
+            Created: 2024-10-14 09:15:08
+            Started: 2024-10-14 09:15:15
+            Completed: 2024-10-14 09:15:17
+    ```
+    
+2.  Execute status logs command on the related items "console-output" job-id, litium-cloud status logs --jobs 923bd63cbchidden  
+    Example output:
+    
+    ```csharp
+    2024-10-14 08:50:42.9709 | (node:1) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+    2024-10-14 08:50:42.9711 | (Use `node --trace-warnings ...` to show where the warning was created)
+    2024-10-14 08:50:42.9835 | Completed
+    ```

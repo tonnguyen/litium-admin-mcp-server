@@ -1,0 +1,31 @@
+---
+title: "Create environment"
+description: "Prerequirements"
+---
+**Prerequirements**
+
+- [CLI installed](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/getting-started-with-cloud-cli)
+- [Access to the subscription where you want to create a new enviornment](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/getting-started-with-cloud-cli)
+
+**Create an enviornment**
+
+To create an environment, run following command:
+
+```powershell
+litium-cloud environment create --name enter-name --subscription enter-subscription --location enter-location-id
+```
+
+Fetch location-id: `litium-cloud location list`  
+Fetch subscription-id: `litium-cloud subscription list`
+
+Tips for environment name could be prod/test/qa/demo/staging etc.
+
+## Production environment
+
+For production environments you should include flag "--production" when creating the environment. This will mark the environment as production environment and make sure the correct production resources are applied to your production Litium apps. 
+
+**Important** All non-production environments and system domain _litium.app_ will automatically get robots directives set to noindex and nofollow. 
+
+It is also possible to set production flag after the environment is created, this is done with the 'litium-cloud environment update --production' command. **Important** if litium app and storefront apps are already installed when setting the production flag, the apps needs to be restarted or redeployed for the changes to take effect.
+
+To unset an environment as production you use the 'litium-cloud environment update --non-production' command

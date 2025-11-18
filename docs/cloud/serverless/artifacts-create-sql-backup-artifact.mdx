@@ -1,0 +1,49 @@
+---
+title: "Create SQL backup artifact"
+description: "A SQL backup (.bak) file can be uploaded through the CLI to be used together with installation of apps. For instance the Litium platform app."
+---
+A SQL backup (.bak) file can be uploaded through the CLI to be used together with installation of apps. For instance the Litium platform app.
+
+**Prerequirements**
+
+- [Access to the subscription you want to make the artifact available for](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/getting-started-with-cloud-cli)
+- [CLI installed](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/getting-started-with-cloud-cli)
+
+## Prepare database
+
+Your MS SQL database should be uploaded in the format of a backup file (.bak). You could use SQL Server Management Studio to [create your backup](https://learn.microsoft.com/en-us/sql/relational-databases/backup-restore/quickstart-backup-restore-database?view=sql-server-ver16&tabs=ssms#take-a-backup). 
+
+If you have an existing Litium Platform or MS SQL database app in Serverless cloud you could also [create an database artifact](/cloud/serverless/create-database-backup) on demand.
+
+If you have an existing Litium Platform in legacy cloud and you want to use that as a base, [contact support](/resources/support) and they'll give you access to a database backup that you could use to upload as an artifact.
+
+## Upload artifact
+
+Once the database backup file is created it's time to upload the SQL backup to Litium Serverless Cloud. The upload of artifact command is:
+
+```powershell
+litium-cloud artifact create --name "My database backup - $(get-date)" --file-path your-path --artifact-type sqlbackup
+```
+
+_Note. the "--file-path" should point to the .bak-file_
+
+## Retention Policy
+
+Artifacts are automatically deleted based on the following conditions:
+
+1.  **Newly Created Artifacts**: If an artifact was created 14 days ago and has not been used since creation, it will be automatically deleted.
+    
+2.  **Unused Artifacts**: If an artifact has not been used for 7 days, it will be automatically deleted.
+    
+
+#### Example 1:
+
+Artifact 1 is created and actively used in an application. After 30 days, Artifact 2 is created and replaces Artifact 1. Seven days after Artifact 2 replaces Artifact 1, Artifact 1 is automatically deleted.
+
+#### Example 2:
+
+Artifact 1 is created but is never used by any application. After 14 days, Artifact 1 is deleted since it was never used.
+
+## Next step
+
+Once the artifact is uploaded the next step is to reference the artifact in the yaml-file of the app that should use it. To use the database together with a Litium app, see [install litium platform](/cloud/serverless/install-litium-platform)

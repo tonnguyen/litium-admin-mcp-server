@@ -1,0 +1,159 @@
+---
+title: "Headless Chrome"
+description: "The Headless Chrome app gives you access to a Chrome browser for automation tasks such as generating PDFs from HTML content, capturing screenshots, running automated UI tests, and more. It exposes a WebSocket URL that can be consumed by other applications—such as the Litium platform or a .NET web app."
+---
+The Headless Chrome app gives you access to a Chrome browser for automation tasks such as generating PDFs from HTML content, capturing screenshots, running automated UI tests, and more. It exposes a WebSocket URL that can be consumed by other applications—such as the Litium platform or a .NET web app.
+
+## Pricing
+
+Headless Chrome is priced **per hour** based on selected app plan. [Read more about prices](/cloud/serverless/private-apps-pricing)
+
+* * *
+
+## Installation
+
+**Prerequisites**
+
+Make sure the following are in place:
+
+- [CLI installed](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/getting-started-with-cloud-cli)
+- [Access to the subscription where you want to create a new environment](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/getting-started-with-cloud-cli)
+- [Environment created](/cloud/serverless/create-environment-new)
+
+### Step 1: Download the Manifest
+
+Use the following command to download the Headless Chrome manifest:
+
+```powershell
+litium-cloud marketplace manifest --app headless-chrome -f enter-any-name.yaml
+```
+
+  
+📄 This will generate a `.yaml` file in your current working directory.
+
+### Step 2: Configure the manifest file
+
+```powershell
+kind: app
+resource:
+  id: headless-chrome
+spec:
+  type: headless-chrome
+  plan: [insert-plan-id]
+  version: 1.0.0
+```
+
+- **id**: Choose a unique-per-environment ID, suggested: `headless-chrome`
+    
+- **properties**: Headless Chrome does not require any custom properties
+    
+- **plan:** insert plan-id based on which plan that best suits your needs
+    
+
+### Step 3: Apply the app to an environment 
+
+Run the following command to install the app:
+
+```powershell
+litium-cloud apply --subscription enter-subscription-id --environment enter-environment-id -f enter-yaml-filename
+```
+
+  
+🧠 Helpful commands:
+
+- Get Subscription id
+    
+    ```powershell
+    litium-cloud subscription list
+    ```
+    
+- Get Environment id
+    
+    ```powershell
+    litium-cloud environment list --subscription enter-subscription-id
+    ```
+    
+
+📌 After running the apply command, there will be a prompt with a **job-id** that you can use to [view status and logs of the job](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/view-status-and-logs).
+
+✅ This will deploy the Headless Chrome app to the specified environment.  
+ 
+
+* * *
+
+## How to use
+
+To connect to your Headless Chrome instance from another app (e.g., Litium platform or a .NET app), use the WebSocket **URL** exposed by the Headless Chrome app. 
+
+**Note** - The exposed URL is internal and can only be accessed by other apps within **Serverless Cloud**. It is not accessible from outside the Serverless Cloud environment.
+
+**Tip** - View properties that an app exposes  
+litium-cloud marketplace show --app headless-chrome --version 1.0.0
+
+### Example: Configure another app to use Chrome
+
+To use the Chrome socket in another app, configure it to fetch the URL by setting up configurations:
+
+```powershell
+  configurations:
+    - name: CHROME__SOCKET
+      valueFrom:
+        appRef:
+          name: headless-chrome
+          key: url
+```
+
+This will populate the `CHROME__SOCKET` environment variable with the WebSocket URL from the Headless Chrome app.
+
+Add this configuration section to the YAML file of the app that needs to access Headless Chrome—such as the Litium platform app—then re-apply it using "apply" command.
+
+### Example - generate PDF with PuppeteerSharp
+
+Below is a sample C# method using [PuppeteerSharp](https://github.com/hardkoded/puppeteer-sharp) to generate a PDF:
+
+```csharp
+public async Task<byte[]> GeneratePdf()
+{
+    string htmlContent = @"<!DOCTYPE html>
+                        <html lang=""en"">
+                        <head>
+                        </head>
+                        <body>
+                            <h1>Test PDF</h1>
+                            <p>This is a test PDF document generated using PuppeteerSharp.</p>
+                        </body>
+                        </html>
+                        ";
+
+
+    var browserWSEndpoint = Environment.GetEnvironmentVariable("CHROME__SOCKET");
+
+    var connectOptions = new ConnectOptions
+    {
+        BrowserWSEndpoint = browserWSEndpoint,
+        DefaultViewport = null
+    };
+
+    var browser = await Puppeteer.ConnectAsync(connectOptions);
+
+    using (var page = await browser.NewPageAsync())
+    {
+        // Set content of the page
+        await page.SetContentAsync(htmlContent);
+
+        // Generate PDF
+        return await page.PdfDataAsync(new PdfOptions
+        {
+            Format = PaperFormat.A4,
+            PrintBackground = true,
+            MarginOptions = new MarginOptions
+            {
+                Top = "20mm",
+                Bottom = "20mm",
+                Left = "15mm",
+                Right = "15mm"
+            }
+        });
+    }
+}
+```

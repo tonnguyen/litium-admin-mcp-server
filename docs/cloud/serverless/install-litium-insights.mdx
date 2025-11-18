@@ -1,0 +1,43 @@
+---
+title: "Install Litium Insights"
+description: "Litium Insights is a service where you can view application logs, https requests and BI metrics. What you see is depending on the customer agreement. To access Litium Insights for your environment data the Litium Insights app should be installed."
+---
+Litium Insights is a service where you can view application logs, https requests and BI metrics. What you see is depending on the customer agreement. To access Litium Insights for your environment data the Litium Insights app should be installed.
+
+**Prerequirements**
+
+- [CLI installed](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/getting-started-with-cloud-cli)
+- [Access to the subscription where you want to create a new enviornment](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/getting-started-with-cloud-cli)
+- [Environment created](/cloud/serverless/create-environment-new)
+
+**Install Litium Insights**
+
+Run following command to download litium-insights yaml:
+
+```powershell
+litium-cloud marketplace manifest --app litium-insights -f enter-any-name.yaml
+```
+
+_Note, this will generate a yaml-file in the current folder you are in._
+
+Run following command to apply the litium-insights to environment:
+
+```powershell
+litium-cloud apply --subscription enter-subscription-id --environment enter-environment-id -f enter-yaml-filename
+```
+
+  
+\- Fetch Subscription-id: litium-cloud subscription list  
+\- Fetch Environment-id: litium-cloud environment list --subscription enter-subscription-id
+
+_Note! After running the apply command, there will be a prompt with a job-id that you can use to [view status and logs of the job](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/view-status-and-logs)._
+
+**Login to Litium Insight**
+
+Browse to [Insights](https://insights.litium.cloud/login?next=%2F) and choose to login with "Litium Account (serverless)", use same account as you use for Litium Serverless Cloud. Application logs and other metrics for your environment is present after logged in.
+
+**Add access to other users**
+
+For a user to have access to Insight for a particular environment they need to be [granted access control](/cloud/serverless/access-access-control) to the Insights application. To get access to Ingishts a user needs to have at least the role "system/reader" to the subscription and at least the role "system/contributor" to the Insights app.
+
+Best practice is to [add a group](/cloud/serverless/access-group), e.g. "Insights users". And give that group [access](/cloud/serverless/access-access-control) to the subscription with the role "system/reader" and access to the insights app with the role "system/contributor". Then add all members that should have access to that group.

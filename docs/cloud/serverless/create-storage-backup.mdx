@@ -1,0 +1,27 @@
+---
+title: "Create storage backup"
+description: "For an app that uses a storage resource, e.g. Litium App, it is possible to create and download a storage backup."
+---
+For an app that uses a storage resource, e.g. Litium App, it is possible to create and download a storage backup.
+
+## Create storage backup
+
+To request a backup the command 'app action' with option '--action' set to 'backup-storage' is used. A background job is then triggered. Example command:
+
+```powershell
+litium-cloud app action --action backup-storage --app litium
+```
+
+_Note. above command assumes that you have an app with id 'litium' and that you have set subscription and enviornment to the context_
+
+The backup is created as an artifact. When the job is done, check your artifact list and look for a name like 'Persistent storage backup subscriptions/subscription-id/environments/environment-id/apps/app-id/resources/shared-storage'
+
+This artifact can then be used as reference when deploying apps, it's also possible to [download the artifact to your local computer](/cloud/serverless/artifacts-download-artifact).
+
+**Advanced**
+
+The action 'backup-storage' will create an artifact with the storage that is needed to move between environments, e.g. Media folder. If you want to export everything in the apps storage folder you add the property 'complete=true', so the full command would look like:
+
+```powershell
+litium-cloud app action --app litium --action backup-storage --property complete=true
+```

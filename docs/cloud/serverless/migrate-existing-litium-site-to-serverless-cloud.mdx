@@ -1,0 +1,136 @@
+---
+title: "Migrate existing Litium site to Serverless cloud"
+description: "If you have an existing Litium site that you want to migrate to the new Serverless cloud follow below guide."
+---
+If you have an existing Litium site that you want to migrate to the new Serverless cloud follow below guide.
+
+## Main advantages with Serverless Cloud
+
+- Creating environments and installing apps are completed in minutes
+- [Litium CDN](/cloud/serverless/install-litium-cdn) default for all external traffic, enhancing performance and security
+- App Cloud with [private apps](/cloud/serverless/private-apps) enabling you to host and connect your private apps like .NET web, MS SQL Db, Redis Cache and more in Serverless Cloud. Installing and deploying with ease.
+- [Litium Insight](/cloud/serverless/install-litium-insights) - logs are automatically being sent to Litium Insight, regardless if it's your Litium Platform, a payment app or your private app.
+- Login with your own email address both to Serverless cloud, Litium Insights and more, powered by Litium Account.
+- [Access control](/cloud/serverless/access-access-control). Control who has access to what with different roles. Setup [groups](/cloud/serverless/access-group) to make access control even more convenient.
+- [Automated deployments](/cloud/serverless/automated-deployments). With the CLI and service principals it's easy to automate deployments.
+- Automated scaling. Serverless cloud enables automatic scaling, meaning that apps automatically scales based on resource usage.
+- Full self service - e.g. download storage and database backups, create and delete apps etc
+- Automatic upgrades of database when updating between L8 versions.
+- Background jobs are executed in it's own dedicated [worker node](/cloud/serverless/public-apps-litium-platform-worker), at no extra cost
+
+* * *
+
+**Prerequirements**
+
+- Minimum version 8.1 of Litium platform - 8.16.0 or higher recommended to take advantage of all benefits
+- LCC agreement
+- Contact support to request a backup of "files" (media)
+- Contact support to request a backup of database
+- .NET package built for Linux (No windows dependant packages)
+- (optional) App Cloud feature in LCC agreement - needed for private apps, e.g. sftp and private storage
+
+## Setup environment, subscription and base apps
+
+Start by following the [getting started guide](/cloud/serverless/getting-started-with-cloud-cli) to setup
+
+- subscription
+- environment
+- Litium CDN including [Request access to Fastly service](/cloud/serverless/install-litium-cdn)
+- Litium Platform - using requested backup of files (media) and database backup
+    - Note. if you are upgrading from an earlier version than 8 you may need to handle [database upgrade manually](/platform/guides/upgrade-to-litium-8/upgrade-the-database) locally before uploading database-artifact
+- Litium Insight - [make sure you can login and view your logs](/cloud/serverless/install-litium-insights)
+
+## Install other apps and setup deployment flow
+
+Assuming you have followed the [getting started guide](/cloud/serverless/getting-started-with-cloud-cli) you should have a subscription, at least one environment (test) and your Litium platform up and running with copy of your existing database and storage. You should also have access to logs through Litium Insights.
+
+### (optional) setup payment and delivery apps
+
+This is relevant if you are using the sales module and previously have had payment and/or delivery apps installed. Previously those apps were installed by the support. With Serverless cloud you are in control of those apps. Follow the [Install Payment and Delivery apps guide](/cloud/serverless/install-payment-and-delivery-apps) to install the Payment and Delivery apps you are using.
+
+**Note**. when restoring a database from legacy cloud that includes references to apps installed in legacy cloud you need to first "force delete" the payment and delivery apps from backoffice UI. **Important** that the folder IndentityServer isn't copied from legacy shared storage, to be sure that legacy app isn't deleted, this folder is not included in the backup by default if support has generated the files backup. 
+
+### (optional) setup storage and SFTP
+
+This is relevant if you previously have been using sftp to upload/download files, e.g. integration files with an ERP. In Serverless Cloud this is done by adding a storage app, reference the storage app in Litium Platform manifest, and installing the sftp app to give access to external clients. 
+
+1.  [Install storage app](/cloud/serverless/private-apps-file-storage) - note that the customer needs to have the App Cloud agreement signed to be able to install private apps. 
+2.  Update your Litium platform manifest with configuration setting to map one (or more) folders within the storage app. You also may need to configure some path setting in your Litium platform code so that files are fetched from the new location. See configuration settings at the bottom of the ["install storage app" page](/cloud/serverless/private-apps-file-storage).
+3.  [Install sftp app(s)](/cloud/serverless/public-apps-litium-sftp) to map with folder(s) within the storage app that the app should have access to. One sftp-app = one user. So if you have multiple systems/users communicating you should create multiple sftp apps. 
+
+### (optional) setup SMTP Relay app
+
+This is relevant if you are sending mail from your Litium Platform app or Litium Next.js Web app. Possible to configure to send emails with our SMTP server or to configure with your external SMTP. 
+
+1.  [Install SMTP releay app](/cloud/serverless/public-apps-install-smtp-relay-app)
+2.  Add configurations to your [MVC app](/cloud/serverless/public-apps-install-smtp-relay-app#mvc) and/or [Next.js app](/cloud/serverless/public-apps-install-smtp-relay-app#storefront)
+
+### (optional) setup custom domain
+
+When creating an app, e.g. Litium Platform app, you will get a domain automatically created and added to Litium CDN, in the format subscription-environment-app.litium.app
+
+If you want a custom domain send an email to the support and they will set this up in Fastly and add certificate required. Recommended for test is test.yourdomain.com.
+
+### (optional) setup other private apps
+
+With Serverless Cloud you have the possibility to host other related workload in our cloud. For instance a private .NET web app, MS SQL app, Redis Cache and more. [Read more about private apps](/cloud/serverless/private-apps). 
+
+## Release checklist
+
+Each project is unique and all projects has their own requirements of what should be done during a release to production. Below is a checklist baseline to use before, during and after go live.
+
+### Before Go Live
+
+- Decide code-freeze date
+- Decide Go live date
+- Document current webhooks that should work when old site is closed, e.g. payment apps web hooks
+    - **Note** Payment apps will get a new url when launched in serverless, but the old payment webhooks urls needs to be working for existing orders that will make callbacks to update order. Support can help configure the old payment urls in the new Fastly service.
+- Create automated pipeline (e.g. Azure devops release/publish) for [automated deployments](/cloud/serverless/automated-deployments).
+- Create production environment including apps and configuration
+    - Test with latest production storage and database. I.e. test release plan to mitigate release risks and clock how long time a release should take. 
+    - Test making orders to make sure payment and delivery and integrations work as they should.
+    - Check-in manifest-yaml files for apps. 
+    - Mark the production environment with [production flag](/cloud/serverless/create-environment-new)
+- Fastly - Domains and certificates
+    - LCC (Already on Fastly) - if old solution is already using Fastly then certificates and domains are already setup. No DNS changes or certificates needs to be setup.
+        - Make a note of domains that should be switched
+        - Make a request to support to prepare new Fastly service with configuration - Dictionary entries
+    - Non LCC (Not using Fastly) - if the old solution isn't using Fastly DNS changes and certificates needs to be prepared  
+        - Make sure all domains are prepared with certificates in Fastly. Support can assist with this.
+        - Make a note of which DNS changes that should be carried out when going live. 
+        - Make sure TTL on domains are set to as low as possible, usually 300 seconds (5 minutes)
+- Make sure you don't depend on OS CurrentCulture since that will be null. For reqular requests this isn't a problem, but for background tasks you need to make sure to set currentculture, e.g. hardcoded or from a channel or website.
+- (optional) if you want Litium Support to help uploading storage and/or database backup on go live-day make sure to schedule this date and time minumum 3 days in advance.
+- Decide on strategy for handling database changes during upgrade - e.g. the time between prod db backup until new site is live
+    - Inform internal administrator that after a certain time changes should be paused - e.g. website changes
+    - (optional) if you don't want customers to be able to make new orders during upgrade you could implement a feature toggle to show a message on checkout that an upgrade is ongoing - this is to avoid getting orders after the database copy has been made. 
+        - If you choose to let customers make orders after db backup has been made you could instead implement a way of importing potential missing orders from old database to new database after go live.
+    - (optional) handle other transactions, e.g. new accounts etc
+        - Similar to order transactions other transactions that may happen during upgrade needs to be handled manually in the project - or temporary turning off those features on site that adds transactional changes.
+    - (optional) add another [order prefix](/platform/get-started/configuration#ecom) for orders from the new solution to be able to easily identify which version the order came from and to avoid order number duplicates if you dont choose to stop sales during upgrade. 
+
+### Go Live
+
+- Delete Litium platform app from production environment (because db and storage can only be applied when app is installed). _**Note**. Prepare (may be done the day before to save some time on go-live date)_
+    - You may also need to delete dependent apps, like payment and delivery since those reference the Litium app
+    - Make sure you have manifest files ready to create the apps on release day
+- Upload storage artifact from production - _**Note**. May be done the day before to save some time on go-live date. Especially if you have large storage it may take some time to upload the storage artifact. if you choose to do this the day before you should inform organization that no changes (e.g. product images or website images). Litium support can assist with uploading the storage artifact to your subscription, make sure to schedule this at least 3 days in advance if you want support to assist with this._
+- Request production database backup and upload as artifact to Serverless Cloud for the correct subscription. _Note. schedule this with Litium Support in advance._
+    - _​_If the current solution is Litium 8 or later database artifact may be uploaded directly to Serverless Cloud by Litium Support to save some time. _Important. make sure to schedule this as well in advance._
+    - If  the current solution is an earlier version than Litium 8, upgrade scripts needs to be executed manually on the backup before the backup may be uploaded to Serverless cloud. 
+        - Those scripts may be executed either by Litium support (to save time) or by partner. Make sure to schedule this in advance with Support team.
+- Modify Litium platform manifest to include newly created artifact ids for correct storage and database artifacts.
+    - _**Note**. make sure the latest code artifact is referenced in manifest file as well._
+- Install Litium platform with apply command
+- Install reference apps, e.g. storefront and payment and delivery apps
+- Perform tests on newly created site
+- Fastly / DNS changes
+    - (optional) Perform DNS changes - this is only needed if the old site wasn't using Fastly already, otherwise only Fastly changes is needed.
+    - Move domain to new Fastly account
+
+### After go live
+
+- Monitor logs for the new site
+- Monitor logs for the old site - i.e. make sure no traffic reaches the old site
+- (optional) you may need to manually migrate orders and other transactional data created during the switch, depending on strategy you choosed
+- To avoid dubble cost for the customer, issue a delete on the legacy environment.

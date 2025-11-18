@@ -1,0 +1,107 @@
+---
+title: "Pricing"
+description: "This page provides a technical overview of the App Plans available in Litium Serverless Cloud for private apps such as .NET web, Next.js Web, Node.js Web, Nuxt.js Web, and Redis Cache. App Plans define the resource allocation for your private applications, influencing their performance and cost."
+---
+This page provides a technical overview of the App Plans available in Litium Serverless Cloud for private apps such as .NET web, Next.js Web, Node.js Web, Nuxt.js Web, and Redis Cache. App Plans define the resource allocation for your private applications, influencing their performance and cost.
+
+## Available App Plans and Resources
+
+To view the available App Plans for a specific private app, you can use the Litium Cloud CLI command:
+
+```powershell
+litium-cloud marketplace show --app <app-id>
+```
+
+For example, to see the plans available for a .NET web app, you would run:
+
+```powershell
+litium-cloud marketplace show --app dotnet-web
+```
+
+​This command will output a list of available plan IDs that you can then specify in your app's manifest file.
+
+While resource allocation is dynamically managed by Litium to ensure optimal performance, the table below outlines available plans and their memory allocation. Note that not all plans are supported for all app types. The "a" in the plan ID stands for **autoscaling**, which scales based on CPU usage.
+
+| Plan | RAM | Autoscaling | Price |
+| --- | --- | --- | --- |
+| S1 | 0.5 GB | No | [See price list](/resources/price-list) |
+| S1a | 0.5 GB | Yes (CPU-based) | [See price list](/resources/price-list) |
+| S2 | 1 GB | No | [See price list](/resources/price-list) |
+| S2a | 1 GB | Yes (CPU-based) | [See price list](/resources/price-list) |
+| S3 | 2.5 GB | No | [See price list](/resources/price-list) |
+| S3a | 2.5 GB | Yes (CPU-based) | [See price list](/resources/price-list) |
+| S4 | 6 GB | No | [See price list](/resources/price-list) |
+| S4a | 6 GB | Yes (CPU-based) | [See price list](/resources/price-list) |
+| S5 | 16 GB | No | [See price list](/resources/price-list) |
+| S5a | 16 GB | Yes (CPU-based) | [See price list](/resources/price-list) |
+
+  
+**Note**: Some apps, such as SQL Database and File Storage apps, are billed separately based on actual usage (storage in GB) and do not require a plan.
+
+**Note**: Above table is a current example, always use CLI to fetch latest information about available plans and their resources.
+
+## Pricing Calculation
+
+There are two billing models depending on the type of app:
+
+### RAM usage (for apps using App Plans)
+
+For private apps where an **App Plan** is selected (e.g. .NET Web, Node.js, Nuxt.js, Redis), pricing is based on allocated RAM:
+
+```plain
+[hours running] x [instances running (if autoscaling)] x [hourly price for selected plan]
+```
+
+### Disk usage (for storage-based apps without App Plans)
+
+For apps that **do not use App Plans**, such as **SQL Database** or **File Storage apps**, billing is based on actual disk usage:
+
+```plain
+[average disk usage per day] x [price per GB]
+```
+
+> ℹ️ You do not need to select an App Plan for disk-based apps — they are billed entirely by storage consumption.
+
+## How to Select and Specify an App Plan
+
+### **For new app installations:**
+
+1.  **View Available Plans**
+    
+    ```powershell
+    litium-cloud marketplace show --app <app-id>
+    ```
+    
+2.  **Edit manifest file** 
+    
+    ```powershell
+    litium-cloud marketplace manifest --app <app-id>
+    ```
+    
+3.  **Specify Plan**: In the manifest file, locate the plan: property under the spec section. Insert the desired plan ID obtained from the previous step after the plan.  
+     
+4.  **Apply manifest**:
+    
+    ```powershell
+    litium-cloud apply
+    ```
+    
+
+### For already installed apps
+
+For already installed apps it's also possible to change app plan with the "app plan" command.
+
+1.  **View available plans**:
+    
+    ```powershell
+    litium-cloud marketplace show --app <app-id> 
+    ```
+    
+2.  **Apply a new plan**:
+    
+    ```powershell
+    litium-cloud app plan --plan [insert-plan-id] --sub [insert-sub-id] --env [insert-env-id]
+    ```
+    
+      
+    **Note** \- this will restart the application and apply the new plan right away (without any downtime)

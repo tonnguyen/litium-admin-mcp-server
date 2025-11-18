@@ -1,0 +1,63 @@
+---
+title: "Install Litium nextjs web app"
+description: "Prerequirements"
+---
+**Prerequirements**
+
+- [CLI installed](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/getting-started-with-cloud-cli)
+- [Access to the subscription where you want to install the nextjs storefront app](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/getting-started-with-cloud-cli)
+- [Environment created](/cloud/serverless/create-environment-new)
+- [Litium platform installed](/cloud/serverless/install-litium-platform)
+
+## Download and install Litium Next.js Web yaml
+
+Run following command to download nextjs-storefront.yaml:
+
+```powershell
+litium-cloud marketplace manifest --app litium-nextjs-web -f litium-nextjs-web.yaml
+```
+
+_Note, this will generate a yaml-file in the current folder you are in._
+
+### Include release artifact
+
+Include your own nextjs artifact while installing the litium-nextjs-web app. Follow those steps:
+
+1.  [Create release artifact of type "nextjs"](/cloud/serverless/artifacts-create-nextjs-artifact)
+2.  In the manifest yaml-file downloaded from the marketplace manifest-command, do the following
+    1.  Uncomment "properties"
+    2.  Uncomment the property "artifact"
+    3.  Add "artifacts/" followed by your artifact-id as "value" for the "artifact" property, e.g. "value: artifacts/d33ae52bb7044adb99d2b4df6fac6216"
+
+_**Note**. It is possible to deploy litium-nextjs-web artifacts to the Litium app continiously after the app is installed with the [deploy command](/cloud/serverless/artifacts-deploy-artifact)._
+
+**Execute following command to install nextjs storefront app:**
+
+```powershell
+litium-cloud apply --subscription enter-subscription-id --environment enter-environment-id -f name-of-generated-yaml-file
+```
+
+  
+\- Fetch Subscription-id: litium-cloud subscription list  
+\- Fetch Environment-id: litium-cloud environment list --subscription enter-subscription-id
+
+_Note! After running the apply command, there will be a prompt with a job-id that you can use to [view status and logs of the job](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/view-status-and-logs)._
+
+Optional, view installed app(s) with command:
+
+```powershell
+litium-cloud app list --subscription enter-subscription-id --environment enter-environment-id
+```
+
+## Find URL to the Litium nextjs web app
+
+  
+Run following command to find URL/domain to your Litium nextjs web app under Exposes -> Value:
+
+```powershell
+litium-cloud app show --subscription enter-subscription-id --environment enter-environment-id --app nextjs-storefront
+```
+
+Copy value from the name "public\_domain\_name"
+
+_Note. If you haven't already setup the above domain in your Litium app you need to do so and add it to a channel for the url to show your storefront_

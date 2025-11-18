@@ -1,0 +1,49 @@
+---
+title: "Tips & Tricks"
+description: "Collection of tips & tricks that may help you speed up and improve the usage of Litium Cloud CLI"
+---
+Collection of tips & tricks that may help you speed up and improve the usage of Litium Cloud CLI
+
+## Set alias
+
+In you want to save some typing when working with the Cloud CLI you could set an alias for the 'litium-cloud' command. So the end result would be instead of typing 'litium-cloud' you would type for example 'lc' (if that is the alias you choose). 
+
+To set an alias to 'lc' i Powershell use the command:
+
+```powershell
+Set-Alias -Name lc litium-cloud
+```
+
+If you want to set this not to expire after you shutdown your session you could add this to your $profile in Powershell. To edit your $profile with notepad you use the command:
+
+```powershell
+ notepad $profile
+```
+
+That will open notepad with your current $profile settings. If you add above Set-Alias command there and save then next time you open powershell that will be executed automatically for you.
+
+## Set context
+
+If you will be working with the same subscription it may be helpful to set the context so you don't have to enter the subscription-id when executing commands. 
+
+Example command to set subscription to the context:
+
+```powershell
+litium-cloud context set --subscription 12345
+```
+
+If you also will be working with a specific environment that could also be set to the context:
+
+```powershell
+litium-cloud context set --environment12345
+```
+
+Also possible to set both at once with 
+
+```powershell
+litium-cloud context set --environment12345 --subscription 12345
+```
+
+Setting the context will create a .litium-cloud.config file in the folder you're in, optionally you can also pass a --global flag to the command to set it globally.
+
+If you are working with multiple subscriptions one idea could be to set the context for different folders, so that executing the CLI in the different folders will give you the correct context for subscription right away.

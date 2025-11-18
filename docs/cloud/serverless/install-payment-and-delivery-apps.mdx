@@ -1,0 +1,102 @@
+---
+title: "Install Payment and Delivery apps"
+description: "Payment and delivery apps are available as public apps."
+---
+Payment and delivery apps are available as public apps.
+
+**Prerequirements**
+
+- [CLI installed](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/getting-started-with-cloud-cli)
+- [Access to the subscription where you want to create a new enviornment](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/getting-started-with-cloud-cli)
+- [Environment created](/cloud/serverless/create-environment-new)
+- [Litium Platform installed](/cloud/serverless/install-litium-platform)
+
+**Install Payment and Delivery apps**
+
+Find available Payment and delivery apps with search command
+
+```powershell
+litium-cloud marketplace list --filter payment
+```
+
+```powershell
+litium-cloud marketplace list --filter shipment
+```
+
+Run 'marketplace manifest' command to download manifest file used for installing the app, example command to download the direct payment app manifest file to the current folder you're in:
+
+```powershell
+litium-cloud marketplace manifest --app direct-payment -f direct-payment.yaml
+```
+
+_Note: when generating the manifest file you could also specify the option --version to request a specific version to install when you apply the  manifest file with the apply-command below. To view available version for an app, add the --details option to the search command, for example to get all available versions for the direct-payment app:_
+
+```powershell
+litium-cloud marketplace list --filter 'direct payment' --details
+```
+
+_Important: If you don't specify version is the manifest file, the default version is selected when installing the app. For payment apps it may be a good routine to always specify which version you want to install so you can control testing and upgrade._
+
+Run following command to install the direct-payment app to environment:
+
+```powershell
+litium-cloud apply --subscription enter-subscription-id --environment enter-environment-id -f direct-payment.yaml
+```
+
+  
+\- Fetch Subscription-id: litium-cloud subscription list  
+\- Fetch Environment-id: litium-cloud environment list --subscription enter-subscription-id
+
+_Note! After running the apply command, there will be a prompt with a job-id that you can use to [view status and logs of the job](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/view-status-and-logs)._
+
+**Install app to Litium app** 
+
+Once the payment or delivery app is installed in your environment you may install it to your Litium app. 
+
+1.  Get the url to your newly installed payment or delivery app by executing the app show command, for example to get url to an installed direct payment app with id direct-payment:
+    
+    ```powershell
+    litium-cloud app show --app direct-payment --subscription enter-subscription-id --environment enter-environment-id
+    ```
+    
+    This will display a table with name "Exposes" that has a row with name "public\_domain\_name" property.   
+     
+2.  Copy the value of "public\_domain\_name" and browse to that url. This will redirect you to your litium app. You may need to login with your litium app credentials. Once logged in the app is created in your Litium app. 
+3.  Press the "install" button at the top of the page to install the app to Litium.
+4.  Upload your custom configuration-json file to apply your custom solution settings
+
+**Upgrade app**
+
+To upgrade your payment or delivery app to a new version you change your apps manifest to include a later version of your app, and execute the apply command. 
+
+For example, let's say you are using the version 1.0.0 in your current installation, the manifest-file you used to installed the app may look like this:
+
+```csharp
+kind: app
+resource:
+  id: direct-payment
+spec:
+  type: direct-payment
+  version: 1.0.0
+```
+
+Now, you want to upgrade your app to version 1.3.0, then you change the version so the file now looks like this:
+
+```csharp
+kind: app
+resource:
+  id: direct-payment
+spec:
+  type: direct-payment
+  version: 1.3.0
+```
+
+When you apply the new manifest file the app is upgraded, the command could look like:
+
+```powershell
+litium-cloud apply -f direct-payment.yaml --subscription enter-subscription-id --environment enter-environment-id
+```
+
+**Downgrade app**
+
+To downgrade an app to an earlier version you need to first delete your app and then reinstall with the old version. I.e. it is nott possible to downgrade without first deleting the app and reinstalling.

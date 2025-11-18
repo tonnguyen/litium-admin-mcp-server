@@ -1,0 +1,57 @@
+---
+title: "Private storefront app"
+description: "If you're developing a storefront app based on a private app, such as Next.js Web, Nuxt.js Web, or Node.js Web, follow the best practices outlined below."
+---
+If you're developing a storefront app based on a private app, such as Next.js Web, Nuxt.js Web, or Node.js Web, follow the best practices outlined below.
+
+## Background
+
+We provide a pre-built [React accelerator](/accelerators/react-accelerator) based on Next.js. When building your solution with our accelerator—or generally building a storefront using Next.js—we recommend using our public app, [**Litium Next.js Web**](/cloud/serverless/public-apps-litium-storefront). This app automatically sets up a proxy to route specific paths, such as storage, to the platform app. Additionally, our accelerator contains built-in functionality to communicate directly with the Litium platform backend using an internal domain.
+
+However, if you're creating a custom accelerator or wish to install multiple React storefront apps for a single subscription, follow the best practices outlined below.
+
+## Storefront Proxy
+
+**Note** - When using the public app [**Litium Next.js Web**](/cloud/serverless/public-apps-litium-storefront), or version 1.0 of the private app Next.js Web, a storefront proxy is installed automatically.
+
+A headless storefront app typically runs independently from the Litium platform app. Certain requests must still be executed by the Litium platform. To facilitate this, set up a **Storefront Proxy**, which routes all incoming traffic, determining whether requests should be handled by the Litium platform or the storefront app.
+
+We provide a public, pre-configured Storefront Proxy app free of charge. For installation instructions and usage details, refer to the [Storefront Proxy Documentation](/cloud/serverless/public-apps-litium-storefront-proxy).
+
+## Internal communication
+
+While the Storefront Proxy manages external traffic, internal communication between your storefront app and the Litium platform backend must also be optimized. For example, when making API calls from the storefront app, you could:
+
+- Send requests through your public domain, allowing the proxy to route them to the Litium platform.
+    
+- Send requests directly to the Litium platform's public domain.
+    
+
+Both approaches involve an unnecessary roundtrip through the internet and Fastly CDN, making them suboptimal.
+
+### Recommended approach
+
+For optimal performance, communicate directly with the Litium platform app through its internal domain. You can find this internal domain using the command:
+
+```text
+litium-cloud app show
+```
+
+  
+To simplify this process, we automatically set an environment variable named **`RUNTIME_LITIUM_SERVER_URL`** during installation. This variable contains the internal URL of your Litium platform environment.
+
+Here's an example implementation used in our React accelerator (`apollo-client.ts`, version 1.6.1 and later):
+
+```javascript
+  const url =
+    typeof window === 'undefined'
+      ? new URL('/storefront.graphql', process.env.RUNTIME_LITIUM_SERVER_URL)
+          .href
+      : new URL('/storefront.graphql', window.location.origin).href;
+  const httpLink = createHttpLink({
+    uri: url,
+    credentials: 'same-origin',
+  });
+```
+
+Using this internal URL approach significantly reduces latency and improves communication speed between your storefront and the Litium backend.

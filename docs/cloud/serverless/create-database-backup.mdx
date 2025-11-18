@@ -1,0 +1,24 @@
+---
+title: "Create database backup"
+description: "For an app that uses a database resource, e.g. Litium App, it is possible to create and download a database backup."
+---
+For an app that uses a database resource, e.g. Litium App, it is possible to create and download a database backup.
+
+**Prerequirements**
+
+- For MsSql DB app: A user or service principal with the role "apps/mssql-db/backup-operator" or "system/owner"
+- For Litium Platform app: A user or service principal with the role "apps/litium-platform/backup-operator" or "system/owner"
+
+## Create backup
+
+To request a backup the command 'app action' with option '--action' set to 'backup-database' is used. A background job is then triggered. Example command:
+
+```powershell
+litium-cloud app action --action backup-database --app litium
+```
+
+_Note. above command assumes that you have an app with id 'litium' and that you have set subscription and enviornment to the context_
+
+The backup is created as an artifact. When the job is done, check your artifact list and look for a name like 'Database backup subscriptions/subscription-id/environments/environment-id/apps/app-id/resources/database'
+
+This artifact can then be used as reference when deploying apps, it's also possible to [download the artifact to your local computer](/cloud/serverless/artifacts-download-artifact).

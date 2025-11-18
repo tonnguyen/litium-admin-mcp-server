@@ -1,0 +1,88 @@
+---
+title: "Redis Cache"
+description: "Enhance access speed with a private Redis Cache, connectable to Dotnet Web apps for efficient data retrieval. Costs are App plan-dependent."
+---
+Enhance access speed with a private Redis Cache, connectable to Dotnet Web apps for efficient data retrieval. Costs are App plan-dependent.
+
+## Pricing
+
+Redis cache is priced per hour based on app plan. [Read more about prices](/cloud/serverless/private-apps-pricing)
+
+## Installation
+
+**Prerequirements**
+
+- [CLI installed](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/getting-started-with-cloud-cli)
+- [Access to the subscription where you want to create a new enviornment](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/getting-started-with-cloud-cli)
+- [Environment created](/cloud/serverless/create-environment-new)
+
+**Manifest**
+
+Run following command to download file-storage manifest:
+
+```powershell
+litium-cloud marketplace manifest --app redis-cache -f enter-any-name.yaml
+```
+
+_Note, this will generate a yaml-file in the current folder you are in._
+
+Example manifest file:
+
+```powershell
+kind: app
+resource:
+  id: redis-cache
+spec:
+  type: redis-cache
+  version: 1.0.0
+  plan:
+```
+
+**Manifest configuration**
+
+Id: Choose your own unique-per-environment id of the app. Suggested "redis-cache"
+
+To install a Redis Cache private app you need to provide a plan when creating the app. Pricing is based on which plan you select. Run following command to view available plans for Redis Cache app:
+
+```powershell
+litium-cloud marketplace show --app redis-cache
+```
+
+Insert the plan-id you want after the "plan:" in the manifest file. 
+
+**Apply** 
+
+Run following command to install the redis-cache app to environment:
+
+```powershell
+litium-cloud apply --subscription enter-subscription-id --environment enter-environment-id -f enter-yaml-filename
+```
+
+  
+\- Fetch Subscription-id: litium-cloud subscription list  
+\- Fetch Environment-id: litium-cloud environment list --subscription enter-subscription-id
+
+_Note! After running the apply command, there will be a prompt with a job-id that you can use to [view status and logs of the job](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/view-status-and-logs)._
+
+This will create a Redis Cache app in the given environment. 
+
+## Connect with Dotnet Web app or Litium app
+
+To be able to access your private Redis Cache app from a Dotnet web app or your Litium app you should add configuration in your dotnet web or litium manifest file. 
+
+Example configuration to connect a Redis Cache app with id "redis-cache" to your dotnet web app, note in this example the environment variables is named "CustomRedis\_\_Connectionstring" and "CustomRedis\_\_Password", this would replace any value in appsettings.json in the section "CustomRedis->Connectionstring" and "CustomRedis->Password". 
+
+```powershell
+configurations:
+    - name: CustomRedis__Connectionstring
+      valueFrom: 
+        appRef:
+          name: redis-cache
+          key: connectionstring
+
+    - name: CustomRedis__Password
+      valueFrom: 
+        appRef:
+          name: redis-cache
+          key: password
+```

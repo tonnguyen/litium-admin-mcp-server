@@ -1,0 +1,27 @@
+---
+title: "Group"
+description: "Groups are a convenient way to manage users that should have the same access and permissions."
+---
+Groups are a convenient way to manage users that should have the same access and permissions.
+
+## Create groups and manage members
+
+Groups are created with the command 'group create'. When creating the group you could add members directly, to add multiple members in the same command, add the option --member multiple tiimes. For example:
+
+```powershell
+litium-cloud group create --name MyGroup --member user1@users.com --member user2@users.com
+```
+
+_Note. when the group is created it will be given an id in an email format. This id is used when you want to [manage permissions with the access-control commands](/cloud/serverless/access-access-control) for the group._
+
+Additonally you can add/remove individual members of you group after the group is created with the 'group member add' and 'group member remove' command. For example to remove a member of your group:
+
+```powershell
+litium-cloud group member remove --email 'user1@users.com' --group group-id
+```
+
+If you want to see the members that are assigned to the group, use the show command on the group:
+
+```powershell
+litium-cloud group show --group group-id
+```

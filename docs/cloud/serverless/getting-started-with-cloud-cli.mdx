@@ -1,0 +1,92 @@
+---
+title: "Getting started with Cloud CLI"
+description: "Prerequirements"
+---
+## Set up Litium cloud CLI
+
+**Prerequirements**
+
+- Docs account, created via [Docs](/system_pages/login_ls)
+- [NET Core 8 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
+- Nuget:  
+
+With your Docs account, configure Litium NuGet with following command:
+
+```powershell
+dotnet nuget add source https://nuget.litium.com/nuget/ -n Litium -u docsusername -p docspassword
+```
+
+**Install/update Cloud CLI**  
+Cloud CLI tool is named litium-cloud, run following command to install / update the tool:
+
+```powershell
+dotnet tool update -g litium.cloud.cli --no-cache
+```
+
+**Log into Litium cloud CLI**
+
+Run following command:  
+
+```powershell
+litium-cloud auth login 
+```
+
+A browser will open with a login prompt, login with your Litium Account (serverless) login or choose 'Sign up now' to [create a new account.](/cloud/serverless/create-litium-account)
+
+_Note. The Litium Account login is NOT the same as your docs-login. If this is your first time working with Litium Cloud CLI you most probably don't have an account and should select 'Sign up now'._
+
+_Note. if you get errors like "Your connection is not private” when trying to log in it may be because you have a local hsts setup for localhost - this could for instance be caused by running a local aspnet core website with incorrect settings. [See our FAQ page for how to fix this.](/cloud/serverless/faq)_
+
+## View subscriptions
+
+Subscriptions are created by Litium. To gain access to a subscription, contact Litium support.  
+To see which subscriptions you have access to, run following command:  
+ 
+
+```powershell
+litium-cloud subscription list
+```
+
+## Setup a new environment, install Litium Platform, and deploy your code (MVC Accelerator)
+
+**Prerequirements**
+
+- [CLI installed](#setupcli)
+- [Access to the subscription where you want to create a new enviornment](#subscription)
+
+**Setup and install Litium platform**
+
+1.  [Create environment](/cloud/serverless/create-environment-new)
+2.  [Install Litium CDN](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/install-litium-cdn_new)
+3.  [Install Litium Platform](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/install-litium-platform)
+4.  [Install Litium Insights](/cloud/serverless/install-litium-insights)
+
+## Install Next.js storefront app, and deploy your code (Headless React Accelerator)
+
+**Prerequirements**
+
+- [Setup a new environment, install Litium Platform, and deploy your code (MVC Accelerator)](#setupnewlitium)
+
+**Install Next.js storefront app, and deploy your headless react accelerator**
+
+1.  [Install a Next.js storefront app to the environment](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/install-nextjs-storefront-app)
+
+## Install payment and delivery apps
+
+With Litium Serverless Cloud you are in charge of [installing, deleting and updating the payment and delivery apps](/cloud/serverless/install-payment-and-delivery-apps) you need. 
+
+## Install private app(s)
+
+Except deploying and running the Litium Platform, Next.Js storefront and other public apps in Litium Serverless Cloud it is also possible to deploy and run private apps. For instance if you have the need of extra storage with an additional Sftp. [See availalable private apps.](/cloud/serverless/private-apps)
+
+## Automate deployments
+
+To use the CLI in a deployment pipeline you should use a [service principal to login and authenticate](/cloud/serverless/service-principal). 
+
+## Access control and user management
+
+You should configure [Access control](/cloud/serverless/access-access-control) to manage who should have which access to different resources. [Groups](/cloud/serverless/access-group) is a convenient way to handle access for multiple users. 
+
+## Logs and metrics
+
+To view logs and other metrics for your apps, [use Litium Logs & Insights](/cloud/serverless/install-litium-insights).

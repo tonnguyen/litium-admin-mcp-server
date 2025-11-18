@@ -1,0 +1,150 @@
+---
+title: "Copy environment"
+description: "A common scenario involves copying one environment to another. For instance, you might want to replicate apps and settings from a test environment to a production environment. This guide will walk you through the process."
+---
+A common scenario involves copying one environment to another. For instance, you might want to replicate apps and settings from a test environment to a production environment. This guide will walk you through the process.
+
+### **Prerequisites**
+
+- An existing environment with apps and configurations to replicate.
+    
+- A second empty environment prepared to receive the replicated setup.
+    
+- Required permissions to access and manage environments.
+    
+
+**Note:**
+
+- For regular deployments or database copying, use the [`deploy`](/cloud/serverless/artifacts-deploy-artifact) command and [`backup-database`](/cloud/serverless/create-database-backup) action.
+    
+- This guide can also give inspiration to automate tasks such as nightly restoration of test environments with the latest database and storage backups from production.
+    
+
+### **Step 1: Prepare YAML Files**
+
+1.  **List all apps in your existing environment:**
+    
+    ```text
+    litium-cloud app list --env environment-id --sub subscription-id
+    ```
+    
+2.  **Create a YAML file for each app:** For every app, run the following command:
+    
+    ```text
+    litium-cloud app show -o manifest --app app-id --env environment-id --sub subscription-id > yourapp.yaml
+    ```
+    
+    - This creates a file (e.g., `yourapp.yaml`) containing all properties and configurations for the app.
+        
+3.  **Handle the Litium Platform app specifically:**
+    
+    - Create a database backup:
+        
+        ```text
+        litium-cloud app action --action backup-database --app app-id --env environment-id --sub subscription-id
+        ```
+        
+        Wait for the job to finish, then update your `litium-platform.yaml` file and add below within the "properties" section:
+        
+            `- name: sql_backup_file               value: artifacts/artifact-id`
+    - Create a storage backup:
+        
+        ```text
+        litium-cloud app action --action backup-storage --app app-id --env environment-id --sub subscription-id
+        ```
+        
+        Wait for the job to finish, then update your `litium-platform.yaml` file and add below within the "properties" section:
+        
+            `- name: storage_backup_file               value: artifacts/artifact-id`
+
+### **Step 2: Install Apps in the New Environment**
+
+The order of installation is important to ensure dependencies are resolved correctly.
+
+1.  **Install the Litium CDN app:**
+    
+    ```text
+    litium-cloud apply -f litium-cdn.yaml --env environment-id --sub subscription-id
+    ```
+    
+    Wait for the job to finish.
+    
+2.  **Install the Litium Insights app:**
+    
+    ```text
+    litium-cloud apply -f litium-insights.yaml --env environment-id --sub subscription-id
+    ```
+    
+    Wait for the job to finish.
+    
+3.  **Install the Litium Platform app:**
+    
+    ```text
+    litium-cloud apply -f litium-platform.yaml --env environment-id --sub subscription-id
+    ```
+    
+    Wait for the job to finish.
+    
+4.  **Install other apps:** Based on the YAML files created earlier, install remaining apps (e.g., storefront, delivery, payment, SMTP, private apps):
+    
+    ```text
+    litium-cloud apply -f manifest-file.yaml --env environment-id --sub subscription-id
+    ```
+    
+    Repeat for each app and wait for each job to finish.
+    
+
+### **Step 3: Post-Installation Steps**
+
+1.  **Verify app installations:** Retrieve public URLs for apps using:
+    
+    ```text
+    litium-cloud app show --app app-id --env environment-id --sub subscription-id
+    ```
+    
+2.  **Reinstall apps in Litium Backoffice:** Delivery and payment apps must be uninstalled and reinstalled in backoffice. This can be done:
+    
+    - **Manually in Backoffice**: Uninstall the app in the backoffice UI and follow the [install steps in the documentation](/cloud/serverless/install-payment-and-delivery-apps).
+        
+    - **Using CLI actions:** See [documentation for Litium platform](/cloud/serverless/public-apps-litium-platform) and execute following actions.
+        
+        ```text
+        uninstall-app
+        install-app
+        configure-app
+        ```
+        
+3.  **Rebuild search indices:** Rebuild product, page, and category indices:
+    
+    - **Manually in Backoffice**, or
+        
+    - **Using CLI action:** See [documentation for Litium platform](/cloud/serverless/public-apps-litium-platform) and execute following actions.
+        
+        ```text
+        rebuild-search-indicies
+        ```
+        
+4.  **Update domains:** Add the correct domains for the Litium Platform app in channels:
+    
+    - **Manually in Backoffice**, or
+        
+    - **Using CLI actions:** See [documentation for Litium platform](/cloud/serverless/public-apps-litium-platform) and execute following actions.
+        
+        ```text
+        remove-domain
+        add-domain
+        ```
+        
+    - For custom public domains, create new domains with [Litium CDN domain app](/cloud/serverless/public-apps-litium-cdn-domain).
+        
+
+### **Step 4: Verify and Finalize**
+
+1.  Test the functionality of all apps in the new environment.
+    
+2.  Verify domain configurations and public URLs.
+    
+3.  Ensure search indices are working correctly.
+    
+
+**Congratulations!** Your new environment is now up and running with the same apps and configurations as your original environment.

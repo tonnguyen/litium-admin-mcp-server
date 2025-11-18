@@ -1,0 +1,73 @@
+---
+title: "Subscription, environment and app"
+description: "This article describes the three different terms, subscription, environment and app."
+---
+This article describes the three different terms, subscription, environment and app.
+
+# Subscription
+
+A subscription is a customer's agreement. The subscriptions are created by Litium and access to a subscription is requested via Litium support. The subscription also defines how many environments that are allowed to be created within the subscription.
+
+Use the list command to view the subscriptions you have access to
+
+```powershell
+litium-cloud subscription list
+```
+
+To view details for a subscription, use the show command
+
+```powershell
+litium-cloud subscription show --subscription your-subscription-id
+```
+
+# Environment
+
+Environments are used to separate different types of environment, example, separate "Production" and "Non-production". A subscription can have multiple environments but only one can be used as production, the rest are non-production.
+
+Use the environment list command to see created environments for a subscription
+
+```powershell
+litium-cloud environment list --subscription
+```
+
+Read more about how to [create an environment](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/create-environment_new).
+
+# App
+
+_Installation of an app are done into the environment._
+
+**What is an app**
+
+There are a number of predefined apps like Litium CDN, payment apps like for example Klarna Payment and Briqpay Payment. But also the Litium Platform itself is an app. There are also Custom Apps like for example "Custom dotnet application" used to deploy your own custom dotnet artifact into a Litium Cloud environment. An app could also exist in many versions, for example the Klarna Payment app has several differnt versions. Some apps also has other constraints, for instance there may only be one Litium Platform app per environment.
+
+**Available apps**
+
+Use the following command to view all currently available apps for you to install in an environment:
+
+```powershell
+litium-cloud marketplace list
+```
+
+To view all versions available for a specific app use the --details flag, for example
+
+```powershell
+litium-cloud marketplace list --filter Klarna --details
+```
+
+**How to install an app**
+
+An app is defined by an app definition, called manifest. The manifest is used to install an app, telling the CLI which app that should be installed, the id of the app and sometimes other paramters that should or could be defined for the specific app. 
+
+To generate a manifest for an app use the app manifest command. For example to generate a manifest file for the Litium CDN app, the following command could be used:
+
+```powershell
+litium-cloud marketplace manifest --app litium-cdn -f litium-cdn.yml
+```
+
+With the use of the created manifest file the app is then installed with the apply-command, for example:
+
+```powershell
+litium-cloud apply -f litium-cdn.yml --subscription your-subscription --environment your-environment
+```
+
+Read more about how to getting started with Litium CDN, Litium Platform and deploying your own code in the [getting started guide](/cloud/serverless/getting-started-with-cloud-cli).

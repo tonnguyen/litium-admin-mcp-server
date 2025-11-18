@@ -1,0 +1,31 @@
+---
+title: "View status and logs"
+description: "Some operations with the Litium Cloud CLI triggers a job. For instance creating, applying or deleting different resources. When a command is executed that triggers a job. The job is added to a queue and the job-id is printed in the console output after the command has been executed. For instance the message could look like this when installing a Litium platform with the apply command:"
+---
+## Status and logs for jobs
+
+Some operations with the Litium Cloud CLI triggers a job. For instance creating, applying or deleting different resources. When a command is executed that triggers a job. The job is added to a queue and the job-id is printed in the console output after the command has been executed. For instance the message could look like this when installing a Litium platform with the apply command:
+
+```powershell
+"Resource subscription/gf432d/environment/test/app/litium is being created. Get status of job with command 'status show --job 439b0ecf1e284dfcbd35d58b952ed6d4'"
+```
+
+Running the command will give you status of the job. It will also show details about related items. In the above example where we install the Litium Platform we have a lot of related items, like Database, redis, dotnet app etc. You can also view status for each related item. Copy the job-id for the related item you want to view status for and use the litium-cloud status show --job-id command again to view status for the related item. 
+
+So lets try with the 
+
+```plain
+litium-cloud status show --job <jobid>
+```
+
+Additionally you can also view logs generated for each job. Note that not all jobs will have anything to show in the logs. To view the logs from a job use the command
+
+```powershell
+litium-cloud status logs --job <jobid>
+```
+
+Tip. To have the console automatically print all new log messages you may add the option --follow
+
+## Application logs
+
+Application logs for running applications are automatically collected and stored in Litium insights. Read more about how to [login, access and work with Litium insights](/cloud/serverless/public-apps-litium-insights).

@@ -1,0 +1,41 @@
+---
+title: "Create Storage backup artifact"
+description: "Media files and folders can be uploaded through the CLI as an storage artifact to be used together with installation of Litium platform app."
+---
+Media files and folders can be uploaded through the CLI as an storage artifact to be used together with installation of Litium platform app.
+
+**Prerequirements**
+
+- [Access to the subscription you want to make the artifact available for](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/getting-started-with-cloud-cli)
+- [CLI installed](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/getting-started-with-cloud-cli)
+
+## Upload artifact
+
+The upload of artifact command is:
+
+```powershell
+litium-cloud artifact create --name "My storage - $(get-date)" --file-path your-path --artifact-type storage
+```
+
+_Note. the "--file-path" should point to the folder where you have the "media"-folder. For instance "/files/"_
+
+## Retention Policy
+
+Artifacts are automatically deleted based on the following conditions:
+
+1.  **Newly Created Artifacts**: If an artifact was created 14 days ago and has not been used since creation, it will be automatically deleted.
+    
+2.  **Unused Artifacts**: If an artifact has not been used for 7 days, it will be automatically deleted.
+    
+
+#### Example 1:
+
+Artifact 1 is created and actively used in an application. After 30 days, Artifact 2 is created and replaces Artifact 1. Seven days after Artifact 2 replaces Artifact 1, Artifact 1 is automatically deleted.
+
+#### Example 2:
+
+Artifact 1 is created but is never used by any application. After 14 days, Artifact 1 is deleted since it was never used.
+
+## Next step
+
+Once the artifact is uploaded the next step is to reference the artifact-id in the yaml-file of the Litium app that should use it, see [install litium platform](/cloud/serverless/install-litium-platform)

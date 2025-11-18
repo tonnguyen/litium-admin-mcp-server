@@ -1,0 +1,236 @@
+---
+title: ".NET web"
+description: ".NET web lets you deploy your own custom .NET web artifact. Possible to connect your file storage, redis cache, ms sql database and other. Example use cases: custom workloads that should be executed from time to time. Custom web page with extended features, like a rate and review app to manage your customers reviews."
+---
+.NET web lets you deploy your own custom .NET web artifact. Possible to connect your file storage, redis cache, ms sql database and other. Example use cases: custom workloads that should be executed from time to time. Custom web page with extended features, like a rate and review app to manage your customers reviews.
+
+## Pricing
+
+.NET web is priced per hour based on selected app plan. [Read more about prices](/cloud/serverless/private-apps-pricing)
+
+## Installation
+
+**Prerequirements**
+
+- [CLI installed](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/getting-started-with-cloud-cli)
+- [Access to the subscription where you want to create a new enviornment](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/getting-started-with-cloud-cli)
+- [Environment created](/cloud/serverless/create-environment-new)
+
+## **Manifest**
+
+Run following command to download file-storage manifest:
+
+```powershell
+litium-cloud marketplace manifest --app dotnet-web -f enter-any-name.yaml
+```
+
+_Note, this will generate a yaml-file in the current folder you are in._
+
+Example manifest file:
+
+```powershell
+kind: app
+resource:
+  id: dotnet-web
+spec:
+  type: dotnet-web
+  version: 1.0.0
+  plan: 
+  # properties:
+  #    #    - name: artifact
+```
+
+## **Manifest configuration**
+
+**Id**: Choose your own unique-per-environment id of the app. Suggested "dotnet-web"
+
+### Artifact
+
+To deploy your code you need to first [create a dotnet artifact](/cloud/serverless/artifacts-create-dotnet-artifact) and refer the artifact id to the property "artifact".
+
+_Note. it is possible to ommit an artifact when installing the app, and instead later use the [deploy command](/cloud/serverless/artifacts-deploy-artifact) to deploy your code artifact to your app._
+
+### SMTP
+
+If your app should send emails, you should configure smtp, read more on the [Install smtp relay app page](/cloud/serverless/public-apps-install-smtp-relay-app)
+
+### App plan
+
+To install a .NET web private app you need to provide a plan when creating the app. Pricing is based on which plan you select. Run following command to view available plans for Nuxt.js web app:
+
+```powershell
+litium-cloud marketplace show --app dotnet-web
+```
+
+Insert the plan-id you want after the "plan:" in the manifest file. 
+
+## **Apply** 
+
+Run following command to install the dotnet-web app to environment:
+
+```powershell
+litium-cloud apply --subscription enter-subscription-id --environment enter-environment-id -f enter-yaml-filename
+```
+
+  
+\- Fetch Subscription-id: litium-cloud subscription list  
+\- Fetch Environment-id: litium-cloud environment list --subscription enter-subscription-id
+
+_Note! After running the apply command, there will be a prompt with a job-id that you can use to [view status and logs of the job](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/view-status-and-logs)._
+
+This will create a .NET web app in the given environment. 
+
+## Configure logging to Litium Insights
+
+**Prerequirements:**
+
+- [Install Litium Insights and give user(s) permission](/cloud/serverless/install-litium-insights)
+
+**Configure logging**
+
+1.  Add nuget package "Litium.Cloud.NLog.Extensions"
+2.  Add a nlog.config file to your project ([example](https://github.com/NLog/NLog.Web/blob/master/examples/ASP.NET%20Core%206/ASP.NET%20Core%206%20NLog%20Example/nlog.config))
+3.  In application startup, typically in program.cs, add configuration for Litium NLog to ensure logs are being sent to Litium Insights,
+
+**Example configuration for** [top-level statement syntax](https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/program-structure/top-level-statements):
+
+```csharp
+using NLog.Web;
+
+NLog.Logger logger = NLogBuilder
+    .ConfigureNLog("nlog.config")
+    .ConfigureLitiumNLog()
+    .GetCurrentClassLogger();
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Logging.ClearProviders();
+builder.Logging.SetMinimumLevel(LogLevel.Trace);
+builder.Logging.AddLitiumNLog();
+```
+
+**Example configuration using structured program:**
+
+```csharp
+using NLog.Web;
+
+namespace Myprojct.Mvc
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            var logger = NLogBuilder
+                .ConfigureNLog("nlog.config")
+                .ConfigureLitiumNLog()
+                .GetCurrentClassLogger();
+
+            try
+            {
+                logger.Info("Application starting");
+                CreateHostBuilder(args).Build().Run();
+            }
+            catch (Exception exception)
+            {
+                logger.Error(exception, "Stopped program because of exception");
+                throw;
+            }
+            finally
+            {
+                // Ensure to flush and stop internal timers/threads before application-exit (Avoid segmentation fault on Linux)
+                NLog.LogManager.Shutdown();
+            }
+        }
+
+        public static IHostBuilder CreateHostBuilder(string[] args)
+        {
+            return Host.CreateDefaultBuilder(args)
+                .ConfigureLogging(logging =>
+                {
+                    logging.ClearProviders();
+                    logging.SetMinimumLevel(LogLevel.Trace);
+                    logging.AddLitiumNLog();
+                })
+                
+                ....
+        }
+```
+
+4\. Use "Microsoft.Extensions.Logging" to write to logs, example
+
+```csharp
+using Microsoft.Extensions.Logging;
+
+namespace MyProject.Example
+{
+
+    internal class MyClass
+    {
+        private readonly ILogger<MyClass> _logger;
+        ...
+
+
+        public MyClass(
+            ILogger<MyClass> logger)
+        {
+            _logger = logger;
+            ...
+        }
+        
+        public void MyMethod()
+        {
+            _logger.LogTrace("MyMethod was called");
+        }
+        
+        ...
+    }
+}
+```
+
+## Connect MS SQL app
+
+To be able to access your private MS SQL database from the .NET web app you should add configuration in your manifest file. 
+
+Example configuration to connect a MS SQL app with id "privatedb" to your .NET web app, note in this example the environment variable is named "connectionstrings\_\_defaultconnection", this woule replace any value in appsettings.json in the section "ConnectionStrings->DefaultConnection". 
+
+```powershell
+configurations:
+    - name: ConnectionStrings__DefaultConnection
+      valueFrom: 
+        appRef:
+          name: privatedb
+          key: connection_string
+```
+
+## Connect File storage app
+
+To be able to access your file storage app from within your .NET web app (e.g. accessing integration files from the storage app) you need to configure your .NET web app's manifest to access your storage app. 
+
+Add the following section to your dotnet app manifest to connect a directory "integration" to a file storage app with id "file-storage" and path integration-directory to your Litium app. 
+
+```powershell
+  configurations:
+    - name: integration
+      type: storage
+      subPath: integration-directory
+      valueFrom:
+        appRef:
+          name: file-storage
+          key: storage_volume
+```
+
+This will then be available in the folder "app\_storage", so for the above example the files would be accessed through the path "/app\_storage/integration" (ant the actual directory on the storage app would be /integration-directory).
+
+## Actions
+
+_For a detailed list about which actions that are available use the following command:_
+
+```powershell
+litium-cloud marketplace show --app dotnet-web --details --version add-version-here
+```
+
+### Console output
+
+Gets console output from app in container. Normally those logs are sent to Litium insights, but if your app doesn't start issues may be printed to the console but never reach Litium insights because app hasn't started.
+
+See the guide "[Output console logs](/cloud/serverless/output-console-logs)" of how to perform this action.

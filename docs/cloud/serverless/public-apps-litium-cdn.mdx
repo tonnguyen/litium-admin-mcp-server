@@ -1,0 +1,27 @@
+---
+title: "Litium CDN"
+description: "Litium CDN manages all incoming traffic to your apps. It should be the first app installed in an environment, as it automatically configures domains and access when other apps like Litium platform or Litium storefront are added."
+---
+Litium CDN manages all incoming traffic to your apps. It should be the first app installed in an environment, as it automatically configures domains and access when other apps like Litium platform or Litium storefront are added.
+
+Litium CDN uses Fastly as CDN. Apps that has a public\_domain property, such as Litium platform or Litium storefront, automatically gets an public\_domain assigned when created. If Litium CDN app is installed when apps that has public\_domain property are installed that domain is also configured in Litium CDN automatically. Without Litium CDN you won't be able to access your app through the public domain.
+
+## Install
+
+Maximum one Litium CDN app may be installed per environment. Read more about how to install Litium CDN app in the [getting started section](/cloud/serverless/install-litium-cdn). 
+
+## Logs
+
+For logs during deploys/install/update you find those with the [status logs command](/cloud/serverless/view-status-and-logs).
+
+## Image Optimizer
+
+Image Optimizer (IO) is automatically activated for LCC. [Read more about IO](https://www.fastly.com/documentation/reference/io/).
+
+## Find system generated public URLs for your apps
+
+Use the "app show" command and look for the property "public\_domain\_name" in the section Exposes -> Value
+
+## Add custom domain
+
+To add your own custom domain to an app, install the app [Litium CDN domain](/cloud/serverless/public-apps-litium-cdn-domain) to add custom domain(s).

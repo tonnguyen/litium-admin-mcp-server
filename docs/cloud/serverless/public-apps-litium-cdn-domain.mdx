@@ -1,0 +1,83 @@
+---
+title: "Litium CDN domain"
+description: "The Litium CDN domain app is used to add custom defined domain name for Litium CDN. One domain per app, so to add multiple domains, install multiple Litium CDN domain apps."
+---
+The Litium CDN domain app is used to add custom defined domain name for Litium CDN. One domain per app, so to add multiple domains, install multiple Litium CDN domain apps.
+
+## Install
+
+**Prerequirements**
+
+- [CLI installed](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/getting-started-with-cloud-cli)
+- [Environment created](/cloud/serverless/create-environment-new)
+- [Litium CDN app installed](/cloud/serverless/public-apps-litium-cdn)
+
+**Manifest**
+
+Run following command to download litium-cdn-domain manifest:
+
+```powershell
+litium-cloud marketplace manifest --app litium-cdn-domain -f enter-any-name.yaml
+```
+
+_Note, this will generate a yaml-file in the current folder you are in._
+
+Example manifest file:
+
+```powershell
+kind: app
+resource:
+  id: litium-cdn-domain
+spec:
+  type: litium-cdn-domain
+  version: 1.0.0
+  properties:
+    # The cluster domain name that public domain should use.
+    - name: cluster_domain
+    # The public domain name.
+    - name: public_domain
+```
+
+**Manifest configuration**
+
+Id: Choose your own unique-per-environment id of the app. Suggested "litium-cdn-domain"
+
+Properties:
+
+cluster\_domain: The internal domain that the public domain should point to. This should reference an existing apps exposed property "internal\_domain\_name", for instance, if you have an app with id "nextjs-web" that you want to point to, refer to that like this:
+
+```powershell
+    - name: cluster_domain
+      valueFrom:
+        appRef:
+          name: nextjs-web
+          key: internal_domain_name
+    - name: public_domain
+      value: mydomain.com
+```
+
+**Apply** 
+
+Run following command to install the litium-cdn-domain app to environment:
+
+```powershell
+litium-cloud apply --subscription enter-subscription-id --environment enter-environment-id -f enter-yaml-filename
+```
+
+  
+\- Fetch Subscription-id: litium-cloud subscription list  
+\- Fetch Environment-id: litium-cloud environment list --subscription enter-subscription-id
+
+_Note! After running the apply command, there will be a prompt with a job-id that you can use to [view status and logs of the job](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/view-status-and-logs)._
+
+This will create a Litium CDN domain app in the given environment, which will add the domain to Litium CDN. 
+
+_**Note**. this does not add any certificate for the domain, so if it is a new domain where certificate hasn't already been added by Litium support team, you need to contact support for help with adding certificate. You should also ask Litium support about how to setup DNS for your custom domain._
+
+_**Note.** to change properties you have to delete the app and install it again with your updated settings._
+
+_**Note**. one domain per app - so to add multiple, install multiple apps (with different id's)_
+
+## Logs
+
+For logs during deploys/install/update you find those with the [status logs command](/cloud/serverless/view-status-and-logs).

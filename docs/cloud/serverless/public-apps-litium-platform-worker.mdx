@@ -1,0 +1,20 @@
+---
+title: "Worker"
+description: "To optimize performance in production environments, Litium background jobs now run automatically on a dedicated Worker Node. This setup reduces the load on public nodes that serves web requests, enhancing the user experience."
+---
+To optimize performance in production environments, Litium background jobs now run automatically on a dedicated Worker Node. This setup reduces the load on public nodes that serves web requests, enhancing the user experience.
+
+This feature is included at **no extra cost** in Litium Serverless Cloud, and is activated by default in environments marked as Production. _Note that this does not replace the benefits of [private apps](/cloud/serverless/private-apps) to integrate your custom workload such as integrations._
+
+## Requirements
+
+- Environment is marked as production
+- Litium version is 8.16.0 or higher
+
+## What is a background job?
+
+Following workloads will be executed automatically on the worker node:
+
+- Scheduled jobs that has demand set as "worker" or execution restriction set as DisallowConcurrentDistributedExecution. [Read more about job scheduler](/platform/architecture/job-scheduler).
+- [ERP connect API](/api-reference/connect-erp-api)
+- Backoffice background tasks - such as Excel export/import.

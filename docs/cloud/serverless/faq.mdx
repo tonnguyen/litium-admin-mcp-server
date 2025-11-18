@@ -1,0 +1,70 @@
+---
+title: FAQ
+description: To restart an app you use the "app restart" command. This will trigger a rolling restart of your app.
+---
+
+# FAQ
+
+## How can I restart my app?
+
+To restart an app you use the "app restart" command. This will trigger a rolling restart of your app.
+
+## Issue when logging in - "Your connection is not private"
+
+If you get SSL errors like "Your connection is not private” when trying to log in it may be because you have a local hsts setup for localhost - this could for instance be caused by running a local aspnet core website with incorrect settings.
+
+The solution is to remove the local hsts rule for localhost. For chrome, do this:
+
+1.  Search for chrome://net-internals/#hsts in your address bar.
+2.  Locate the Query HSTS/PKP domain field and type "localhost".
+3.  Hit the button "Query"
+4.  If you see results then it means you need to remove your local security policies for localhost, proceed to step 5
+5.  Finally, enter the domain name in the Delete domain security policies and simply press the Delete button.
+6.  Login should now work.
+
+See [https://www.ssl2buy.com/wiki/how-to-clear-hsts-settings-on-chrome-firefox-and-ie-browsers](https://www.ssl2buy.com/wiki/how-to-clear-hsts-settings-on-chrome-firefox-and-ie-browsers "https://www.ssl2buy.com/wiki/how-to-clear-hsts-settings-on-chrome-firefox-and-ie-browsers") for instructions for other browsers.
+
+## Issue with "File not found" from logs
+
+Litium serverless cloud arhitecture is built on \*nix. Which means that file references is case sensitive. For example if you have a folder structure with capital letters like "Folder/SubFolder/myfile.config" you also need to specify the path in code with the same case.
+
+## Issue with CLI update
+
+If you are getting below error when trying to update/install the CLI it may be because the username and password for the litium nuget feed is incorrect. To resolve that, remove the nuget feed with dotnet nuget remove command and then add it back with `dotnet nuget add source [https://nuget.litium.com/nuget/](https://nuget.litium.com/nuget/)` `-n` `Litium` `-u` `username` `-p` `password`
+
+error NU1301: Failed to  
+retrieve information about 'litium.cloud.cli' from remote source '[https://nuget.litium.com/nuget/FindPackagesById()?id](https://nuget.litium.com/nuget/FindPackagesById\(\)?id "https://nuget.litium.com/nuget/findpackagesbyid()?id")  
+\='litium.cloud.cli'&semVerLevel=2.0.0'.  
+Tool 'litium.cloud.cli' failed to update due to the following:  
+The tool package could not be restored. 
+
+## How to change Redis prefix on my Litium app?
+
+If you want to change Redis prefix on your Litium app you modify your manifest.yaml file for your litium app the property is called "redis\_prefix". The value will serve as the new prefix. To apply the changes you perform the "apply" command that will trigger an update on the app. 
+
+_**Important!** Changing Redis prefix will wipe all current data stored in Redis, including customer current carts. Changing Redis prefix should only be used as a last resort if you have a mismatch between your Redis and database._ 
+
+_**Tip:** To get your current yaml-file use the command litium-cloud app show -o manifest , and add the redis\_prefix property according to the example below._
+
+Example Yaml:
+
+```powershell
+kind: app
+resource:
+  id: ...
+spec:
+  type: litium-platform
+  version: ...
+  properties:
+    - name: redis_prefix
+      value: rev2
+... rest of your properties and artifact-references
+```
+
+## How to change Elastic prefix on my Litium app?
+
+To generate a new index name go to Settings->Litium Search->Indices in Backoffice and click on "Rebuild index offline", this creates a new index name and the old one is removed. The Elastic prefix is therefore not possible to configure in appsettings.json in Serverless Cloud, since it's not needed.
+
+## What is the limit of upload size (body size)?
+
+Limits of file upload size (body size) is based on best practice to avoid risk of attacks etc. Therefore the current limit of upload size is 100 mb. If you have larger files than that you should split your file to chunks and upload one at the time.

@@ -1,0 +1,181 @@
+---
+title: "Execute SQL script"
+description: "For both Litium platform apps and private SQL apps, you can execute SQL scripts using the execute-database-script action."
+---
+For both Litium platform apps and private SQL apps, you can execute SQL scripts using the execute-database-script action.
+
+### Prerequisites 
+
+- **For Litium platform:** The role `apps/litium-platform/database-script-execution` must be assigned to the user for the app you wish to perform this action on.
+- **For private MS SQL apps:** The role `apps/mssql-db/script-execution` must be assigned to the user for the app you wish to perform this action on.
+
+### Note
+
+Use caution when executing SQL scripts, especially for updates, as these may cause outdated cache data. For Litium platform apps, ensure that the cache is refreshed programmatically, or update the Redis prefix to clear all Redis cache. You are responsible for the scripts you execute.
+
+### **How to execute**
+
+Use the `execute-database-script` action. The following properties are available to control how the output is presented and how the script is added:
+
+- `--property "script=some script"` (required): This contains the SQL script to execute. You can either:
+    - Add the script as a string, e.g., `--property "script=SELECT TOP 10 * FROM Sales.Orders"`, or
+    - Refer to a file containing the script using the `@file` syntax, e.g., `--property "script=@myscript.sql"`. This will load the file content as the parameter value.
+- `--property "file_output=true/false"` (optional): The default value is `false`, meaning the output will be available in the logs by using the `status logs` command. If set to `true`, the output will be stored as an artifact of type `script-result`, which can be downloaded like any other artifact.
+
+### Example - Execute inline script and view result in logs
+
+**1\. Execute script** 
+
+```powershell
+litium-cloud app action --action execute-database-script --app INSERT-APP-ID --property "script=select top 1 * from Products.Variant"
+```
+
+This will generate a job with a unique job ID.
+
+**2\. View the status of the job**
+
+```powershell
+litium-cloud status show --job INSERT-JOB-ID
+```
+
+Example output:
+
+```csharp
+Status: completed
+Action: execute-database-script
+Created by: hidden@litium.com
+Insights trace id: hidden
+
+Details
+=======
+    Status: succeeded
+    Action: execute-database-script
+    Job id: 088ehidden
+    Document id: subscriptions/hidden/environments/hidden/apps/litium
+    Created: 2024-09-17 14:00:08
+    Started: 2024-09-17 14:00:08
+    Completed: 2024-09-17 14:00:26
+
+    Properties
+    ==========
+        Name        Ref app      Ref name      Ref key      Value
+        ----------------------------------------------------------------------------------------
+        script                                              SELECT TOP 1 * FROM Products.Variant
+
+    Related items
+    =============
+        Status: succeeded
+        Action: execute
+        Job id: 69a66hidden
+        Document id: subscriptions/hidden/environments/hidden/apps/litium/resources/database
+        Created: 2024-09-17 14:00:08
+        Started: 2024-09-17 14:00:18
+        Completed: 2024-09-17 14:00:26
+```
+
+**3\. View logs of related "execute" item to show results**
+
+```powershell
+litium-cloud status logs --job 69a66hidden
+```
+
+Example output
+
+```csharp
+2024-09-17 14:00:25.9525 | Executing script
+2024-09-17 14:00:26.3108 | SELECT TOP 1 * FROM Products.Variant
+2024-09-17 14:00:26.3336 |
+2024-09-17 14:00:26.3341 | SystemId                             BaseProductSystemId                  Id
+                    SortIndex   UnitOfMeasurementSystemId
+2024-09-17 14:00:26.3343 | ------------------------------------ ------------------------------------ ---------------------------------------------------------------------------------------------------- ----------- ------------------------------------
+2024-09-17 14:00:26.3344 | 08F116C6-5033-4C77-93FF-005D0BB6C02C 7F7D0597-D389-4F97-BC8D-3DDC66967C7F logoturtleneck-l-002-638618290833254211
+                     2147483647 12C18653-32EB-46E6-96DA-3E595734E290
+2024-09-17 14:00:26.3350 |
+2024-09-17 14:00:26.3355 | (1 rows affected)
+2024-09-17 14:00:26.3358 | Completed
+```
+
+### Example - Execute script from referred file and view result as artifact
+
+**1\. Execute script** 
+
+```powershell
+litium-cloud app action --action execute-database-script --app INSERT-APP-ID --property "script=@select.sql" --property "file_output=true"
+```
+
+This will generate a job with a unique job ID.
+
+**2\. View the status of the job**
+
+```powershell
+litium-cloud status show --job INSERT-JOB-ID
+```
+
+Example output:
+
+```csharp
+Status: completed
+Action: execute-database-script
+Created by: hidden@litium.com
+Insights trace id: hidden
+
+Details
+=======
+    Status: succeeded
+    Action: execute-database-script
+    Job id: da7670ahidden
+    Document id: subscriptions/hidden/environments/hidden/apps/litium
+    Created: 2024-09-23 10:38:40
+    Started: 2024-09-23 10:38:41
+    Completed: 2024-09-23 10:38:51
+
+    Properties
+    ==========
+        Name             Ref app      Ref name      Ref key      Value
+        ---------------------------------------------------------------------------------------------
+        file_output                                              true
+        script                                                   select top 1 * from Products.Variant
+
+    Related items
+    =============
+        Status: succeeded
+        Action: execute
+        Job id: 0a8acahidden
+        Document id: subscriptions/hidden/environments/hidden/apps/litium/resources/database
+        Created: 2024-09-23 10:38:41
+        Started: 2024-09-23 10:38:47
+        Completed: 2024-09-23 10:38:51
+```
+
+**3\. View logs of related "execute" item to show results**
+
+```powershell
+litium-cloud status logs --job 0a8acahidden
+```
+
+Example output
+
+```csharp
+2024-09-23 10:38:51.5029 | Executing script into artifact 0a8acahidden
+2024-09-23 10:38:51.6640 | Completed
+```
+
+**4\. Download artifact to view result**
+
+```powershell
+litium-cloud artifact download --artifact 0a8acahidden -f result.txt
+```
+
+**5\. Open downloaded file result.txt to view result**
+
+Example output
+
+```csharp
+select top 1 * from Products.Variant
+
+SystemId                             BaseProductSystemId                  Id                                                                                                   SortIndex   UnitOfMeasurementSystemId           
+------------------------------------ ------------------------------------ ---------------------------------------------------------------------------------------------------- ----------- ------------------------------------
+08F116C6-5033-4C77-93FF-005D0BB6C02C 7F7D0597-D389-4F97-BC8D-3DDC66967C7F logoturtleneck-l-002-638618290833254211                                                               2147483647 12C18653-32EB-46E6-96DA-3E595734E290
+
+(1 rows affected)
+```

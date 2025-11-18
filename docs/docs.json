@@ -298,6 +298,93 @@
         ]
       },
       {
+        "tab": "Cloud",
+        "groups": [
+          {
+            "group": "Get started",
+            "pages": [
+              "cloud/serverless/overview",
+              "cloud/serverless/getting-started-with-cloud-cli",
+              "cloud/serverless/create-litium-account",
+              "cloud/serverless/create-environment-new",
+              "cloud/serverless/install-litium-platform",
+              "cloud/serverless/install-litium-cdn",
+              "cloud/serverless/install-litium-insights",
+              "cloud/serverless/install-nextjs-storefront-app",
+              "cloud/serverless/install-payment-and-delivery-apps",
+              "cloud/serverless/subscription-environment-and-app",
+              "cloud/serverless/faq"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "cloud/serverless/access",
+              "cloud/serverless/access-access-control",
+              "cloud/serverless/access-group",
+              "cloud/serverless/automated-deployments",
+              "cloud/serverless/app-configuration-and-secrets",
+              {
+                "group": "Artifacts",
+                "pages": [
+                  "cloud/serverless/artifacts",
+                  "cloud/serverless/artifacts-create-sql-backup-artifact",
+                  "cloud/serverless/artifacts-create-storage-backup-artifact",
+                  "cloud/serverless/artifacts-deploy-artifact"
+                ]
+              },
+              "cloud/serverless/copy-environment",
+              "cloud/serverless/create-database-backup",
+              "cloud/serverless/create-storage-backup",
+              "cloud/serverless/execute-sql-script",
+              "cloud/serverless/migrate-existing-litium-site-to-serverless-cloud",
+              "cloud/serverless/output-console-logs",
+              "cloud/serverless/private-storefront-app",
+              "cloud/serverless/service-principal",
+              "cloud/serverless/tips-and-tricks",
+              "cloud/serverless/view-status-and-logs"
+            ]
+          },
+          {
+            "group": "Apps",
+            "pages": [
+              {
+                "group": "Public apps",
+                "pages": [
+                  "cloud/serverless/public-apps",
+                  "cloud/serverless/public-apps-litium-cdn",
+                  "cloud/serverless/public-apps-litium-cdn-domain",
+                  "cloud/serverless/public-apps-litium-insights",
+                  "cloud/serverless/public-apps-litium-platform-worker"
+                ]
+              },
+              {
+                "group": "Private apps",
+                "pages": [
+                  "cloud/serverless/private-apps",
+                  "cloud/serverless/private-apps-dotnet-web",
+                  "cloud/serverless/private-apps-file-storage",
+                  "cloud/serverless/private-apps-headless-chrome",
+                  "cloud/serverless/private-apps-ms-sql",
+                  "cloud/serverless/private-apps-nextjs-web",
+                  "cloud/serverless/private-apps-nodejs-web",
+                  "cloud/serverless/private-apps-nuxt-js-web",
+                  "cloud/serverless/private-apps-pricing",
+                  "cloud/serverless/private-apps-redis-cache"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Change log",
+            "pages": [
+              "cloud/serverless/release-notes",
+              "cloud/serverless/release-notes-cli"
+            ]
+          }
+        ]
+      },
+      {
         "tab": "APIs",
         "pages": [
           "apis/overview"

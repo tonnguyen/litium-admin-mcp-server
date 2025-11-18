@@ -1,0 +1,96 @@
+---
+title: "Next.js Web"
+description: "Host your private Next.js web app if you for example want additional storefronts connected to your Litium app."
+---
+Host your private Next.js web app if you for example want additional storefronts connected to your Litium app.
+
+## Pricing
+
+Next.js Web is priced per hour based on selected app plan. [Read more about prices](/cloud/serverless/private-apps-pricing)
+
+## Installation
+
+**Prerequirements**
+
+- [CLI installed](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/getting-started-with-cloud-cli)
+- [Access to the subscription where you want to create a new enviornment](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/getting-started-with-cloud-cli)
+- [Environment created](/cloud/serverless/create-environment-new)
+
+## **Manifest**
+
+Run following command to download file-storage manifest:
+
+```powershell
+litium-cloud marketplace manifest --app nextjs-web -f enter-any-name.yaml
+```
+
+_Note, this will generate a yaml-file in the current folder you are in._
+
+Example manifest file:
+
+```powershell
+kind: app
+resource:
+  id: nextjs-web
+spec:
+  type: nextjs-web
+  version: 1.0.0
+  # plan: Insert plan-id. Get available plans with command 'litium-cloud marketplace show --app enter-app-id'
+  # properties:
+  #   - name: artifact
+  #     value: artifacts/12345678901234567890123456789012
+```
+
+## **Manifest configuration**
+
+**Id**: Choose your own unique-per-environment id of the app. Suggested "nextjs-web"
+
+### Artifact
+
+To deploy your code you need to first [create a next.js artifact](/cloud/serverless/artifacts-create-nextjs-artifact) and refer the artifact id to the property "artifact".
+
+_Note. it is possible to ommit an artifact when installing the app, and instead later use the [deploy command](/cloud/serverless/artifacts-deploy-artifact) to deploy your code artifact to your app._
+
+### SMTP
+
+If your app should send emails, you should configure smtp, read more on the [Install smtp relay app page](/cloud/serverless/public-apps-install-smtp-relay-app)
+
+### App plan
+
+To install a Next.js web private app you need to provide a plan when creating the app. Pricing is based on which plan you select. Run following command to view available plans for Next.js web app:
+
+```powershell
+litium-cloud marketplace show --app nextjs-web
+```
+
+Insert the plan-id you want after the "plan:" in the manifest file. 
+
+## **Apply** 
+
+Run following command to install the nextjs-web app to environment:
+
+```powershell
+litium-cloud apply --subscription enter-subscription-id --environment enter-environment-id -f enter-yaml-filename
+```
+
+  
+\- Fetch Subscription-id: litium-cloud subscription list  
+\- Fetch Environment-id: litium-cloud environment list --subscription enter-subscription-id
+
+_Note! After running the apply command, there will be a prompt with a job-id that you can use to [view status and logs of the job](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/view-status-and-logs)._
+
+This will create a Next.js web app in the given environment. 
+
+## Actions
+
+_For a detailed list about which actions that are available use the following command:_
+
+```powershell
+litium-cloud marketplace show --app nextjs-web --details --version add-version-here
+```
+
+### Console output
+
+Gets console output from app in container. Normally those logs are sent to Litium insights, but if your app doesn't start issues may be printed to the console but never reach Litium insights because app hasn't started.
+
+See the guide "[Output console logs](/cloud/serverless/output-console-logs)" of how to perform this action.

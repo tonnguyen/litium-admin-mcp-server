@@ -1,0 +1,419 @@
+---
+title: "Automated deployments"
+description: "The Cloud CLI enables you to automate your deployments. This guide goes through the steps you should take to automate your deployments for a Litium platform app and a nextjs storefront app. With Azure devops pipeline examples."
+---
+The Cloud CLI enables you to automate your deployments. This guide goes through the steps you should take to automate your deployments for a Litium platform app and a nextjs storefront app. With Azure devops pipeline examples.
+
+**Prerequirements**
+
+- [CLI installed](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/getting-started-with-cloud-cli)
+- [Access to the subscription](/cloud/serverless/getting-started-with-cloud-cli)
+- [Environment created](/cloud/serverless/create-environment-new)
+- [Litium platform app installed](/cloud/serverless/install-litium-platform)
+
+## Authentication
+
+For your pipeline to be able to execute actions in the Cloud CLI it needs to be able to authenticate. To handle authentication you should use a Service principal. Rea more about how to [Create a service principal](/cloud/serverless/service-principal).
+
+When [creating your service principal](/cloud/serverless/service-principal) you got a certificate file downloaded. This file should be uploaded so that your pipeline can access the file. Make sure to store the file in a secure way. In Azure Devops you should upload this file as a "secure file" in Pipelines->Library.
+
+To authenticate with your service principal you use the command auth login with flag --service-principal set together with the path to your certificate. Example:
+
+```powershell
+litium-cloud auth login --service-principal --certificate $certPath --username myuser@cloud
+```
+
+**Access control**
+
+It's good practice to not give more access than needed to your service principal. For the service user to be able to create artifacts and execute deploys the below roles is needed for the subscription, environment and app resource:
+
+- **subscription/reader** - example `command litium-cloud subscription access-control add --email` \[insert-service-principal-email\] `--role subscription/reader --sub [insert-subscription-id]`
+- **environment/reader** - example command `litium-cloud environment access-control add --email` \[insert-service-principal-email\] `--role environment/reader --sub [insert-subscription-id] --env [insert-environment-id]`
+- **appresource/writer** - example command `litium-cloud app access-control add --email` \[insert-service-principal-email\] `--role appresource/writer --sub [insert-subscription-id] --env [insert-environment-id] --app [insert-app-id]`
+- **artifact/creator** - this makes it possible for the service user to create artifacts. The service user will also be able to read the artifacts that it has created. example command - `litium-cloud subscription access-control add --role artifact/creator --email [insert-service-principal-email] --sub [insert-subscription-id]`
+
+_Note. as system/owner you automatically get all above permissions, but its good practice for especially service users to only give necessary access._
+
+## Deploy Litium Platform in Azure Devops Pipeline
+
+The steps you should take to deploy your Litium Platform in your pipeline are:
+
+1.  Publish your artifact
+2.  Install litium.cloud.cli tool
+3.  Download certificate
+4.  Authenticate
+5.  Create artifact
+6.  Trigger deployment
+
+Example yaml-steps for Azure devops pipeline:
+
+**1\. Publish your artifact(s)**
+
+_Note. Before this step you should build the client projects and authenticate the [litium nuget feed](/platform/get-started/litium-packages)._
+
+```powershell
+- task: DotNetCoreCLI@2
+  displayName: Publish
+  inputs:
+    command: "publish"
+    projects: "Src/Litium.Accelerator.Mvc/Litium.Accelerator.Mvc.csproj"
+    arguments: "-c Release -o builds/publish -f net8.0 -a x64 --os linux"
+    workingDirectory: "$(Build.SourcesDirectory)"
+    zipAfterPublish: false
+```
+
+**2\. Install litium.cloud.cli tool**
+
+```powershell
+ - task: DotNetCoreCLI@2
+   displayName: "Install litium.cloud.cli tool"
+   inputs:
+     command: custom
+     custom: tool
+     arguments: "update -g litium.cloud.cli --no-cache"
+```
+
+**3\. Download certificate**
+
+```powershell
+- task: DownloadSecureFile@1
+  name: cert
+  displayName: "Download secure file"
+  inputs:
+    secureFile: "cert.pem"
+```
+
+**4\. Authenticate, create artifact and trigger deploy**
+
+Start by adding variables to the variable section in the yaml-file, those will be used in the below powershell-script:
+
+```powershell
+variables:
+  - name: user
+    value: your-service-principal-user-email
+  - name: subscription
+    value: your-subscription-id
+  - name: environment
+    value: your-environment-od
+  - name: app
+    value: your-app-id
+```
+
+Powershell step:
+
+```powershell
+- pwsh: |
+    # Authenticate using the service principal and the downloaded secure file
+    $certPath = "$(cert.secureFilePath)"
+    Write-Host "litium-cloud auth login --service-principal --certificate $certPath --username $(user)"
+    litium-cloud auth login --service-principal --certificate $certPath --username $(user)
+
+    # Initialize retry count
+    $artifactRetryCount = 0
+    $artifactMaxRetries = 500
+    $deployRetryCount = 0
+    $deployMaxRetries = 500
+ 
+    # Execute the 'litium-cloud artifact create' command
+    $filePath = "$(Build.SourcesDirectory)/builds/publish/Litium.Accelerator.Mvc/"
+    Write-Host "litium-cloud artifact create --subscription $(subscription) --artifact-type dotnet --file-path $filePath --no-progress -o json | ConvertFrom-Json"
+    $createOutput = litium-cloud artifact create --subscription $(subscription) --artifact-type dotnet --file-path $filePath --no-progress -o json
+    Write-Host "$createOutput"
+    $createOutput = $createOutput | ConvertFrom-Json
+ 
+    # Extract 'jobId' and 'artifactId'
+    $jobId = $createOutput.jobId
+    $artifactId = $createOutput.data.artifactId
+ 
+    # Output the jobId and artifactId
+    Write-Host "jobId: $jobId"
+    Write-Host "artifactId: $artifactId"
+ 
+    do {
+        # Execute the 'litium-cloud artifact show' command
+        Write-Host "litium-cloud artifact show --artifact $artifactId -o json | ConvertFrom-Json"
+        $statusOutput = litium-cloud artifact show --artifact $artifactId -o json
+        Write-Host $statusOutput
+        $statusOutput = $statusOutput | ConvertFrom-Json
+ 
+        # Check if 'status' for artifact is set to "Ready"
+        if ($statusOutput.status -eq "Ready" ) {
+            # Artifact is ready, proceed
+            break
+        } elseif ($statusOutput.status -eq "Failed" ) {
+            # Artifact create failed
+            Write-Host "Artifact create failed."
+            Write-Host "Status:"
+            Write-Host $statusOutput.status
+            $logs = litium-cloud status logs --job $artifactId
+            Write-Host $logs
+            exit 1            
+        } elseif ($artifactRetryCount -ge $artifactMaxRetries) {
+            # Max retries reached
+            Write-Host "Max retries reached. The job has not completed."
+            Write-Host "Status:"
+            Write-Host $statusOutput.status
+            Write-Host "Retry count: $artifactRetryCount of maximum allowed retries: $artifactMaxRetries"
+            exit 1
+        } else {
+            # Retry logic
+            $artifactRetryCount++
+            Write-Host "Retrying... Attempt: $artifactRetryCount of $artifactMaxRetries"
+            Start-Sleep -Seconds 5
+        }
+    } while ($artifactMaxRetries -ge $artifactRetryCount)
+    
+    # Artifact is ready, start deploy
+    Write-Host "litium-cloud app deploy --subscription $(subscription) --environment $(environment) --app $(app) --artifact $artifactId -o json"
+    $createOutput = litium-cloud app deploy --subscription $(subscription) --environment $(environment) --app $(app) --artifact $artifactId -o json
+    
+    Write-Host "$createOutput"
+    $createOutput = $createOutput | ConvertFrom-Json
+ 
+    # Extract 'jobId'
+    $jobId = $createOutput.jobId
+    
+    do {
+        Write-Host "litium-cloud status show --job $jobId -o json | ConvertFrom-Json"
+        $statusOutput = litium-cloud status show --job $jobId -o json
+        Write-Host $statusOutput
+        $statusOutput = $statusOutput | ConvertFrom-Json
+        $job = $statusOutput.items[0];
+ 
+        # Check if 'completedAt' is set and 'failed' is false
+        if ($statusOutput.completedAt -and !$job.failed ) {
+            Write-Host "Deploy finished.";
+            exit 0;
+        } elseif ( $job.failed ) {
+            # Artifact create failed
+            Write-Host "Deploy failed."
+            exit 1            
+        } elseif ($deployRetryCount -ge $deployMaxRetries) {
+            # Max retries reached
+            Write-Host "Max retries reached. The job has not completed."
+            Write-Host "Status:"
+            Write-Host $statusOutput.status
+            Write-Host "Retry count: $deployRetryCount of maximum allowed retries: $deployMaxRetries"
+            exit 1
+        } else {
+            # Retry logic
+            $deployRetryCount++
+            Write-Host "Retrying... Attempt: $deployRetryCount of $deployMaxRetries"
+            Start-Sleep -Seconds 5
+        }
+    } while ($deployMaxRetries -ge $deployRetryCount)
+  displayName: "Authenticate, upload artifact and deploy"
+  env:
+    Build_SourcesDirectory: $(Build.SourcesDirectory)
+```
+
+## Deploy React storefront app in Azure Devops Pipeline
+
+The steps you should take to deploy your React storefront app in your pipeline are:
+
+1.  Install litium.cloud.cli tool
+2.  Download certificate
+3.  Build nextjs React storefront app
+4.  Authenticate
+5.  Create artifact
+6.  Trigger deployment
+
+Example yaml-steps for Azure devops pipeline:
+
+**1\. Install litium.cloud.cli tool**
+
+_Note. Before this step you should add and authenticate the [litium nuget feed](/platform/get-started/litium-packages)._
+
+```powershell
+ - task: DotNetCoreCLI@2
+   displayName: "Install litium.cloud.cli tool"
+   inputs:
+     command: custom
+     custom: tool
+     arguments: "update -g litium.cloud.cli --no-cache --version 1.0.0-rc-*"
+```
+
+**2\. Download certificate**
+
+```powershell
+- task: DownloadSecureFile@1
+  name: cert
+  displayName: "Download secure file"
+  inputs:
+    secureFile: "cert.pem"
+```
+
+**3\. Build nextjs React storefront app**
+
+_Note. this is example only, node version etc may differ depending on version of React storefront._ 
+
+```powershell
+  # 1. Install specific version of Node.js
+  - task: NodeTool@0
+    displayName: 'Install Nodejs 18.18.2'
+    inputs:
+      versionSource: 'spec'
+      versionSpec: '18.18.2'
+```
+
+```powershell
+  # 2. Restore packages from cache
+  - task: Cache@2
+    displayName: 'Cache NPM packages'
+    inputs:
+      key: 'npm | "$(Agent.OS)" | package-lock.json'
+      restoreKeys: |
+        npm | "$(Agent.OS)"
+      path: '$(Pipeline.Workspace)/.npm'
+```
+
+```powershell
+  # 3. Install packages
+  - script: 'npm ci'
+    displayName: 'Install npm packages'
+```
+
+```powershell
+  # 4. Build project
+  - script: 'npm run build'
+    displayName: 'Build Nextjs React Storefront'
+```
+
+```powershell
+  # 5. Copy files to /builds/publish folder, excluding folders/files that isn't needed.
+  - task: CopyFiles@2
+    inputs:
+      sourceFolder: '$(Build.SourcesDirectory)'
+      contents: |
+        **
+        !.git/**
+        !.next/**
+        !.azure/**
+        !.vscode/**
+        !node_modules/**
+      targetFolder: '$(Build.SourcesDirectory)/builds/publish'
+```
+
+**4\. Authenticate, create artifact and trigger deploy**
+
+Start by adding variables to the variable section in the yaml-file, those will be used in the below powershell-script:
+
+```powershell
+variables:
+  - name: user
+    value: your-service-principal-user-email
+  - name: subscription
+    value: your-subscription-id
+  - name: environment
+    value: your-environment-od
+  - name: app
+    value: your-app-id
+```
+
+Powershell step:
+
+```powershell
+- pwsh: |
+    # Authenticate using the service principal and the downloaded secure file
+    $certPath = "$(cert.secureFilePath)"
+    Write-Host "litium-cloud auth login --service-principal --certificate $certPath --username $(user)"
+    litium-cloud auth login --service-principal --certificate $certPath --username $(user)
+
+    # Initialize retry count
+    $artifactRetryCount = 0
+    $artifactMaxRetries = 500
+    $deployRetryCount = 0
+    $deployMaxRetries = 500
+ 
+    # Execute the 'litium-cloud artifact create' command
+    $filePath = "$(Build.SourcesDirectory)/builds/publish"
+    Write-Host "litium-cloud artifact create --subscription $(subscription) --artifact-type nextjs --file-path $filePath --no-progress -o json | ConvertFrom-Json"
+    $createOutput = litium-cloud artifact create --subscription $(subscription) --artifact-type nextjs --file-path $filePath --no-progress -o json
+    Write-Host "$createOutput"
+    $createOutput = $createOutput | ConvertFrom-Json
+ 
+    # Extract 'jobId' and 'artifactId'
+    $jobId = $createOutput.jobId
+    $artifactId = $createOutput.data.artifactId
+ 
+    # Output the jobId and artifactId
+    Write-Host "jobId: $jobId"
+    Write-Host "artifactId: $artifactId"
+ 
+    do {
+        # Execute the 'litium-cloud artifact show' command
+        Write-Host "litium-cloud artifact show --artifact $artifactId -o json | ConvertFrom-Json"
+        $statusOutput = litium-cloud artifact show --artifact $artifactId -o json
+        Write-Host $statusOutput
+        $statusOutput = $statusOutput | ConvertFrom-Json
+ 
+        # Check if 'status' for artifact is set to "Ready"
+        if ($statusOutput.status -eq "Ready" ) {
+            # Artifact is ready, proceed
+            break
+        } elseif ($statusOutput.status -eq "Failed" ) {
+            # Artifact create failed
+            Write-Host "Artifact create failed."
+            Write-Host "Status:"
+            Write-Host $statusOutput.status
+            $logs = litium-cloud status logs --job $artifactId
+            Write-Host $logs
+            exit 1            
+        } elseif ($artifactRetryCount -ge $artifactMaxRetries) {
+            # Max retries reached
+            Write-Host "Max retries reached. The job has not completed."
+            Write-Host "Status:"
+            Write-Host $statusOutput.status
+            Write-Host "Retry count: $artifactRetryCount of maximum allowed retries: $artifactMaxRetries"
+            exit 1
+        } else {
+            # Retry logic
+            $artifactRetryCount++
+            Write-Host "Retrying... Attempt: $artifactRetryCount of $artifactMaxRetries"
+            Start-Sleep -Seconds 5
+        }
+    } while ($artifactMaxRetries -ge $artifactRetryCount)
+    
+    # Artifact is ready, start deploy
+    Write-Host "litium-cloud app deploy --subscription $(subscription) --environment $(environment) --app $(app) --artifact $artifactId -o json"
+    $createOutput = litium-cloud app deploy --subscription $(subscription) --environment $(environment) --app $(app) --artifact $artifactId -o json
+    
+    Write-Host "$createOutput"
+    $createOutput = $createOutput | ConvertFrom-Json
+ 
+    # Extract 'jobId'
+    $jobId = $createOutput.jobId
+    
+    do {
+        Write-Host "litium-cloud status show --job $jobId -o json | ConvertFrom-Json"
+        $statusOutput = litium-cloud status show --job $jobId -o json
+        Write-Host $statusOutput
+        $statusOutput = $statusOutput | ConvertFrom-Json
+        $job = $statusOutput.items[0];
+ 
+        # Check if 'completedAt' is set and 'failed' is false
+        if ($statusOutput.completedAt -and !$job.failed ) {
+            Write-Host "Deploy finished.";
+            exit 0;
+        } elseif ( $job.failed ) {
+            # Artifact create failed
+            Write-Host "Deploy failed."
+            exit 1            
+        } elseif ($deployRetryCount -ge $deployMaxRetries) {
+            # Max retries reached
+            Write-Host "Max retries reached. The job has not completed."
+            Write-Host "Status:"
+            Write-Host $statusOutput.status
+            Write-Host "Retry count: $deployRetryCount of maximum allowed retries: $deployMaxRetries"
+            exit 1
+        } else {
+            # Retry logic
+            $deployRetryCount++
+            Write-Host "Retrying... Attempt: $deployRetryCount of $deployMaxRetries"
+            Start-Sleep -Seconds 5
+        }
+    } while ($deployMaxRetries -ge $deployRetryCount)
+  displayName: "Authenticate, upload artifact and deploy"
+  env:
+    Build_SourcesDirectory: $(Build.SourcesDirectory)
+```

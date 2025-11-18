@@ -1,0 +1,29 @@
+---
+title: "Service principal"
+description: "Service principals are used to log in as a service, with a certificate, instead of an individual account. Convenient to use for deploy pipelines."
+---
+Service principals are used to log in as a service, with a certificate, instead of an individual account. Convenient to use for deploy pipelines.
+
+## Create service principals
+
+Service principals are created with the 'service-principal create' command. By default the certificate is valid for 365 days, but could be overriden with the option '--expires' when creating the service principal. The certificate is created in a PEM-format. Example of creating a service principal:
+
+```powershell
+litium-cloud service-principal create --file mycertificate.pem --name my-certificate
+```
+
+After the service-principal is created it gets an id in the format of an email address assigned to it. This is the email that is used when [managing access](/cloud/serverless/access-access-control) for the principal. 
+
+## Login with service principal
+
+To login with a service principal you use the 'auth login' command with the options '--certificate' and '--service-principal' set. For example:
+
+```powershell
+litium-cloud auth login --certificate mycertificate.pem --service-principal
+```
+
+## Permissions
+
+The service principal will work as any regular user account and need it's own permission to be set, it will not inherit the permissions for the user that is creating the service principal.
+
+Before using the service principal, permissions need to be added, see [Deploy artifact](/cloud/serverless/artifacts-deploy-artifact#access-control).

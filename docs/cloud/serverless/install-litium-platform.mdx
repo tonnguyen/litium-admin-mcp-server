@@ -1,0 +1,104 @@
+---
+title: "Install Litium Platform"
+description: "Prerequirements"
+---
+**Prerequirements**
+
+- [CLI installed](/cloud/serverless/getting-started-with-cloud-cli)
+- [Access to the subscription where you want to install Litium Platform](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/getting-started-with-cloud-cli)
+- [Environment created](/cloud/serverless/create-environment-new)
+- [Litium CDN installed](/cloud/serverless/install-litium-cdn)
+
+## Download and install Litium platform yaml
+
+Run following command to download litium-platform.yaml:
+
+```powershell
+litium-cloud marketplace manifest --app litium-platform -f enter-any-name.yaml
+```
+
+_Note, this will generate a yaml-file in the current folder you are in._
+
+### (optional) Include release artifact
+
+You can include your own dotnet artifact while installing the Litium platform. To do so follow those steps:
+
+1.  [Create release artifact of type "dotnet"](/cloud/serverless/artifacts-create-dotnet-artifact)
+2.  In the manifest yaml-file downloaded from the marketplace manifest-command, do the following
+    1.  Uncomment "properties"
+    2.  Uncomment the property "artifact"
+    3.  Add "artifacts/" followed by your artifact-id as "value" for the "artifact" property, e.g. "value: artifacts/d33ae52bb7044adb99d2b4df6fac6216"
+
+_**Note**. It is possible to deploy dotnet-artifacts to the Litium app continiously after the app is installed with the [deploy command](/cloud/serverless/artifacts-deploy-artifact)._
+
+_**Note**. If you don't reference a sql backup the database will be installed with the same db version as in the dotnet artifact._
+
+_**Note**. If you don't reference an artifact or sql backup the latest version of Litium will be installed together with latest database._
+
+_**Note**. If you don't reference an artifact and the app is already installed, the current existing artifact will continue to be used._
+
+### (optional) Include SQL Backup
+
+You can include your own database while installing the Litium platform. To do so follow those steps:
+
+1.  [Create SQL Backup artifact](/cloud/serverless/artifacts-create-sql-backup-artifact)
+2.  In the manifest yaml-file downloaded from the marketplace manifest-command, do the following
+    1.  Uncomment "properties"
+    2.  Uncomment the property "sql\_backup\_file"
+    3.  Add "artifacts/" followed by your artifact-id as "value" for the "sql\_backup\_file" property, e.g. "value: artifacts/d33ae52bb7044adb99d2b4df6fac6216"
+
+_**Important**. It's not possible to upload your SQL Backup to your app after the installation is done. In that case you need to remove the Litium App and install it again._
+
+_**Note**. If you don't reference an artifact or sql backup the latest version of Litium will be installed together with latest database._
+
+### (optional) Include storage
+
+You can include your own storage whild installing the Litium platform. To do so follow those steps:
+
+1.  [Create Storage artifact](/cloud/serverless/artifacts-create-storage-backup-artifact)
+2.  In the manifest yaml-file downloaded from the marketplace manifest-command, do the following
+    1.  Uncomment "properties"
+    2.  Uncomment the property "storage\_backup\_file"
+    3.  Add "artifacts/" followed by your artifact-id as "value" for the "storage\_backup\_file" property, e.g. "value: artifacts/d33ae52bb7044adb99d2b4df6fac6216"
+
+_**Important**. It's not possible to upload your storage files to your app after the installation is done. In that case you need to remove the Litium App and install it again._
+
+### Redis and Elastic Search prefix
+
+Read more on the [FAQ page](/cloud/serverless/faq) on how to modify prefix for Redis and Elastic search  
+ 
+
+### Run following command to install Litium platform:
+
+_Note. before installing Litium Platform, make sure you have [installed Litium CDN app](/cloud/serverless/install-litium-cdn). If you haven't done this your Litium App will not be automatically configured in Litium CDN._
+
+litium-cloud apply --subscription enter-subscription-id --environment enter-environment-id -f name-of-generated-yaml-file
+
+  
+\- Fetch Subscription-id: litium-cloud subscription list  
+\- Fetch Environment-id: litium-cloud environment list --subscription enter-subscription-id
+
+_Note! After running the apply command, there will be a prompt with a job-id that you can use to [view status and logs of the job](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/view-status-and-logs)._
+
+Optional, view installed app(s) with command: litium-cloud app list --subscription enter-subscription-id --environment enter-environment-id
+
+## Find URL to the Litium platform
+
+  
+Run following command to find URL/domain to your Litium platform under Exposes -> Value:
+
+```powershell
+litium-cloud app show --subscription enter-subscription-id --environment enter-environment-id --app litium
+```
+
+Copy value from the name "public\_domain\_name"
+
+Open a browser and go to the URL/domain with /Litium at the end to get to Backoffice login prompt. 
+
+**Default login (if no custom database was specified during install)**  
+Username: Admin  
+Password: Password!
+
+## License
+
+The license.json file [needs to be included](/platform/get-started/developer-introduction#:~:text=License) in the artifact. [Request a license](/resources/support/request-license).

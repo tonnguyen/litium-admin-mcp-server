@@ -1,0 +1,87 @@
+---
+title: "File storage"
+description: "An app to store files on disk, for example integration files. Possible to connect with Litium app and sftp app for typical scenarios to sync ERP data between Litium and the erp. Pay per hour, based on disk usage."
+---
+An app to store files on disk, for example integration files. Possible to connect with Litium app and sftp app for typical scenarios to sync ERP data between Litium and the erp. Pay per hour, based on disk usage.
+
+## Pricing
+
+File storage is priced per hour based on usage. [Read more about prices](/cloud/serverless/private-apps-pricing)
+
+## Installation
+
+**Prerequirements**
+
+- [CLI installed](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/getting-started-with-cloud-cli)
+- [Access to the subscription where you want to create a new enviornment](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/getting-started-with-cloud-cli)
+- [Environment created](/cloud/serverless/create-environment-new)
+
+**Manifest**
+
+Run following command to download file-storage manifest:
+
+```powershell
+litium-cloud marketplace manifest --app file-storage -f enter-any-name.yaml
+```
+
+_Note, this will generate a yaml-file in the current folder you are in._
+
+Example manifest file:
+
+```powershell
+kind: app
+resource:
+  id: file-storage
+spec:
+  type: file-storage
+  version: 1.0.0
+  # properties:
+  #   # Storage artifact used for restore when storage is created.
+  #   - name: backup_file
+  #     value: artifacts/12345678901234567890123456789012
+```
+
+**Manifest configuration**
+
+Id: Choose your own unique-per-environment id of the app. Suggested "file-storage"
+
+Properties: For File storage app it is possible to upload a storage artifact when the app is being created. Note, only possible to upload artifact while creating the app, after the app is created storage should be managed through other interfaces, like connecting the app to Litium or adding an SFTP app. If storage artifact isn't added the storage app will be empty when created.
+
+**Apply** 
+
+Run following command to install the file-storage app to environment:
+
+```powershell
+litium-cloud apply --subscription enter-subscription-id --environment enter-environment-id -f enter-yaml-filename
+```
+
+  
+\- Fetch Subscription-id: litium-cloud subscription list  
+\- Fetch Environment-id: litium-cloud environment list --subscription enter-subscription-id
+
+_Note! After running the apply command, there will be a prompt with a job-id that you can use to [view status and logs of the job](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/view-status-and-logs)._
+
+This will create a File storage app in the given environment. 
+
+## Connect with Litium app
+
+To be able to access your file storage app from within your Litium app (e.g. accessing integration files from the storage app) you need to configure your Litium app's manifest to access your storage app. 
+
+Add the following section to your Litium apps manifest to connect a directory "integration" to a file storage app with id "file-storage" and path integration-directory to your Litium app. 
+
+```powershell
+  configurations:
+    - name: integration
+      type: storage
+      subPath: integration-directory
+      valueFrom:
+        appRef:
+          name: file-storage
+          key: storage_volume
+```
+
+This will then be available in the folder "app\_storage", so for the above example the files would be accessed through the path "/app\_storage/integration" (ant the actual directory on the storage app would be /integration-directory).
+
+## Connect SFTP app with File storage
+
+[Read more on the SFTP app page](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/private-apps/litium-sftp)

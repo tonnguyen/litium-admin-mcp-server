@@ -1,0 +1,89 @@
+---
+title: "Access control"
+description: "With access control you can control who should have access to a specific resource with which type of permission."
+---
+With access control you can control who should have access to a specific resource with which type of permission.
+
+# Access-Control commands
+
+Access-control commands are available as sub command. For example the below help command will show available sub commands for the subscription root command, where 'access-control' is one. 
+
+```powershell
+litium-cloud subscription -?
+```
+
+## Show access
+
+To show who currently has access you use the 'access-control show' command. For instance to show who has access to a subscription you use:
+
+```powershell
+litium-cloud subscription access-control show
+```
+
+_Note. above command assumes you have set your subscription in the context, otherwise you need to add the --subscription option._
+
+## Add access
+
+Access is granted with the 'access-control add'-command. The option '--email' is required and should be either user email, group id or service principal id. The option '--role' decides which access the user gets, use command 'role list' to get available roles to assign.
+
+For example to grant access to the user my-user@myuser.com with the permission system/owner to a subscription the command would look like:
+
+```powershell
+litium-cloud subscription access-control add --email my-user@myuser-com --role system/owner
+```
+
+_Note. above command assumes you have set your subscription in the context, otherwise you need to add the --subscription option._
+
+_Tip: If multiple users should have the same permissions, create a group and assign permission to the group. Add/remove users to the group to grant/deny specific users access._
+
+## Remove access
+
+Access is removed with the 'access-control remove' command. The option '--email' is required and should be either user email, group id or service principal id. The option '--role' specifies which access for the given user that should be removed.
+
+_Tip: use the 'show' command to view which users with which roles that are currently added._ 
+
+For example to remove access to the user my-user@myuser.com with the role system/owner for a subscription the command would look like:
+
+```powershell
+litium-cloud subscription access-control remove --email my-user@myuser-com --role system/owner
+```
+
+_Note. above command assumes you have set your subscription in the context, otherwise you need to add the --subscription option._
+
+## Inheritance
+
+By default permissions are inheritated. For instance, users with system/owner permissions for a subscription will get the same permission for that subscriptions environments, and those environments apps. 
+
+You could disable inheritance for an object. For instance, let's say you have two environments, one called "test" and one called "production". For production environment you don't want all the users that has access to the subscription to automatically also inherit permissions for the production environment. To solve that you would disable inheritance for the production environment. That command would look like
+
+```powershell
+litium-cloud environment access-control disable-inheritance --environment production
+```
+
+_Note. above command assumes you have set your subscription in the context, otherwise you need to add the --subscription option._
+
+_Tip. if you want to remove inheritance but keep the current inherited permissions you can pass the option --keep to convert the inherited permissions into explicit permissions for the resource._
+
+## Roles
+
+To view all available roles, use the command
+
+```powershell
+litium-cloud role list
+```
+
+To view more details about a specific role, use the command
+
+```powershell
+litium-cloud role show --role enter-role
+```
+
+for example to show details about the role system/writer,
+
+```powershell
+litium-cloud role show --role system/writer
+```
+
+### Create artifact
+
+A common scenario is to create a dedicated service principal to handle creation of artifacts. To allow a user/service principal to create artifact for a subscription it needs two roles for the subscription "subscription/reader" and "artifact/creator".

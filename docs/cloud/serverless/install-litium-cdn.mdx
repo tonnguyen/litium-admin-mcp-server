@@ -1,0 +1,39 @@
+---
+title: "Install Litium CDN"
+description: "Prerequirements"
+---
+**Prerequirements**
+
+- [CLI installed](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/getting-started-with-cloud-cli)
+- [Access to the subscription where you want to create a new enviornment](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/getting-started-with-cloud-cli)
+- [Environment created](/cloud/serverless/create-environment-new)
+
+**Install Litium CDN**
+
+Run following command to download litium-cdn yaml:
+
+```powershell
+litium-cloud marketplace manifest --app litium-cdn -f enter-any-name.yaml
+```
+
+_Note, this will generate a yaml-file in the current folder you are in._
+
+Run following command to apply the litium-cdn to environment:
+
+```powershell
+litium-cloud apply --subscription enter-subscription-id --environment enter-environment-id -f enter-yaml-filename
+```
+
+  
+\- Fetch Subscription-id: litium-cloud subscription list  
+\- Fetch Environment-id: litium-cloud environment list --subscription enter-subscription-id
+
+_Note! After running the apply command, there will be a prompt with a job-id that you can use to [view status and logs of the job](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/view-status-and-logs)._
+
+This will create a Fastly CDN service for that environment. 
+
+**Additional Fastly configuration**
+
+If you need to do additional fastly configuration you need access to the Fastly service. Reach out to [support@litium.com](mailto:support@litium.com) and include the subscription and environment you want Fastly access for. For instance if you want to add a custom domain. 
+
+_Note. Fastly Service access is not required to setup Litium and other apps in Serverless Cloud. When you have installed the Litium CDN app system domain names for other apps will be configured automatically for your service in Fastly._

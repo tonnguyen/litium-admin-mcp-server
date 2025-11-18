@@ -1,0 +1,42 @@
+---
+title: "Deploy artifact"
+description: "The deploy command should be used when you want to deploy a new version of your code to your app."
+---
+The deploy command should be used when you want to deploy a new version of your code to your app.
+
+**Prerequirements**
+
+- [CLI installed](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/getting-started-with-cloud-cli)
+- [Artifact created](/cloud/serverless/artifacts)
+- An installed app where you want to deploy your artifact, for example a [Litium Platform app](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/install-litium-platform)
+
+## App deploy
+
+To deploy an artifact to an app you use the app deploy command:
+
+```powershell
+litium-cloud app deploy --app your-app-id --artifact your-artifact-id --subscription your-subscription-id --environment your-environment-id
+```
+
+When command is executed a message with a job-id will be outputed. You can use this job-id to [see status and view logs](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/view-status-and-logs)
+
+**Access control**
+
+The user that executes the deploy command needs to have at least the following roles assigned:
+
+- subscription/reader - example `command litium-cloud subscription access-control add --email [insert-user-or-group-email] --role subscription/reader --sub [insert-subscription-id]`
+- environment/reader - example command `litium-cloud environment access-control add --email [insert-user-or-group-email] --role environment/reader --sub [insert-subscription-id] --env [insert-environment-id]`
+- appresource/writer - example command `litium-cloud app access-control add --email [insert-user-or-group-email] --role appresource/writer --sub [insert-subscription-id] --env [insert-environment-id] --app [insert-app-id]`
+- artifact/reader OR artifact/creator - for the relevant artifacts
+
+_Note. as system/owner you automatically get all above permissions, but its good practice for especially service users to only give necessary access._
+
+**Database upgrade**
+
+When deploying a Litium Platform app the version of Litium is extracted from the Artifact, and if the version of Litium is newer than the database an automatic database upgrade will be performed using the "upgrade" command of [Db tool](/platform/get-started/developer-tools/db-tool). 
+
+_Note. the db tool will never downgrade a database. So it's a good practice to always [create a database backup](/cloud/serverless/artifacts-create-sql-backup-artifact) before upgrading the database to a new version._
+
+## Rolling Deploy
+
+Litium Serverless Cloud utilizes rolling deployments. Upon deployment of artifacts, the cloud seamlessly rolls out the code across the replicas sequentially, ensuring users experience zero downtime while accessing the new version.
