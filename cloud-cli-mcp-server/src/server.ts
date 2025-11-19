@@ -90,6 +90,10 @@ app.post('/mcp', async (req, res) => {
                   type: 'string',
                   description: 'Environment ID (optional, used by various actions)'
                 },
+                cliUrl: {
+                  type: 'string',
+                  description: 'CLI URL to use.'
+                },
                 appId: {
                   type: 'string',
                   description: 'App ID (required for deploy_app, console_output)'

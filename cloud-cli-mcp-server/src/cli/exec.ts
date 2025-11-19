@@ -1,4 +1,5 @@
 import { spawn } from 'node:child_process';
+import { contextStore } from '../context/contextStore.js';
 
 export interface ExecResult {
   ok: boolean;
@@ -21,7 +22,17 @@ const DEFAULT_TIMEOUT = 60_000;
 export function execCli(opts: ExecOptions): Promise<ExecResult> {
   const { args, timeoutMs = DEFAULT_TIMEOUT, parseJson = true } = opts;
   return new Promise((resolve) => {
-    const proc = spawn('litium-cloud', args, { stdio: ['ignore', 'pipe', 'pipe'] });
+    // Get LC_CLI_URL from context store or environment
+    const env = { ...process.env };
+    const cliUrl = contextStore.getCliUrl();
+    if (cliUrl) {
+      env.LC_CLI_URL = cliUrl;
+    }
+    
+    const proc = spawn('litium-cloud', args, { 
+      stdio: ['ignore', 'pipe', 'pipe'],
+      env
+    });
     let stdout = '';
     let stderr = '';
     let finished = false;

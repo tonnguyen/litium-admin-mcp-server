@@ -11,6 +11,7 @@ const setContextSchema = z.object({
   action: z.literal('set_context'),
   subscriptionId: z.string().optional(),
   environmentId: z.string().optional(),
+  cliUrl: z.string().optional(),
 });
 
 const listSubscriptionsSchema = z.object({
@@ -245,6 +246,7 @@ async function executeAction(args: z.infer<typeof unionSchema>) {
       const updated = contextStore.setContext({
         subscriptionId: args.subscriptionId,
         environmentId: args.environmentId,
+        cliUrl: args.cliUrl,
       });
       return { ok: true, data: { context: updated } };
     }
