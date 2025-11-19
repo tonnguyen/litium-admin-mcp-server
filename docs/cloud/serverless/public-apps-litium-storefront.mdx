@@ -1,0 +1,51 @@
+---
+title: "Litium storefront"
+description: "Litium storefront"
+---
+# Litium storefront
+
+Litium Storefront is a React-based, headless app that serves as the frontend for your site if you're using a headless architecture.
+
+## Install
+
+Maximum one Litium storefront app may be installed per environment. Read more about how to install Litium storefront app in the [getting started section](/cloud/serverless/install-nextjs-storefront-app). 
+
+Read more about the [React accelerator](/accelerators/react-accelerator).
+
+## Deployments
+
+See [deploy artifact page](/cloud/serverless/guides/artifacts/deploy-artifact) for how to deploy a new version.
+
+Deployments to **production environments** are performed on a rolling scenario, meaning when you deploy the release artifacts the cloud automatically deploys the code to one replica at the time and letting users access the new version without downtime.
+
+See the [automated deployments guide](/cloud/serverless/guides/automated-deployments) on examples how to automate deployments with the help of the CLI.
+
+## Properties
+
+For a detailed list of avaiilable properties, use the marketplace manifest command
+
+```powershell
+litium-cloud marketplace manifest --app litium-nextjs-web
+```
+
+Propertie "artifact" is described in more detail in the [install guide](/cloud/serverless/install-nextjs-storefront-app).
+
+## Actions
+
+_For a detailed list about which actions that are available use the following command:_
+
+```powershell
+litium-cloud marketplace show --app litium-nextjs-web --details --version add-version-here
+```
+
+### Console output
+
+Gets console output from app in container. Normally those logs are sent to Litium insights, but if your app doesn't start issues may be printed to the console but never reach Litium insights because app hasn't started.
+
+See the guide "[Output console logs](/cloud/serverless/guides/output-console-logs)" of how to perform this action.
+
+## Logs
+
+[Install Litium Insights app](/cloud/serverless/install-litium-insights) to get access to logs, metrics and BI-data. 
+
+For logs during deploys/install/update you find those with the [status logs command](/cloud/serverless/view-status-and-logs).

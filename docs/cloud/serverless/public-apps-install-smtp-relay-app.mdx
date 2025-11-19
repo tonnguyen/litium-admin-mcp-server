@@ -1,0 +1,165 @@
+---
+title: "SMTP relay app"
+description: "SMTP relay app"
+---
+# SMTP relay app
+
+To send email you need to specify a SMTP relay. You can choose to specify your own host or to use Litium serverless cloud SMTP server.
+
+**Prerequirements**
+
+- [CLI installed](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/getting-started-with-cloud-cli)
+- [Access to the subscription where you want to create a new enviornment](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/getting-started-with-cloud-cli)
+- [Environment created](/cloud/serverless/create-environment-new)
+- Customer app created, for example [Litium platform](/cloud/serverless/install-litium-platform)
+
+## Install and configure Litium SMTP relay app
+
+Run following command to download SMTP relay manifest yaml:
+
+```powershell
+litium-cloud marketplace manifest --app litium-smtp -f enter-any-name.yaml
+```
+
+_Note, this will generate a yaml-file in the current folder you are in._
+
+**Use Litium serverless cloud SMTP server**
+
+If you want to use Litium serverless cloud SMTP server you don't have to configure anything in the manifest yaml-file. The Litium serverless cloud SMTP should only be used to send order confirmation emails and similar transaction emails. Should NOT be used to send mass emails. Also note that this is a shared SMTP server that are used by multiple customers therefore the "mail server reputation" may be affected. **We recommend setting up an own external customer specific SMTP** service to avoid this. 
+
+If you choose to use Litium serverless cloud SMTP, you need to add `"mail3.litiumdrift.se"` to the SPF record **for the domain you're setting as the sender**.
+
+For example, if you're sending emails from `info@yourcompany.com`, you need to update the SPF record for `yourcompany.com` like this:
+
+```powershell
+v=spf1 include:mail3.litiumdrift.se
+```
+
+If you already have an SPF record, just add the `include:mail3.litiumdrift.se` part to it. For example:
+
+```powershell
+v=spf1 include:_spf.google.com include:mail3.litiumdrift.se
+```
+
+**Note.** The Litium SMTP is a basic mail service. Litium do not take any responsibility on delivery of mail when using our SMTP service. The service do not have support for TLS or more advanced features like DKIM. If mail is a critical functionality, we recommend configuring Litium to use your own mail service such as Office 365, Gmail suite or Sendgrid.
+
+**Configure an external SMTP server**
+
+To configure an external SMTP server, e.g. gmail, O365, sendgrid etc. you should specify that in the properties in the manifest file:
+
+```powershell
+  # properties:
+  #   # Custom smtp host, if not provided Litium Cloud outgoing SMTP will be used.
+  #   - name: smtp_host
+  #     value: smtp.sendgrid.net:587
+  #   # Custom smtp host password.
+  #   - name: smtp_password
+  #     value: pAsSwOrD
+  #   # Custom smtp host username.
+  #   - name: smtp_username
+  #     value: apikey
+```
+
+**Install the app**
+
+Run following command to apply the Litium smtp relay app to environment:
+
+```powershell
+litium-cloud apply --subscription enter-subscription-id --environment enter-environment-id -f enter-yaml-filename
+```
+
+  
+\- Fetch Subscription-id: litium-cloud subscription list  
+\- Fetch Environment-id: litium-cloud environment list --subscription enter-subscription-id
+
+## Connect Litium smtp relay app with your Storefront app
+
+When your Litium SMTP relay app is installed you should modify properties for your customer app to use the SMTP relay. Below is an example of how to configure a Litium Storefront app with id "storefront" to your smtp app with id "smtp":
+
+```powershell
+kind: app
+resource:
+  id: storefront
+spec:
+  type: litium-nextjs-web # or nextjs-web
+
+  configurations:
+    - name: RUNTIME_SMTP_HOST
+      valueFrom:
+        appRef:
+          name: smtp
+          key: smtp_host
+
+    - name: RUNTIME_SMTP_PORT
+      valueFrom:
+        appRef:
+          name: smtp
+          key: smtp_port
+  
+    - name: RUNTIME_SMTP_SECURE
+      value: "false"
+
+    - name: RUNTIME_SMTP_AUTH_USER
+      valueFrom:
+        appRef:
+          name: smtp
+          key: smtp_auth_username
+
+    - name: RUNTIME_SMTP_AUTH_PASS
+      valueFrom:
+        appRef:
+          name: smtp
+          key: smtp_auth_password
+```
+
+## Connect Litium smtp relay app with your Litium Platform MVC app
+
+For the default MVC accelerator the default config names in appsettings.json is:
+
+        "Accelerator": {  
+            "Smtp": {  
+                "Host": "",  
+                "Port": "",  
+                "Password": "",  
+                "Username": "",  
+                "EnableSecureCommunication": false  
+            }  
+        }
+
+To use the default appsettings.json keys your manifest configuration file should look like this, assuming the id of your installed smtp app is "smtp":
+
+```powershell
+kind: app
+resource:
+  id: litium
+spec:
+  type: litium-platform
+
+  configurations:
+    - name: LITIUM__ACCELERATOR__SMTP__HOST
+      valueFrom:
+        appRef:
+          name: smtp
+          key: smtp_host
+
+    - name: LITIUM__ACCELERATOR__SMTP__PORT
+      valueFrom:
+        appRef:
+          name: smtp
+          key: smtp_port
+  
+    - name: LITIUM__ACCELERATOR__SMTP__ENABLESECURECOMMUNICATION
+      value: "false"
+
+    - name: LITIUM__ACCELERATOR__SMTP__USERNAME
+      valueFrom:
+        appRef:
+          name: smtp
+          key: smtp_auth_username
+
+    - name: LITIUM__ACCELERATOR__SMTP__PASSWORD
+      valueFrom:
+        appRef:
+          name: smtp
+          key: smtp_auth_password
+```

@@ -1,0 +1,102 @@
+---
+title: "Litium platform"
+description: "Litium platform"
+---
+# Litium platform
+
+Litium platform serves as the hub for all applications within a Litium environment. This app automatically provisions all the necessary infrastructure to run Litium, including databases, Redis, Litium Search, and more.
+
+## Install
+
+Maximum one Litium platform app may be installed per environment. Read more about how to install Litium platform app in the [getting started section](/cloud/serverless/install-litium-platform). 
+
+## Deployments
+
+See [deploy artifact page](/cloud/serverless/guides/artifacts/deploy-artifact) for how to deploy a new version.
+
+Deployments to **production environments** are performed on a rolling scenario, meaning when you deploy the release artifacts the cloud automatically deploys the code to one replica at the time and letting users access the new version without downtime.
+
+See the [automated deployments guide](/cloud/serverless/guides/automated-deployments) on examples how to automate deployments with the help of the CLI.
+
+## Properties
+
+For a detailed list of avaiilable properties, use the marketplace manifest command
+
+```powershell
+litium-cloud marketplace manifest --app litium-platform
+```
+
+Properties "artifact", "sql\_backup\_file" and "storage\_backup\_file" are described in more detail in the [install guide](/cloud/serverless/install-litium-platform).
+
+"redis\_prefix" = Prefix all redis key with this value. When prefix is changed the cache will be cleared.  
+"auto\_patch" = auto\_patch is enabled by default and is not adviced to turn off
+
+## Environment variables and secrets
+
+Litium serverless cloud is always using appsettings.production.json (or only appsettings.json) for appsettings transformations, regardless of environment. To handle different environment variables you specify those values as configurations in your yaml-file, either in plain text (same value in all environments) or as secrets (to be able to have different values in different environments). [Read more about app configuration and secrets.](/cloud/serverless/guides/app-configuration-and-secrets)
+
+## Actions
+
+_For a detailed list about which actions that are available use the following command:_
+
+```powershell
+litium-cloud marketplace show --app litium-platform --version add-version-here
+```
+
+### Backup database
+
+Creates a database backup and stores the backup as an artifact for the current subscription. 
+
+See the guide "[Create database backup](/cloud/serverless/guides/create-database-backup)" of how to perform this action.
+
+### Backup storage
+
+Creates a storage backup and stores the backup as an artifact for the current subscription. 
+
+See the guide "[Create storage backup](/cloud/serverless/guides/create-storage-backup)" of how to perform this action.
+
+### Console output
+
+Gets console output from app in container. Normally those logs are sent to Litium insights, but if your app doesn't start issues may be printed to the console but never reach Litium insights because app hasn't started.
+
+See the guide "[Output console logs](/cloud/serverless/guides/output-console-logs)" of how to perform this action.
+
+### Execute SQL Script
+
+Use with care, especially when performing updates, as these may result in outdated cache data. Be sure to refresh the cache programmatically or update the Redis prefix to reset all Redis cache. Remember, you are responsible for the scripts you run.
+
+For detailed instructions, see the guide "[Execute SQL script.](/cloud/serverless/guides/execute-sql-script)"
+
+### Automate Litium platform setup
+
+Beyond installing apps and environments, configuring the Litium platform often involves setting up domains, configuring payment apps, rebuilding the search index, and more. The following actions makes it possible to automate all of this.  
+_**Note**. All below actions requires role "**apps/litium-platform/litium-management**" added for user._
+
+**install-app**   
+Installs an app, i.e. a payment or delivery app. Requires passing a url as paramter, --property "url=apps-public-url"
+
+**uninstall-app**  
+Uninstalls an app based on apps id. Requires passing the id of the app, --property "id=id-of-app". Additionally pass force flag to force deletion, --property "force=true"
+
+**configure-app**  
+Configure the app based on the id and path for config file. Requires Id (app id) and path to config file, --property "id=app-id" --property "path=file-path-to-config-file"
+
+**add-domain**  
+Add a domain to Litium. Requires domain name to add, --property "domain=domain-to-add"  
+_**Note** \- see app [Litium CDN domain](/cloud/serverless/public-apps-litium-cdn-domain) of how to add custom domain to Litium CDN._ 
+
+**remove-domain**  
+Remove a domain from Litium. Requires domain name to remove, --property "domain=domain-to-remove"  
+_**Note** \- see app [Litium CDN domain](/cloud/serverless/public-apps-litium-cdn-domain) of how to manage custom domains in Litium CDN._ 
+
+**replace-domain**  
+Replace an existing domain with another in Litium. For instance if you have a domain name, mydomain.com, added in litium connected to a channel, you can use this action to replace that domain with another domain (already added to litium) to change channel domain mapping. Requires properties 'domain' and 'new\_domain'  --property "domain=domain-to-replace" --property "new\_domain=new-domain"
+
+**rebuild-search-indicies**  
+Trigger search indicies rebuild. No properties.
+
+## Logs
+
+[Install Litium Insights app](/cloud/serverless/install-litium-insights) to get access to logs, metrics and BI-data. 
+
+For logs during deploys/install/update you find those with the [status logs command](/cloud/serverless/view-status-and-logs).

@@ -1,0 +1,156 @@
+---
+title: "Litium sFTP"
+description: "Litium sFTP"
+---
+# Litium sFTP
+
+With Litium sFTP app you create sFTP user that has access to specific folder(s) in a File storage app.
+
+## Pricing
+
+Free
+
+## Installation
+
+**Prerequirements**
+
+- [CLI installed](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/getting-started-with-cloud-cli)
+- [Access to the subscription where you want to create a new enviornment](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/getting-started-with-cloud-cli)
+- [Environment created](/cloud/serverless/create-environment-new)
+- [Storage app installed](/cloud/serverless/private-apps-file-storage)
+
+**Manifest**
+
+Run following command to download litium-sftp manifest:
+
+```powershell
+litium-cloud marketplace manifest --app litium-sftp -f enter-any-name.yaml
+```
+
+_Note, this will generate a yaml-file in the current folder you are in._
+
+Example manifest file:
+
+```powershell
+kind: app
+resource:
+  id: sftp
+spec:
+  type: litium-sftp
+  version: 1.0.0
+  properties:
+    # IP to whitelist. Possible to add up to 5 ips, separated by comma or line break.
+    - name: ip
+      value: 192.168.0.1,192.168.0.2
+      or
+      value: |-
+        192.168.0.1
+        192.168.0.2
+```
+
+**Manifest configuration**
+
+**Id**: Choose your own unique-per-environment id of the app. Suggested "litium-sftp". Possible to install multiple instances of the sftp app in an environment. Note that every instance needs its unique id.
+
+**Properties**: the sFTP app has one property that needs to be set, that is "ip". Possible to whitelist up to 5 ips. Either comma separated or new line, see manifest example above. Also possible to add range, but note that only 5 ips can be whitelisted per sftp app.
+
+**Configuration-section:**
+
+An sFTP needs to be connected to at least one folder in a file storage app. It is possible for an sftp app to access multiple folders. Below is an example where two folders are given access, with virtual names "integration" and "erp". If sub path doesnt already exist, it will be created.
+
+```powershell
+  
+  configurations:
+    - name: integration
+      subPath: integration
+      type: storage
+      valueFrom: 
+        appRef:
+          name: file-storage
+          key: storage_volume
+ 
+    - name: erp
+      subPath: erp
+      type: storage
+      valueFrom: 
+        appRef:
+          name: file-storage
+          key: storage_volume
+```
+
+**Example of full manifest file:**
+
+```powershell
+kind: app
+resource:
+  id: sftp
+spec:
+  type: litium-sftp
+  version: 1.0.0
+  properties:
+    # IP to whitelist. Possible to add up to 5 ips, separated by comma or line break.
+    - name: ip
+      value: 192.168.0.1,192.168.0.2
+
+  configurations:
+    - name: integration
+      subPath: integration
+      type: storage
+      valueFrom: 
+        appRef:
+          name: file-storage
+          key: storage_volume
+ 
+    - name: erp
+      subPath: erp
+      type: storage
+      valueFrom: 
+        appRef:
+          name: file-storage
+          key: storage_volume
+```
+
+**Apply** 
+
+Run following command to install the litium-sftp app to environment:
+
+```powershell
+litium-cloud apply --subscription enter-subscription-id --environment enter-environment-id -f enter-yaml-filename
+```
+
+  
+\- Fetch Subscription-id: litium-cloud subscription list  
+\- Fetch Environment-id: litium-cloud environment list --subscription enter-subscription-id
+
+_Note! After running the apply command, there will be a prompt with a job-id that you can use to [view status and logs of the job](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/view-status-and-logs)._
+
+This will create an sFTP app in the given environment. 
+
+## Connect to sFTP with client
+
+To view connection settings to sFTP app, after app is created to a app show command, for example
+
+litium-cloud  app show --app sftp --env your-environment --sub your-subscription
+
+This will output a section called "Exposes" where you will find three names of importance:
+
+sft\_hostname: the hostname to connect to  
+sftp\_password: the name of the secret, use following command to fetch value: litium-cloud environment secret value --secret paste-secret-name-here  
+sftp\_username: the username to use to connect
+
+Example output:
+
+```powershell
+Exposes
+=======
+    Name               Description                                                     Type                  Value
+
+    --------------------------------------------------------------------------------------------------------------------------------------------------
+    sftp_hostname      The hostname for sFTP.                                          string                
+    sftp_password      The password secret reference for the sFTP authentication.      secret-reference      
+    sftp_username      The username for the sFTP authentication.                       string                
+```
+
+## Connect with Storage app
+
+See manifest configuration above.
