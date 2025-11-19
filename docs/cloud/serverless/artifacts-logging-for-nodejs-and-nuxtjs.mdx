@@ -1,0 +1,191 @@
+---
+title: "Logging for Node.Js and Nuxt.Js"
+description: "Logging for Node.Js and Nuxt.Js"
+---
+# Logging for Node.Js and Nuxt.Js
+
+When working with Node.js or Nuxt.js based applications you need to install and configure the logging by yourself in your project.
+
+## Configuration
+
+Litium Serverless Cloud supports 2 common libraries for logging out of the box with minimal configuration, the libraries that we tested with is Pino and WinstonJS. If you want to use another library that can produce JSON formatted output to file that should work as well.
+
+The folder where the logs should be written to will be injected in the environment variable LITIUMCLOUD\_LOGGING\_PATH during runtime. Remember to rotate the file to not get to large files in size and clean up old files to not permanently store to many files. Also, you should turn off application console logging, so nothing is written out into the application console. 
+
+### WinstonJS
+
+Below guide describes how to setup and use WinstonJS and shipping the logs to Litium Insights. 
+
+1.  **Install the package** winston (current version 3.14.2) as dependency with your packaging manager. 
+2.  **Create a file** utils/logger.js  - the file is used to configure the logging and return the same instance for all executions. 
+3.  **Import the logger** and call the log method where you want logs
+4.  **Capture console.log**/debug/trace/error
+
+**Create utils/logger.js**
+
+```javascript
+import { createLogger, transports, format } from 'winston'; 
+
+const { colorize, combine, timestamp, errors, json, printf, uncolorize } = format; 
+
+const createDevLogger = function () { 
+
+  const logFormat = printf(({ level, message, timestamp, stack }) => { 
+    return `${timestamp} ${level}: ${stack || message}`; 
+  }); 
+
+  return createLogger({ 
+    level: 'silly', 
+    format: combine( 
+      colorize(), 
+      timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }), 
+      errors({ stack: true }), 
+      logFormat, 
+    ), 
+    transports: [ 
+      new transports.Console(), 
+    ] 
+  }); 
+}; 
+
+const createProdLogger = function () { 
+  const dirname = process.env.LITIUMCLOUD_LOGGING_PATH || '.logs'; 
+  return createLogger({ 
+    level: 'silly', 
+    format: combine( 
+      timestamp({ format: 'YYYY-MM-DDTHH:mm:ss.SSSZ' }), 
+      errors({ stack: true }), 
+      uncolorize(), 
+      json(), 
+    ), 
+    transports: [ 
+      new transports.File({ 
+        filename: 'log', 
+        dirname: dirname, 
+        prepend: true, 
+        maxsize: 100 * 1024 * 1024 /* 100mb */, 
+        maxFiles: 3, 
+        level: 'silly', 
+      }), 
+    ] 
+  }); 
+}; 
+
+const instance = process.env.NODE_ENV === 'production' 
+  ? createProdLogger() 
+  : createDevLogger(); 
+
+module.exports = instance; 
+```
+
+#### **Import the logger** and call the log method where you want logs
+
+Import the logger and call the logging method for corresponding severity.
+
+Example:
+
+```javascript
+import logger from './utils/logger'; 
+
+logger.verbose("trace test from test-file");
+logger.debug("debug test from test-file");
+logger.info("info test from test-file");
+logger.warn("warn test from test-file");
+logger.error("error test from test-file");
+```
+
+#### Capture console.log/debug/trace/error
+
+Configure your application to capture the console.log/debug/trace/error messages.
+
+_**Note**. When configuring this it’s easy to get an infinitive loop in the logging command._ 
+
+- Wrap console commands with the help of consola.
+- Ensure that you only have one version of consola installed as direct dependency or child dependency, if you have multiple versions, make sure overrides are done in package.json to only use one version. 
+- Install the package consola (current version 3.2.3 but also tested with 2.15.3) as dependencies with your package manager. 
+
+To be able to configure consola with the Winston logging reporter, a WinstonReporter wrapper needs to be used, this is included in version 2 and removed as default in version 3. If you are using version 3, create a new file utils/WinstonReporter.js. 
+
+**utils/WinstonReporter.js**
+
+```javascript
+// This reporter is compatible with Winston 3 
+// https://github.com/winstonjs/winston 
+// eslint-disable-next-line 
+
+const _require = typeof __non_webpack_require__ !== 'undefined' ? __non_webpack_require__ : require // bypass webpack 
+export default class WinstonReporter { 
+
+  constructor(logger) { 
+    if (logger && logger.log) { 
+      this.logger = logger 
+    } else { 
+      const winston = _require('winston') 
+      this.logger = winston.createLogger(Object.assign({ 
+      level: 'info', 
+        format: winston.format.simple(), 
+        transports: [ 
+          new winston.transports.Console() 
+        ] 
+      }, logger)) 
+    } 
+  } 
+
+  log(logObj) { 
+    const args = [].concat(logObj.args) 
+    const arg0 = args.shift() 
+
+    this.logger.log({ 
+      level: levels[logObj.level] || 'info', 
+      label: logObj.tag, 
+      message: arg0, 
+      args: args, 
+      timestamp: logObj.date.getTime() / 1000 
+    }) 
+  } 
+} 
+
+const levels = { 
+  0: 'error', 
+  1: 'warn', 
+  2: 'info', 
+  3: 'verbose', 
+  4: 'debug', 
+  5: 'silly' 
+} 
+```
+
+In the startup file for your application, as early as possible, initiate the logging. In the example below the condition on process.env.npm\_lifecycle\_event is used to only change the logging when the lifecycle event is the start command to not change the logging for build events. 
+
+If using consola version 2
+
+```javascript
+import consola, { WinstonReporter } from 'consola'; 
+import logger from './utils/logger'; 
+
+if (process.env.npm_lifecycle_event === 'start') { 
+  consola.setReporters([new WinstonReporter(logger)]); 
+  if (process.env.NODE_ENV === 'production') { 
+    consola.wrapAll(); 
+  } else { 
+    consola.wrapConsole(); 
+  } 
+} 
+```
+
+If using consola version 3
+
+```javascript
+import consola from 'consola'; 
+import logger from './utils/logger'; 
+import WinstonReporter from './utils/WinstonReporter' 
+
+if (process.env.npm_lifecycle_event === 'start') { 
+  consola.setReporters([new WinstonReporter(logger)]); 
+  if (process.env.NODE_ENV === 'production') { 
+    consola.wrapAll(); 
+  } else { 
+    consola.wrapConsole(); 
+  } 
+} 
+```

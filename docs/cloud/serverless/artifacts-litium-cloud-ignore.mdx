@@ -1,0 +1,63 @@
+---
+title: "Litium cloud ignore"
+description: "Litium cloud ignore"
+---
+# .litiumcloudignore in Litium Serverless Cloud
+
+The .litiumcloudignore file is used to control which files and folders are included in the artifact when building and deploying apps to Litium Serverless Cloud using the litium-cloud CLI. It works similarly to .gitignore, but specifically for the artifact packaging process for all artifacts in Serverless Cloud.
+
+## Purpose
+
+By default, the CLI excludes files listed in:
+
+- `.gitignore`
+    
+- `.npmignore`
+    
+- `.litiumcloudignore`
+    
+
+If the same file is excluded in multiple files, the exclusion still applies — unless you explicitly override it using negation (`!`).
+
+This makes `.litiumcloudignore` essential when you want to **include specific files** (such as `.env.production`) that are otherwise ignored by convention.
+
+## Common Use Cases
+
+- Including `.env.production` for build-time environment variables
+    
+- Ensuring test files or build artifacts are excluded from the cloud package
+    
+- Overriding `.gitignore` rules for deployment-specific needs
+    
+
+## Example: Allow `.env.production` to Be Included
+
+```powershell
+# .litiumcloudignore
+
+# Explicitly include the production environment file
+!.env.production
+```
+
+This ensures that `.env.production` is packaged into the deployment artifact, even if `.gitignore` or `.npmignore` exclude it.
+
+> ✅ Required when using `dotenv` to load environment variables at build time in a Next.js app.
+
+## Best Practices
+
+- Always **place `.litiumcloudignore` in the root folder** of your project — the same folder you point to when creating the artifact.
+    
+- Use negation (`!`) to override ignore rules for specific files or folders.
+    
+
+## Debugging Tips
+
+If a file you expect to be included is missing from the deployed app:
+
+- Check if it’s being excluded in `.gitignore`, `.npmignore`, or `.litiumcloudignore`.
+    
+- Use `!<filename>` in `.litiumcloudignore` to explicitly include it.
+    
+- Validate your artifact with `litium-cloud artifact download` to inspect its contents.
+    
+- Don't use wildcard in .gitignore for .env as of now, a current bug prevents this - [Files included with _.gitignore_ and _.litiumcloudignore_ are excluded from the final artifact if _.gitignore_ contains a preceeding exclude-filter](/resources/bugs/bug_details?id=72246)

@@ -1,0 +1,95 @@
+---
+title: "Create dotnet artifact"
+description: "Create dotnet artifact"
+---
+# Create dotnet artifact
+
+An artifact of type dotnet is used when you want to deploy a dotnet application into Litium Cloud, e.g. Litium accelerator. 
+
+**Prerequirements**
+
+- [Access to the subscription you want to make the artifact available for](/cloud/serverless/getting-started-with-cloud-cli)
+- [CLI installed](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/getting-started-with-cloud-cli)
+
+## Preparing and Building the .NET Package
+
+.NET applications must be precompiled before being uploaded to Litium serverless cloud. Information such as .NET version and application entry point is needed for the application to work properly in Serverless cloud. This information is stored in a manifest. 
+
+### Litium Cloud Manifest 
+
+The **Litium Cloud Manifest** is essential for describing the application code that will be deployed to Litium Serverless Cloud. It contains important information, such as application entry point and .NET version.
+
+This manifest file, named `litiumcloud.manifest.json`, is a JSON file that includes key-value pairs to define deployment settings. 
+
+To generate the manifest, the **`Litium.Cloud.Tools.Targets`** package should be used. This package automatically creates the manifest from the properties in your .NET project during pre-compilation when the project is being built. Simply add this nuget package to your web project and the next time you publish your project the litium.manifest.json file will be generated for you.
+
+### Health checks
+
+Serverless cloud uses health checks for startup, readiness and live states, which help the infrastructure determine when to route traffic to the newly deployed version of the application.
+
+Built-in health checks were introduced in Litium version 8.8. Meaning that you don't need to implement those endpoints yourself if you are running on version 8.8 or later. If you're using an earlier version, either disable the probes by setting the paths to `"none"` or implement your own custom health check endpoints.
+
+By default, it configures health checks for the following URLs:
+
+- `/health/startup`
+- `/health/live`
+- `/health/ready`
+
+If you need to override these default probes, you can specify alternative URLs or disable the probes by setting the value to `"none"`. Those setting should be added in the csproj-file of your startup project, for instance the MVC project. Example:
+
+`<PropertyGroup>`
+
+`<LitiumCloudStartupProbePath>/health/startup</LitiumCloudStartupProbePath>`
+
+`<LitiumCloudLiveProbePath>/health/live</LitiumCloudLiveProbePath>`
+
+`<LitiumCloudReadinessProbePath>/health/ready`
+
+`</LitiumCloudReadinessProbePath>`
+
+`</PropertyGroup>`
+
+### Publishing the Application
+
+Before creating the artifact, the application needs to be published using the following command to optimize the output size by specifying the OS and architecture: 
+
+`dotnet publish path/to/project.csproj -f net8.0 -c Release -a x64 --os linux -o publish`
+
+Here’s what the options do:
+
+- `-f`: Specifies the target framework (`net8.0` in this case)
+- `-c`: Configures the build for Release mode
+- `-a` and `--os`: Builds the application for a specific architecture and operating system (e.g., `x64` for Linux)
+- `-o`: Specifies the output directory (e.g., `publish`)
+
+The contents of the `publish` folder will be used to create the release.
+
+## Create artifact in serverless cloud
+
+When the application has been published you are ready to create the artifact in serverless cloud. This is done with the artifact create command, example
+
+`litium-cloud artifact create --file-path .\publish\ --artifact-type dotnet --subscription enter-subscription`
+
+## Summary - Steps to Create a .NET Artifact
+
+1.  **Add the Litium.Cloud.Tools.Targets Package**
+    
+    Add the package to your .NET project (e.g., the MVC project):
+    
+    `dotnet add .\Src\Litium.Accelerator.Mvc\Litium.Accelerator.Mvc.csproj package Litium.Cloud.Tools.Targets --prerelease`
+    
+2.  **Publish the Project**
+    
+    Publish your project using the following command:  
+      
+    _Note. dotnet version may be different if you're building an older version of litium or other dotnet project that has other requirements._
+    
+    `dotnet publish .\Src\Litium.Accelerator.Mvc\Litium.Accelerator.Mvc.csproj -f net9.0 -c Release -o publish -a x64 --os linux`
+    
+3.  **Create the .NET Artifact Using Litium Cloud CLI**
+    
+    Use the Litium Cloud CLI to create the artifact. The `--file-path` option can point to either a folder or a zip file. For example:
+    
+    `litium-cloud artifact create --name "My release - $(get-date)" --file-path .\publish\ --artifact-type dotnet --subscription enter-subscription`
+    
+    After executing the command, a job ID will be printed in the console, which you can use to monitor the deployment status and view logs.

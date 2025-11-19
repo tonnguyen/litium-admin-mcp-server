@@ -328,9 +328,17 @@
                 "group": "Artifacts",
                 "pages": [
                   "cloud/serverless/artifacts",
+                  "cloud/serverless/artifacts-create-dotnet-artifact",
+                  "cloud/serverless/artifacts-create-nextjs-artifact",
+                  "cloud/serverless/artifacts-create-nuxtjs-artifact",
+                  "cloud/serverless/artifacts-create-nodejs-artifact",
                   "cloud/serverless/artifacts-create-sql-backup-artifact",
                   "cloud/serverless/artifacts-create-storage-backup-artifact",
-                  "cloud/serverless/artifacts-deploy-artifact"
+                  "cloud/serverless/artifacts-deploy-artifact",
+                  "cloud/serverless/artifacts-download-artifact",
+                  "cloud/serverless/artifacts-logging-for-nodejs-and-nuxtjs",
+                  "cloud/serverless/artifacts-litium-cloud-ignore",
+                  "cloud/serverless/artifacts-using-environment-variables"
                 ]
               },
               "cloud/serverless/copy-environment",
@@ -355,7 +363,12 @@
                   "cloud/serverless/public-apps-litium-cdn",
                   "cloud/serverless/public-apps-litium-cdn-domain",
                   "cloud/serverless/public-apps-litium-insights",
-                  "cloud/serverless/public-apps-litium-platform-worker"
+                  "cloud/serverless/public-apps-litium-platform",
+                  "cloud/serverless/public-apps-litium-platform-worker",
+                  "cloud/serverless/public-apps-litium-sftp",
+                  "cloud/serverless/public-apps-install-smtp-relay-app",
+                  "cloud/serverless/public-apps-litium-storefront",
+                  "cloud/serverless/public-apps-litium-storefront-proxy"
                 ]
               },
               {

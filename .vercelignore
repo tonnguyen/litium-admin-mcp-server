@@ -1,0 +1,3 @@
+# Ignore cloud-cli-mcp-server folder from Vercel builds
+cloud-cli-mcp-server/
+

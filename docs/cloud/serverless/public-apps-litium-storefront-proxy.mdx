@@ -1,0 +1,127 @@
+---
+title: "Litium Storefront Proxy"
+description: "Litium Storefront Proxy"
+---
+# Litium Storefront Proxy
+
+The Litium Storefront Proxy is a public app designed to route incoming web traffic efficiently to the appropriate backend services or the storefront application within the Litium Serverless Cloud environment. This proxy ensures streamlined traffic management by directing requests based on specific URL patterns defined by the Litium platform.
+
+## How it Works
+
+The proxy routes traffic by fetching configuration details from a special endpoint provided by the Litium platform app:
+
+```text
+https://<platform-url>/.well-known/litium/dev-proxy
+```
+
+### Example configuration
+
+A sample response from the endpoint looks like:
+
+```powershell
+{
+  "version": "1.0",
+  "items": [
+    {"name": "Litium", "path": "litium/{**remainder}"},
+    {"name": "LitiumConnectPaymentsApi", "path": "litium/api/connect/payments/{**remainder}"},
+    {"name": "LitiumTeleport", "path": "litium/dist/teleport/{**remainder}"},
+    {"name": "LitiumWellKnown", "path": ".well-known/litium/{**remainder}"},
+    {"name": "LitiumGraphQL", "path": "storefront.graphql/{**remainder}"},
+    {"name": "LitiumStorage", "path": "storage/{**remainder}"},
+    {"name": "LitiumSitemap", "path": "sitemap.axd/{**remainder}"},
+    {"name": "LitiumPriceAgent", "path": "priceagent.axd/{**remainder}"},
+    {"name": "LitiumPriceAgentForAlternativeChannel", "path": "{path}/priceagent.axd/{**remainder}"},
+    {"name": "LitiumProductFeed", "path": "feed.axd/{**remainder}"},
+    {"name": "LitiumRobots", "path": "robots.txt"}
+  ]
+}
+```
+
+Each configuration item specifies:
+
+- **name**: Identifies the internal Litium service.
+    
+- **path**: Defines URL patterns that the proxy matches to forward requests correctly.
+    
+
+**Note**: The proxy intentionally ignores the `Litium` item to avoid publicly exposing the backoffice URL (`/litium`). To access the Litium backoffice, use the public URL pointing directly to the Litium platform application.
+
+Requests for entries not found in the configuration will automatically be forwarded to the storefront application.
+
+### Custom entries
+
+The platform automatically setup default proxy paths, like the example above. For example /storage for images etc.
+
+But it is also possible to add your own paths if you have custom endpoints that always should be redirected to the Litium platform app. You do that by adding array entries to the appsettings.json in your Litium platform project, with the key Litium:DevProxy:Items
+
+**Example appsettings.json:**
+
+```csharp
+  "Litium": {
+    "DevProxy": {
+      "Items": [
+        {
+          "Name": "CustomAPI",
+          "Path": "api/{**remainder}"
+        }
+      ]
+    }
+  }
+```
+
+**Important** \- if you add custom items you need to restart your Storefront Proxy app after the Litium platform has been deployed with your changes. Use the restart command to restart your Storefront proxy app, example:
+
+```powershell
+litium-cloud app restart --app [litium-storefront-proxy] --env [insert-env] --sub [insert-sub]
+```
+
+## Install
+
+​**Note**: The Litium Storefront Proxy is automatically included when installing the "Litium nextjs web" public app, thus not requiring manual setup in that scenario. This app is only needed if you choose to use a private app such as next.js web, node.js web, or nuxt.js web as your storefront application.
+
+### To install the Litium Storefront Proxy
+
+1.  **Download manifest example** 
+    
+    ```powershell
+    litium-cloud marketplace manifest --app litium-storefront-proxy -f enter-any-name.yaml
+    ```
+    
+    **Example**:
+    
+    ```text
+    kind: app
+    resource:
+      id: litium-storefront-proxy
+    spec:
+      type: litium-storefront-proxy
+      version: 1.0.0
+      properties:
+        - name: storefront_internal_domain
+          valueFrom:
+            appRef:
+              name: storefront-app
+              key: internal_domain_name
+    ```
+    
+2.  **Edit manifest file:** Make sure the property "storefront\_internal\_domain" fetches its value from your storefront app you want to proxy traffic to  
+     
+3.  **Install app**
+    
+    ```csharp
+    litium-cloud apply --env [environment-id] --sub [subscription-id] --f [your-yaml-file.yaml]
+    ```
+    
+
+##   
+Accessing the storefront app
+
+Once you have installed the Storefront Proxy app you access the storefront app through the public system domain of your storefront proxy app, use the CLI to view the public system generated domain:
+
+```powershell
+litium-cloud app show --sub [insert id] --env [insert id] --app [insert storefront proxy app id]
+```
+
+### External domain
+
+When configuring your public domain, ensure that it points to the Litium Storefront Proxy app. All incoming requests will automatically be evaluated by the proxy, ensuring correct routing based on the platform configuration.

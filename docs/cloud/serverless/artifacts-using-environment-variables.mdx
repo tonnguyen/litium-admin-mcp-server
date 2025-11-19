@@ -1,0 +1,212 @@
+---
+title: "Using Environment Variables in Litium Serverless Cloud (Next.js, Nuxt.js, Node.js)"
+description: "Using Environment Variables in Litium Serverless Cloud (Next.js, Nuxt.js, Node.js)"
+---
+# Using Environment Variables in Litium Serverless Cloud (Next.js, Nuxt.js, Node.js)
+
+When deploying applications (such as a Next.js or Nuxt.js frontend, or a custom Node.js service) to Litium Serverless Cloud, handling environment-specific variables differs slightly from traditional server environments.  
+  
+This guide outlines supported methods for managing environment variables across environments (e.g., test, staging, production) using the Litium Cloud CLI and manifest-based deployment model.
+
+## Overview
+
+Litium Serverless Cloud supports both build-time and runtime environment variable handling, with some framework-specific behavior depending on the runtime (e.g., Next.js or Nuxt.js).
+
+In Next.js, environment variables are typically loaded using `.env.*` files. However, in Litium Cloud:
+
+- `.env` files are **ignored by default** when creating artifacts.  
+    To include a \`.env\` file such as \`.env.production\` in your artifact, you must explicitly allow it in your \`.litiumcloudignore\` file. See [Using .litiumcloudignore](/cloud/serverless/artifacts-litium-cloud-ignore) for details.
+    
+- In Next.js, variables with the prefix NEXT\_PUBLIC\_ are inlined at build time and exposed to the client side. These are not injected at runtime.
+    
+- In Next.js, the next.config.js file is evaluated at build time only and cannot access runtime-injected variables.
+    
+- Litium supports **runtime environment variables** via the `manifest.yaml` file.
+    
+
+* * *
+
+## Recommended Approach: `RUNTIME_` Variables via Manifest
+
+The preferred method is to define environment variables in your `manifest.yaml` under the `configurations` section. These variables are injected into the app’s runtime environment and can be safely reused across environments without rebuilding the artifact.
+
+Although you can name variables freely, we recommend using a `RUNTIME_` prefix to clearly indicate that they are intended to be injected at runtime.
+
+#### Example: `manifest.yaml`
+
+```powershell
+kind: appResource
+resource:
+  id: my-storefront
+spec:
+  type: litium-nextjs-web
+  configurations:
+    - name: RUNTIME_MY_SETTING
+      value: my-value
+```
+
+> 💡 **Note:** While any variable name is supported, using the `RUNTIME_` prefix helps clarify its purpose and avoid confusion with build-time or client-exposed variables.
+
+#### Usage in Server Code
+
+```javascript
+const setting = process.env.RUNTIME_MY_SETTING;
+console.log("Runtime setting:", setting);
+```
+
+This works in server-side code (e.g., API routes, middleware, or custom server files), where variables are available via `process.env`.
+
+* * *
+
+## Alternative: Using `.env.production` with `dotenv`
+
+For scenarios where you need to access environment variables during **build time**, you can use a `.env.production` file with the `dotenv` package.
+
+> ⚠️ This requires creating separate builds per environment since the values are embedded at build time.  
+> **Make sure your `.env.production` file is populated with the correct values before each build.**
+
+### Steps
+
+1.  Install `dotenv with your package manager, in below example we use npm`:
+    
+    ```powershell
+    npm install dotenv --save-dev
+    ```
+    
+2.  Load it in `next.config.js`:
+    
+    ```javascript
+    require('dotenv').config({ path: '.env.production' });
+    
+    module.exports = {
+      serverRuntimeConfig: {
+        MY_SETTING: process.env.MY_SETTING
+      },
+      publicRuntimeConfig: {
+        PUBLIC_SETTING: process.env.NEXT_PUBLIC_MY_SETTING
+      }
+    };
+    ```
+    
+3.  Include `.env.production` in your artifact by configuring `.litiumcloudignore`:
+    
+    ```powershell
+    # .litiumcloudignore
+    !.env.production
+    ```
+    
+
+💡 **Note for Litium Next.js artifacts:**  
+The Litium CLI includes `dotenv-flow` by default and sets `NODE_ENV=production` during builds. This means `.env.production` is automatically picked up, and you usually don’t need to install or manually load `dotenv`.  
+However, the manual approach shown above still works and is applicable across other runtimes (e.g., Node.js, Nuxt.js), so we include it for consistency.
+
+### Important: One Build Per Environment
+
+When using the `.env.production` + `dotenv` approach, environment variables are baked into the artifact at build time.  
+This means:
+
+- You must manually ensure that `.env.production` contains the correct values for the target environment (e.g., test, staging, production) **before** running `litium-cloud artifact create`.
+    
+- If you're deploying to multiple environments, you'll need to generate and upload a separate artifact for each — one per environment.
+    
+
+> 💡 Tip: Consider scripting the transformation of `.env.production` in your CI/CD pipeline to match the environment context automatically.
+
+* * *
+
+## Framework-specific behavior: Next.js and build-time config
+
+In Next.js, the `next.config.js` (or `.ts`) file is executed **once at build time**, and its result is converted into a static JSON structure.
+
+### This means:
+
+- `next.config.js` **cannot access runtime values** like `process.env.RUNTIME_* that are incjected by Litium at runtime.`  
+    
+- Any environment variable used inside `next.config.js` must be manually loaded from `.env.production` using a package like `dotenv`, as these files are **not automatically applied** during config evaluation.
+    
+    - `process.env.MY_SETTING` (or any variable) will work in pages/components if the variable is in `.env.production` 
+        
+    - But `process.env.MY_SETTING` will be `undefined` inside `next.config.js` unless you use `dotenv`
+        
+
+Example:
+
+```javascript
+require('dotenv').config({ path: '.env.production' });
+
+module.exports = {
+  serverRuntimeConfig: {
+    SOME_VALUE: process.env.MY_SETTING
+  }
+};
+```
+
+This value becomes **hardcoded** into the artifact and **cannot be changed per environment** without rebuilding.
+
+**Note:** Although this variable is named `RUNTIME_MY_SETTING`, it is **not injected at runtime**. Instead, it is read from `.env.production` during the build process via `dotenv`, and becomes hardcoded into the artifact. For true runtime environment variables, use the `RUNTIME_` prefix in the `manifest.yaml` instead.
+
+### Why Some Values Still Work
+
+Litium CLI replaces certain known placeholders (like `build-litium-server-url.localtest.me`) during build using **find-and-replace rules**. This is why those work inside `next.config.js` — but general environment variables do not.
+
+* * *
+
+## Working with `NEXT_PUBLIC_` Variables
+
+**Next.js only:**  
+This section applies to Next.js apps that use environment variables in the browser.
+
+Next.js replaces all environment variables that start with `NEXT_PUBLIC_` **at build time**. These are exposed to the client side.
+
+To use them:
+
+1.  Define them in `.env.production`.
+    
+2.  Include the file in `.litiumcloudignore` (see above).
+    
+3.  Use in client-side code:
+    
+    ```javascript
+    console.log(process.env.NEXT_PUBLIC_MY_SETTING);
+    ```
+    
+
+> ⚠️ These values are visible in the browser and must never contain sensitive information.
+
+* * *
+
+## Best Practices
+
+These recommendations apply broadly, but some framework-specific patterns (like `NEXT_PUBLIC_`) only apply to Next.js.
+
+| Goal | Recommended Approach |
+| --- | --- |
+| Runtime config per environment | Use `RUNTIME_` via `manifest.yaml` |
+| Build-time config (e.g., in `next.config.js`) | Use `.env.production` + `dotenv` |
+| Client-exposed variables | Use `NEXT_PUBLIC_` in `.env.production` |
+| Same artifact across environments | Only use `RUNTIME_` variables |
+
+* * *
+
+## Debugging Tips
+
+- Verify your variables are **referenced correctly** (`RUNTIME_`, `NEXT_PUBLIC_`, etc.).
+    
+- Download your artifact (`litium-cloud artifact download`) to inspect its contents.
+    
+- Use `console.log(process.env.XXX)` in server code to verify runtime access.
+    
+- Use Litium Cloud Insights to review logs after deployment.
+    
+
+* * *
+
+## Related Links
+
+- [Next.js Runtime Configuration](https://nextjs.org/docs/pages/api-reference/next-config-js/runtime-configuration)
+    
+- [dotenv Documentation](https://github.com/motdotla/dotenv)
+    
+- [Litium Cloud CLI – Getting Started](/cloud/serverless/getting-started-with-cloud-cli)
+    
+- [Using `.litiumcloudignore`](/cloud/serverless/artifacts-litium-cloud-ignore)

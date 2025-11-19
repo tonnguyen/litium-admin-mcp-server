@@ -1,0 +1,124 @@
+---
+title: "Create Node.js artifact"
+description: "Create Node.js artifact"
+---
+# Create Node.js artifact
+
+If you want to run Node.js without any specific dialect, such as Next.js or Nuxt.js, you can use the common Node.js web app to run any type of Node.js code.
+
+**Prerequirements**
+
+- [Access to the subscription you want to make the artifact available for](/cloud/serverless/getting-started-with-cloud-cli)
+- [CLI installed](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/getting-started-with-cloud-cli)
+
+## Preparing Node.js package
+
+### **Build and start command**
+
+The Node.js application relies on the _build_ and _start_ command that is defined in _package.json_
+
+### Access to packages
+
+Node.js application is built in Litium Serverless Cloud from the source, that means that it’s important that every resource that is used is public accessible. The npmrc file is used to configure custom npm registries for private packages, authentication information needs to be included with information about the private registries.
+
+### Node version
+
+To define the node version that is required the standard engines settings inside package.json file is used. Litium Serverless Cloud will automatically detect and use the latest supported release from the version that have been described. If the element is omitted the latest node version that exists when the release is created will be used. The list of available node versions will be updated daily and waiting 7 days after the actual release date before the version will be included in supported versions. 
+
+Example where node 18 will be used:
+
+```json
+{
+  "engines": {
+    "node": "18"
+  }
+}
+```
+
+### Health checks
+
+By default we add the following health checks: api/health/startup, api/health/live, api/health/ready
+
+You need to make sure that those endpoints exists and responds with a status ok.
+
+If you don’t want to use the standard probe for startup, readiness or live URLs you can use the following properties to define other URLs. Use the “none” word instead of a path to turn off the probe. This should be configured in package.json. Example where health checks isn't used:
+
+```xml
+  "litium-cloud":{
+    "probe_liveness_path": "none",
+    "probe_readiness_path": "none",
+    "probe_startup_path": "none"
+  }
+```
+
+### Logging - Litium Insights logs from Node.js
+
+For Node.js you need to install and configure the logging by yourself in your project to be able to view the logs in Litium Insights. [Read more about how to setup logging and see examples.](/cloud/serverless/artifacts-logging-for-nodejs-and-nuxtjs)
+
+## Package management
+
+Package management that is used is detected based on lock-files.  
+
+The following priority is made to choose lock-file
+
+1.  If yarn.lock exists the yarn version 1 will be used - note that we are using version 1
+2.  If package-lock.json exists then npm bundled with node will be used
+
+I no lock files are found the build will fail.
+
+## Build process
+
+The build process is in the following order: 
+
+1.  Install packages as development environment, this will install both dependencies and devDependencies. 
+    
+
+2.  Executing the build script from package.json as production environment. 
+    
+
+3.  Clean installed packages and installing packages as production environment. This to create the smallest subset of referenced packages and avoid build errors. 
+    
+
+4.  Create the artifact result. 
+    
+
+The production environment will execute the start script from package.json. If your application changes the NODE\_OPTIONS in the start script, remember to append your changes to the default NODE\_OPTIONS instead of replacing the value to not discard settings from Litium Serverless Cloud hosting. 
+
+The application should listen on the port specified in the environment variable PORT. 
+
+## Create artifact in serverless cloud
+
+**_Note. Creating a Node.js image may take some time, depending on project dependencies, size etc., because the build is happening in Serverless Cloud compared to dotnet where build is done before it is uploaded to Serverless cloud._**
+
+The option "artifact-type" should be set to "nodejs" for node.js applications
+
+Example command could look like:
+
+```powershell
+litium-cloud artifact create --file-path .\frontend\ --artifact-type nodejs --subscription enter-subscription
+```
+
+_Note. The artifact create command will output commands to show [logs and status](/cloud/serverless/view-status-and-logs), including job-id assigned to the job._  
+
+##   
+Summary - Steps to Create a Node.js Artifact
+
+1.  **Configure package.json** 
+    
+    Make sure following topics are covered: Access to packages, node version and health checks
+    
+2.  **Logging**
+    
+    [Make sure you have implemented logging.](/cloud/serverless/artifacts-logging-for-nodejs-and-nuxtjs)
+    
+3.  **Package management**
+    
+    Make sure you have either yarn.lock or package-lock.json in your solution.
+    
+4.  **Create the Node.js Artifact Using Litium Cloud CLI**
+    
+    Use the Litium Cloud CLI to create the artifact. The `--file-path` option can point to either a folder or a zip file. For example:
+    
+    litium-cloud artifact create --file-path .\\frontend\\ --artifact-type nodejs --subscription enter-subscription
+    
+    After executing the command, a job ID will be printed in the console, which you can use to monitor the deployment status and view logs.

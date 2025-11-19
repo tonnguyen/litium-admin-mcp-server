@@ -1,0 +1,28 @@
+---
+title: "Download artifact"
+description: "Download artifact"
+---
+# Download artifact
+
+It is possible to download the artifacts you have access to onto your local computer.
+
+To download an artifact you use the command 'artifact download' with options '--artifact' pointing to the id of the artifact and the option '--file' where you enter the path and filename where you want the results to be downloaded to. 
+
+Different type of artifacts is downloaded with different file format:
+
+- dotnet - .zip file
+- storage - .zip file
+- sqlbackup - .bak file
+- nextjs - .zip file
+
+Example command
+
+```powershell
+litium-cloud artifact download --artifact 12345678910 --file mydatabase.bak
+```
+
+## Get artifact id
+
+To get all available artifacts for a subscription, use the "artifact list"-command. To get information about which specific artifacts an app is currently using, use the "app show" command.
+
+_**Note** that artifacts have retention policies, read about retention policies for [code artifacts](/cloud/serverless/artifacts), [database artifacts](/cloud/serverless/artifacts-create-sql-backup-artifact) and [storage artifacts](/cloud/serverless/artifacts-create-storage-backup-artifact)._

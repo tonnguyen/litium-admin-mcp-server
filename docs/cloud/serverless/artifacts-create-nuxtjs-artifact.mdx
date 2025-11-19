@@ -1,0 +1,98 @@
+---
+title: "Create Nuxt.js artifact"
+description: "Create Nuxt.js artifact"
+---
+# Create Nuxt.js artifact
+
+An artifact of type nuxtis used when you want to deploy a nuxtjs-web application into Litium Cloud.  
+
+**Prerequirements**
+
+- [Access to the subscription you want to make the artifact available for](/cloud/serverless/getting-started-with-cloud-cli)
+- [CLI installed](https://docs.litium.com/platform/get-started/developer-tools/litium-cloud-cli/getting-started-with-cloud-cli)
+- Nuxt 3 - artifact for nuxt.js is building Nuxt version 3, i.e. other versions is not supported
+
+## Preparing Nuxt.js package
+
+### Access to packages
+
+Nuxt.js application is built in Litium Serverless Cloud from the source, that means that it’s important that every resource that is used is public accessible. The npmrc file is used to configure custom npm registries for private packages, authentication information needs to be included with information about the private registries.
+
+### Node version
+
+To define the node version that is required the standard engines settings inside package.json file is used. Litium Serverless Cloud will automatically detect and use the latest supported release from the version that have been described. If the element is omitted the latest node version that exists when the release is created will be used. The list of available node versions will be updated daily and waiting 7 days after the actual release date before the version will be included in supported versions. 
+
+Example where node 18 will be used:
+
+```json
+{
+  "engines": {
+    "node": "18"
+  }
+}
+```
+
+### Health checks
+
+By default we add the following health checks: api/health/startup, api/health/live, api/health/ready
+
+You need to make sure that those endpoints exists and responds with a status ok.
+
+If you don’t want to use the standard probe for startup, readiness or live URLs you can use the following properties to define other URLs. Use the “none” word instead of a path to turn off the probe. This should be configured in package.json. Example where health checks isn't used:
+
+```xml
+  "litium-cloud":{
+    "probe_liveness_path": "none",
+    "probe_readiness_path": "none",
+    "probe_startup_path": "none"
+  }
+```
+
+### Logging - Litium Insights logs from Nuxt.js
+
+For Nuxt.js you need to install and configure the logging by yourself in your project to be able to view the logs in Litium Insights. [Read more about how to setup logging and see examples.](/cloud/serverless/artifacts-logging-for-nodejs-and-nuxtjs)
+
+## Package management
+
+Package management that is used is detected based on lock-files.  
+
+The following priority is made to choose lock-file
+
+1.  If yarn.lock exists the yarn version 1 will be used - note that we are using version 1
+2.  If package-lock.json exists then npm bundled with node will be used
+3.  If pnpm-lock.yaml exists then pnpm is used
+
+I no lock files are found the build will fail.
+
+## Create artifact in serverless cloud
+
+**_Note. Creating a Nuxt.js image may take some time, depending on project dependencies, size etc., because the build is happening in Serverless Cloud compared to dotnet where build is done before it is uploaded to Serverless cloud._**
+
+The option "artifact-type" should be set to "nuxtjs" for nuxt.js applications
+
+Example command could look like:
+
+```powershell
+litium-cloud artifact create --file-path .\frontend\ --artifact-type nuxtjs --subscription enter-subscription
+```
+
+_Note. The artifact create command will output commands to show [logs and status](/cloud/serverless/view-status-and-logs), including job-id assigned to the job._  
+
+##   
+Summary - Steps to Create a Nuxt.js Artifact
+
+1.  **Configure package.json** 
+    
+    Make sure following topics are covered: Access to packages, node version and health checks
+    
+2.  **Logging**
+    
+    [Make sure you have implemented logging.](/cloud/serverless/artifacts-logging-for-nodejs-and-nuxtjs)
+    
+3.  **Create the Nuxt.js Artifact Using Litium Cloud CLI**
+    
+    Use the Litium Cloud CLI to create the artifact. The `--file-path` option can point to either a folder or a zip file. For example:
+    
+    litium-cloud artifact create --file-path .\\frontend\\ --artifact-type nuxtjs --subscription enter-subscription
+    
+    After executing the command, a job ID will be printed in the console, which you can use to monitor the deployment status and view logs.
