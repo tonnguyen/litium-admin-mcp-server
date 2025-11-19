@@ -1,6 +1,7 @@
 import { BaseApiService } from '../base-api';
 import { type LitiumConfig } from '../../types/config';
 import { FilterBuilder } from '../../utils/filter-builder';
+import { mergeFieldValues, sanitizeFields } from '../../utils/field-merger';
 
 export class BlocksService extends BaseApiService {
   constructor(config: LitiumConfig) {
@@ -47,7 +48,24 @@ export class BlocksService extends BaseApiService {
    */
   async updateBlock(systemId: string, block: any) {
     const endpoint = `/Litium/api/admin/blocks/blocks/${systemId}`;
-    return this.update<any>(endpoint, block);
+    const existing = await this.getBlock(systemId);
+    const mergedFields = mergeFieldValues(
+      sanitizeFields(existing.fields, ['_lastWriteTimeUtc']),
+      sanitizeFields(block?.fields)
+    );
+
+    const payload = {
+      ...existing,
+      ...block,
+      fields: mergedFields,
+      channelLinks: block?.channelLinks !== undefined ? block.channelLinks : existing.channelLinks,
+      accessControlList:
+        block?.accessControlList !== undefined ? block.accessControlList : existing.accessControlList,
+      items: block?.items !== undefined ? block.items : existing.items,
+      blocks: block?.blocks !== undefined ? block.blocks : existing.blocks,
+    };
+
+    return this.update<any>(endpoint, payload);
   }
 
   /**

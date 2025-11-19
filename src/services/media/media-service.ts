@@ -1,6 +1,10 @@
 import { BaseApiService } from '../base-api';
 import { type LitiumConfig } from '../../types/config';
 import { FilterBuilder } from '../../utils/filter-builder';
+import FormData from 'form-data';
+import path from 'node:path';
+import { createReadStream } from 'node:fs';
+import { stat } from 'node:fs/promises';
 
 export class MediaService extends BaseApiService {
   constructor(config: LitiumConfig) {
@@ -223,9 +227,49 @@ export class MediaService extends BaseApiService {
   /**
    * Upload a file to a media file
    */
-  async uploadFile(systemId: string, fileData: any) {
+  async uploadFile(systemId: string, fileData: { filePath: string; fileName?: string; contentType?: string }) {
+    if (!fileData?.filePath) {
+      throw new Error('filePath is required to upload a media file');
+    }
+
+    const resolvedPath = path.isAbsolute(fileData.filePath)
+      ? fileData.filePath
+      : path.resolve(fileData.filePath);
+
+    const fileStats = await stat(resolvedPath);
+    if (!fileStats.isFile()) {
+      throw new Error(`filePath must point to a file: ${resolvedPath}`);
+    }
+
+    const formData = new FormData();
+    const fileName = fileData.fileName ?? path.basename(resolvedPath);
+    const contentType = fileData.contentType ?? this.resolveMimeType(path.extname(fileName));
+
+    formData.append('fileName', createReadStream(resolvedPath), {
+      filename: fileName,
+      contentType,
+      knownLength: fileStats.size,
+    });
+
+    const headers = formData.getHeaders();
     const endpoint = `/Litium/api/admin/media/files/${systemId}/upload`;
-    return this.tokenManager.makeAuthenticatedRequest<any>('POST', endpoint, fileData);
+    return this.tokenManager.makeAuthenticatedRequest<any>('PUT', endpoint, formData as any, {
+      'Content-Type': headers['content-type'],
+    });
+  }
+
+  private resolveMimeType(extension: string): string {
+    const ext = extension.toLowerCase();
+    const map: Record<string, string> = {
+      '.png': 'image/png',
+      '.jpg': 'image/jpeg',
+      '.jpeg': 'image/jpeg',
+      '.gif': 'image/gif',
+      '.webp': 'image/webp',
+      '.svg': 'image/svg+xml',
+    };
+
+    return map[ext] ?? 'application/octet-stream';
   }
 
   /**

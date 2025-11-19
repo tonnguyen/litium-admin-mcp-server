@@ -16,7 +16,7 @@ API Endpoints:
 - get_folder_files: GET /Litium/api/admin/media/folders/{systemId}/files
 - get_subfolders: GET /Litium/api/admin/media/folders/{systemId}/folders`,
     {
-      operation: z.enum(['search', 'get', 'upload', 'download', 'get_folder_files', 'get_subfolders']),
+      operation: z.enum(['search', 'get', 'create', 'upload', 'download', 'get_folder_files', 'get_subfolders']),
       systemId: z.string().optional(),
       data: z.any().optional(),
       params: z.object({
@@ -34,6 +34,8 @@ API Endpoints:
             return { content: [{ type: 'text', text: JSON.stringify(await apiService.media.searchMediaFiles(params), null, 2) }] };
           case 'get':
             return { content: [{ type: 'text', text: JSON.stringify(await apiService.media.getMediaFile(systemId!), null, 2) }] };
+          case 'create':
+            return { content: [{ type: 'text', text: JSON.stringify(await apiService.media.createMediaFile(data), null, 2) }] };
           case 'upload':
             return { content: [{ type: 'text', text: JSON.stringify(await apiService.media.uploadFile(systemId!, data), null, 2) }] };
           case 'download':
