@@ -1,0 +1,49 @@
+{
+  "name": "@litium/cloud-cli-mcp-server",
+  "version": "0.1.0",
+  "description": "MCP server for Litium Cloud CLI - enables AI-assisted cloud infrastructure management",
+  "private": false,
+  "type": "module",
+  "main": "dist/server.js",
+  "bin": {
+    "litium-cloud-mcp": "dist/server.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "mcp",
+    "mcp-server",
+    "litium",
+    "cloud",
+    "cli",
+    "ai",
+    "copilot"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tonnguyen/litium-admin-mcp-server.git",
+    "directory": "cloud-cli-mcp-server"
+  },
+  "author": "Litium",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx src/server.ts",
+    "start": "node dist/server.js",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "ws": "^8.18.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/ws": "^8.5.10",
+    "tsx": "^4.0.0",
+    "typescript": "^5.4.0"
+  }
+}
