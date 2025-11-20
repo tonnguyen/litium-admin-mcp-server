@@ -163,6 +163,8 @@ The AI should automatically invoke the `cloud_cli` tool.
 ### Context Management
 - `set_context` - Store subscription/environment in-memory
 - `show_context` - Display current context
+- `auth_login` - Run `litium-cloud auth login` (interactive CLI flow)
+- `auth_logout` - Run `litium-cloud auth logout` and clear stored context
 
 ### Subscriptions & Environments
 - `list_subscriptions` - List all subscriptions

@@ -65,7 +65,9 @@ export function execCli(opts: ExecOptions): Promise<ExecResult> {
         }
         resolve({ ok: true, code, stdout, stderr, json });
       } else {
-        const mapped = mapError(stderr);
+        // Check both stdout and stderr for errors (some APIs return errors in stdout as JSON)
+        const errorText = stderr || stdout;
+        const mapped = mapError(errorText);
         resolve({ ok: false, code, stdout, stderr, errorCode: mapped.code, errorMessage: mapped.message });
       }
     });
@@ -88,5 +90,6 @@ function mapError(stderr: string): { code: string; message: string } {
   if (s.includes('permission')) return { code: 'permission_denied', message: 'Permission denied.' };
   if (s.includes('not found')) return { code: 'not_found', message: 'Resource not found.' };
   if (s.includes('certificate')) return { code: 'auth_required', message: 'Certificate error. Re-login with service principal.' };
+  if (s.includes('forbidden') || s.includes('403')) return { code: 'permission_denied', message: 'Forbidden (403). ' + (stderr.trim() || 'Permission denied or resource not available.') };
   return { code: 'command_failed', message: stderr.trim() || 'Command failed.' };
 }

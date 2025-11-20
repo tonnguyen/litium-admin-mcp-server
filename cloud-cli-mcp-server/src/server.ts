@@ -10,6 +10,18 @@ import { streamJobLogs } from './logs/logStreamer.js';
 const app = express();
 app.use(express.json({ limit: '1mb' }));
 
+type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error';
+const LOG_LEVELS: LogLevel[] = ['trace', 'debug', 'info', 'warn', 'error'];
+let currentLogLevel: LogLevel = process.env.MCP_LOG_LEVEL as LogLevel || 'info';
+
+function normalizeLogLevel(level: unknown): LogLevel | undefined {
+  if (typeof level !== 'string') {
+    return undefined;
+  }
+  const normalized = level.toLowerCase() as LogLevel;
+  return LOG_LEVELS.includes(normalized) ? normalized : undefined;
+}
+
 // Basic health & CLI auth check
 app.get('/health', async (_req, res) => {
   const check = await execCli({ args: ['subscription', 'list', '-o', 'json'], timeoutMs: 10_000 });
@@ -36,7 +48,10 @@ app.post('/mcp', async (req, res) => {
         protocolVersion: '2024-11-05',
         capabilities: {
           tools: {},
-          logging: {}
+          logging: {
+            supportsSetLevel: true,
+            levels: LOG_LEVELS
+          }
         },
         serverInfo: {
           name: 'litium-cloud-cli',
@@ -46,6 +61,32 @@ app.post('/mcp', async (req, res) => {
     };
     console.log('[MCP] Sending initialize response');
     return res.json(response);
+  }
+
+  if (body.method === 'logging/setLevel') {
+    const requestedLevel = normalizeLogLevel(body?.params?.level);
+    if (!requestedLevel) {
+      return res.json({
+        jsonrpc: '2.0',
+        id: body.id,
+        error: {
+          code: -32602,
+          message: 'Invalid log level',
+          data: { supportedLevels: LOG_LEVELS }
+        }
+      });
+    }
+
+    currentLogLevel = requestedLevel;
+    console.log('[MCP] Log level set to', requestedLevel);
+
+    return res.json({
+      jsonrpc: '2.0',
+      id: body.id,
+      result: {
+        level: currentLogLevel
+      }
+    });
   }
   
   // Handle MCP notifications
@@ -73,13 +114,13 @@ app.post('/mcp', async (req, res) => {
                     'set_context', 'show_context',
                     'list_subscriptions', 'subscription_show', 'list_environments',
                     'deploy_app', 'job_status', 'job_logs_snapshot', 'console_output',
-                    'artifact_list', 'artifact_show', 'artifact_create',
+                    'artifact_list', 'artifact_show', 'artifact_create', 'artifact_type_list',
                     'marketplace_list', 'manifest_generate', 'app_list',
                     'secret_create', 'secret_list',
                     'access_control_show', 'access_control_add', 'access_control_remove', 'access_control_disable_inheritance',
                     'role_list', 'role_show',
                     'service_principal_create',
-                    'get_audit_logs'
+                    'get_audit_logs', 'apply_manifest'
                   ]
                 },
                 subscriptionId: {
@@ -108,11 +149,11 @@ app.post('/mcp', async (req, res) => {
                 },
                 filePath: {
                   type: 'string',
-                  description: 'File path (required for artifact_create, service_principal_create)'
+                  description: 'File path (required for artifact_create, service_principal_create, apply_manifest)'
                 },
                 artifactType: {
                   type: 'string',
-                  enum: ['dotnet', 'nextjs', 'sql', 'storage'],
+                  enum: ['litium-db-tool', 'script-result', 'db-migration', 'sqlbackup', 'storage', 'dotnet', 'nextjs', 'nodejs', 'nuxtjs', 'redisbackup'],
                   description: 'Artifact type (required for artifact_create)'
                 },
                 filter: {
