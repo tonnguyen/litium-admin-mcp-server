@@ -8,3 +8,6 @@ dist/
 public/
 tmp/
 .litium-cloud.config
+.litium-artifact/
+.litium-deploy/
+builds/

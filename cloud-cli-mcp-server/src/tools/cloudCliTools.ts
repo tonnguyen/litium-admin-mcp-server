@@ -4,13 +4,11 @@ import { contextStore } from '../context/contextStore.js';
 import { buildError } from '../errors/index.js';
 import { auditLogger, generateCorrelationId, sanitizeArgs } from '../audit/auditLogger.js';
 
-// Action schema
-const baseActionSchema = z.object({ action: z.string() });
-
 const setContextSchema = z.object({
   action: z.literal('set_context'),
   subscriptionId: z.string().optional(),
   environmentId: z.string().optional(),
+  cliUrl: z.string().optional(),
 });
 
 const listSubscriptionsSchema = z.object({
@@ -24,6 +22,14 @@ const listEnvironmentsSchema = z.object({
 
 const showContextSchema = z.object({
   action: z.literal('show_context'),
+});
+
+const authLoginSchema = z.object({
+  action: z.literal('auth_login'),
+});
+
+const authLogoutSchema = z.object({
+  action: z.literal('auth_logout'),
 });
 
 const deployAppSchema = z.object({
@@ -65,8 +71,23 @@ const artifactShowSchema = z.object({
 const artifactCreateSchema = z.object({
   action: z.literal('artifact_create'),
   filePath: z.string(),
-  artifactType: z.enum(['dotnet', 'nextjs', 'sql', 'storage']),
+  artifactType: z.enum([
+    'litium-db-tool',
+    'script-result',
+    'db-migration',
+    'sqlbackup',
+    'storage',
+    'dotnet',
+    'nextjs',
+    'nodejs',
+    'nuxtjs',
+    'redisbackup',
+  ]),
   subscriptionId: z.string().optional(),
+});
+
+const artifactTypeListSchema = z.object({
+  action: z.literal('artifact_type_list'),
 });
 
 const marketplaceListSchema = z.object({
@@ -162,11 +183,20 @@ const getAuditLogsSchema = z.object({
   limit: z.number().optional(),
 });
 
+const applyManifestSchema = z.object({
+  action: z.literal('apply_manifest'),
+  filePath: z.string(),
+  subscriptionId: z.string().optional(),
+  environmentId: z.string().optional(),
+});
+
 const unionSchema = z.union([
   setContextSchema,
   listSubscriptionsSchema,
   listEnvironmentsSchema,
   showContextSchema,
+  authLoginSchema,
+  authLogoutSchema,
   deployAppSchema,
   jobStatusSchema,
   jobLogsSnapshotSchema,
@@ -174,6 +204,7 @@ const unionSchema = z.union([
   artifactListSchema,
   artifactShowSchema,
   artifactCreateSchema,
+  artifactTypeListSchema,
   marketplaceListSchema,
   manifestGenerateSchema,
   secretCreateSchema,
@@ -188,6 +219,7 @@ const unionSchema = z.union([
   subscriptionShowSchema,
   appListSchema,
   getAuditLogsSchema,
+  applyManifestSchema,
 ]);
 
 export async function invokeCloudCliTool(rawArgs: unknown) {
@@ -220,11 +252,12 @@ export async function invokeCloudCliTool(rawArgs: unknown) {
       args: sanitizeArgs(args as Record<string, unknown>),
       durationMs: Date.now() - startTime,
       success: result.ok,
-      errorCode: result.ok ? undefined : (result.error as any)?.code,
+      errorCode: result.ok ? undefined : extractErrorCode(result.error),
     });
     return result;
-  } catch (error: any) {
-    const result = { ok: false, error: buildError('internal_error', error?.message || 'Internal error') };
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Internal error';
+    const result = { ok: false, error: buildError('internal_error', message) };
     auditLogger.log({
       timestamp: new Date().toISOString(),
       correlationId,
@@ -245,16 +278,28 @@ async function executeAction(args: z.infer<typeof unionSchema>) {
       const updated = contextStore.setContext({
         subscriptionId: args.subscriptionId,
         environmentId: args.environmentId,
+        cliUrl: args.cliUrl,
       });
       return { ok: true, data: { context: updated } };
     }
     case 'show_context': {
       return { ok: true, data: { context: contextStore.getContext() } };
     }
+    case 'auth_login': {
+      const res = await execCli({ args: ['auth', 'login'], parseJson: false });
+      if (!res.ok) return { ok: false, error: buildError(res.errorCode || 'command_failed', res.errorMessage || 'Login failed', { stderr: res.stderr }) };
+      return { ok: true, data: { message: 'Login command executed', output: res.stdout } };
+    }
     case 'list_subscriptions': {
       const res = await execCli({ args: ['subscription', 'list', '-o', 'json'] });
       if (!res.ok) return { ok: false, error: buildError(res.errorCode || 'command_failed', res.errorMessage || 'Failed', { stderr: res.stderr }) };
       return { ok: true, data: { subscriptions: res.json ?? tryParseLines(res.stdout) } };
+    }
+    case 'auth_logout': {
+      const res = await execCli({ args: ['auth', 'logout'], parseJson: false });
+      if (!res.ok) return { ok: false, error: buildError(res.errorCode || 'command_failed', res.errorMessage || 'Logout failed', { stderr: res.stderr }) };
+      contextStore.setContext({ subscriptionId: undefined, environmentId: undefined });
+      return { ok: true, data: { message: 'Logged out' } };
     }
     case 'list_environments': {
       const ctx = contextStore.getContext();
@@ -318,8 +363,17 @@ async function executeAction(args: z.infer<typeof unionSchema>) {
       if (!subscription) return { ok: false, error: buildError('missing_subscription', 'Subscription id required') };
       const cliArgs = ['artifact', 'create', '--subscription', subscription, '--artifact-type', args.artifactType, '--file-path', args.filePath, '--no-progress', '-o', 'json'];
       const res = await execCli({ args: cliArgs, timeoutMs: 600_000 });
-      if (!res.ok) return { ok: false, error: buildError(res.errorCode || 'command_failed', res.errorMessage || 'Artifact creation failed', { stderr: res.stderr }) };
+      if (!res.ok) {
+        const errorMsg = res.errorMessage || 'Artifact creation failed';
+        const errorDetails = res.stderr || res.stdout || '';
+        return { ok: false, error: buildError(res.errorCode || 'command_failed', `${errorMsg}${errorDetails ? ': ' + errorDetails : ''}`, { stderr: res.stderr, stdout: res.stdout }) };
+      }
       return { ok: true, data: { artifact: res.json ?? { rawOutput: res.stdout } } };
+    }
+    case 'artifact_type_list': {
+      const res = await execCli({ args: ['artifact', 'artifact-type', 'list', '-o', 'json'] });
+      if (!res.ok) return { ok: false, error: buildError(res.errorCode || 'command_failed', res.errorMessage || 'Failed', { stderr: res.stderr }) };
+      return { ok: true, data: { artifactTypes: res.json ?? { rawOutput: res.stdout } } };
     }
     case 'marketplace_list': {
       const cliArgs = ['marketplace', 'list'];
@@ -448,6 +502,17 @@ async function executeAction(args: z.infer<typeof unionSchema>) {
       const logs = auditLogger.getRecent(args.limit || 50);
       return { ok: true, data: { logs } };
     }
+    case 'apply_manifest': {
+      const ctx = contextStore.getContext();
+      const subscription = args.subscriptionId || ctx.subscriptionId;
+      const environment = args.environmentId || ctx.environmentId;
+      if (!subscription) return { ok: false, error: buildError('missing_subscription', 'Subscription id required') };
+      if (!environment) return { ok: false, error: buildError('missing_environment', 'Environment id required') };
+      const cliArgs = ['apply', '--subscription', subscription, '--environment', environment, '-f', args.filePath, '-o', 'json'];
+      const res = await execCli({ args: cliArgs, timeoutMs: 300_000 });
+      if (!res.ok) return { ok: false, error: buildError(res.errorCode || 'command_failed', res.errorMessage || 'Apply failed', { stderr: res.stderr }) };
+      return { ok: true, data: { result: res.json ?? { rawOutput: res.stdout } } };
+    }
     default:
       return { ok: false, error: buildError('unsupported_action', 'Action not implemented') };
   }
@@ -455,4 +520,12 @@ async function executeAction(args: z.infer<typeof unionSchema>) {
 
 function tryParseLines(stdout: string): string[] {
   return stdout.split('\n').map(l => l.trim()).filter(Boolean);
+}
+
+function extractErrorCode(error: unknown): string | undefined {
+  if (error && typeof error === 'object' && 'code' in error) {
+    const candidate = (error as { code?: unknown }).code;
+    return typeof candidate === 'string' ? candidate : undefined;
+  }
+  return undefined;
 }

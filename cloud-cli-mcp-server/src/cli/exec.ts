@@ -1,4 +1,5 @@
 import { spawn } from 'node:child_process';
+import { contextStore } from '../context/contextStore.js';
 
 export interface ExecResult {
   ok: boolean;
@@ -21,7 +22,17 @@ const DEFAULT_TIMEOUT = 60_000;
 export function execCli(opts: ExecOptions): Promise<ExecResult> {
   const { args, timeoutMs = DEFAULT_TIMEOUT, parseJson = true } = opts;
   return new Promise((resolve) => {
-    const proc = spawn('litium-cloud', args, { stdio: ['ignore', 'pipe', 'pipe'] });
+    // Get LC_CLI_URL from context store or environment
+    const env = { ...process.env };
+    const cliUrl = contextStore.getCliUrl();
+    if (cliUrl) {
+      env.LC_CLI_URL = cliUrl;
+    }
+    
+    const proc = spawn('litium-cloud', args, { 
+      stdio: ['ignore', 'pipe', 'pipe'],
+      env
+    });
     let stdout = '';
     let stderr = '';
     let finished = false;
@@ -54,7 +65,9 @@ export function execCli(opts: ExecOptions): Promise<ExecResult> {
         }
         resolve({ ok: true, code, stdout, stderr, json });
       } else {
-        const mapped = mapError(stderr);
+        // Check both stdout and stderr for errors (some APIs return errors in stdout as JSON)
+        const errorText = stderr || stdout;
+        const mapped = mapError(errorText);
         resolve({ ok: false, code, stdout, stderr, errorCode: mapped.code, errorMessage: mapped.message });
       }
     });
@@ -77,5 +90,6 @@ function mapError(stderr: string): { code: string; message: string } {
   if (s.includes('permission')) return { code: 'permission_denied', message: 'Permission denied.' };
   if (s.includes('not found')) return { code: 'not_found', message: 'Resource not found.' };
   if (s.includes('certificate')) return { code: 'auth_required', message: 'Certificate error. Re-login with service principal.' };
+  if (s.includes('forbidden') || s.includes('403')) return { code: 'permission_denied', message: 'Forbidden (403). ' + (stderr.trim() || 'Permission denied or resource not available.') };
   return { code: 'command_failed', message: stderr.trim() || 'Command failed.' };
 }
