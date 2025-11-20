@@ -1,0 +1,113 @@
+---
+title: Configuration
+description: 'Connect MCP-aware clients such as Cursor, Claude Desktop, and VS Code to the Cloud CLI MCP Server'
+---
+
+## Before you start
+
+- Ensure the server is running locally (see installation guide)
+- Decide which transport each client supports (HTTP or command spawn)
+- Have the absolute path to the repository if you want to run from source
+
+## Configure your MCP client
+
+<Tabs>
+  <Tab title="Cursor">
+    1. Open Cursor → Settings → Features → MCP Servers.  
+    2. Click **Add Server** and enter:
+       - **Name**: `litium-cloud-cli`
+       - **Transport**: HTTP
+       - **URL**: `http://localhost:7070/mcp`
+    3. Save and restart Cursor.
+    
+    ```json
+    {
+      "mcp.servers": {
+        "litium-cloud-cli": {
+          "transport": "http",
+          "url": "http://localhost:7070/mcp"
+        }
+      }
+    }
+    ```
+    
+    <Check>
+      Ask Cursor, "List my Litium Cloud subscriptions." The client should invoke the `cloud_cli` tool automatically.
+    </Check>
+  </Tab>
+  <Tab title="Claude Desktop">
+    1. Start the MCP server with `npx @litium/cloud-cli-mcp-server` or a local build.
+    2. Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\\Claude\\claude_desktop_config.json` (Windows).
+    3. Add an entry under `mcpServers`:
+    
+    ```json
+    {
+      "mcpServers": {
+        "litium-cloud-cli": {
+          "command": "npx",
+          "args": ["-y", "@litium/cloud-cli-mcp-server"],
+          "env": {
+            "PORT": "7070"
+          }
+        }
+      }
+    }
+    ```
+    
+    4. Restart Claude Desktop to load the new configuration.
+    
+    <Info>
+      For development builds, replace `command` + `args` with `"command": "node"` and `"args": ["/absolute/path/to/cloud-cli-mcp-server/dist/server.js"]`.
+    </Info>
+  </Tab>
+  <Tab title="VS Code / GitHub Copilot Chat">
+    1. Ensure GitHub Copilot Chat supports MCP (Insiders builds or enabled feature flag).  
+    2. Start the server locally.  
+    3. Add the configuration to VS Code `settings.json`:
+    
+    ```json
+    {
+      "mcp.servers": {
+        "litium-cloud-cli": {
+          "transport": "http",
+          "url": "http://localhost:7070/mcp"
+        }
+      },
+      "github.copilot.chat.codeGeneration.instructions": [
+        {
+          "text": "When managing Litium Cloud infrastructure, use the MCP server at http://localhost:7070/mcp"
+        }
+      ]
+    }
+    ```
+    
+    4. Reload VS Code.
+    
+    <Tip>
+      Update the custom instruction text to remind Copilot Chat when to prefer the Cloud CLI MCP tools.
+    </Tip>
+  </Tab>
+</Tabs>
+
+## Authentication expectations
+
+- The MCP server inherits your Litium Cloud CLI login state. Run `litium-cloud auth login` (interactive) or `litium-cloud auth login --service-principal` beforehand.
+- When the CLI session expires, commands return `auth_required`. Re-authenticate and retry the MCP request.
+- No credentials are stored in the MCP server; context lives in-memory only.
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Client cannot connect" icon="circle-exclamation">
+    - Confirm the server log shows `listening on http://localhost:7070/mcp`  
+    - Verify no firewall or VPN is blocking localhost connections  
+    - Change the `PORT` environment variable if another service is using 7070 and update your client configuration
+  </Accordion>
+  <Accordion title="Commands fail with auth_required" icon="key">
+    Run `litium-cloud auth login` again or ensure your service principal credentials are valid. Restart the MCP server afterward.
+  </Accordion>
+  <Accordion title="WebSocket log streaming not working" icon="chart-line">
+    Check whether your client supports WebSocket transports. You can test manually using `websocat "ws://localhost:7070/ws/logs?jobId=<job-id>"`.
+  </Accordion>
+</AccordionGroup>
+

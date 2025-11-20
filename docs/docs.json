@@ -612,6 +612,26 @@
                   }
                 ]
               }
+              ,
+              {
+                "group": "Cloud CLI MCP Server",
+                "pages": [
+                  "mcp-servers/cloud-cli/introduction",
+                  {
+                    "group": "Getting Started",
+                    "pages": [
+                      "mcp-servers/cloud-cli/getting-started/installation",
+                      "mcp-servers/cloud-cli/getting-started/configuration"
+                    ]
+                  },
+                  {
+                    "group": "Tools Reference",
+                    "pages": [
+                      "mcp-servers/cloud-cli/tools/overview"
+                    ]
+                  }
+                ]
+              }
             ]
           }
         ]

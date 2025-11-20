@@ -1,0 +1,87 @@
+---
+title: Installation
+description: 'Install and run the Litium Cloud CLI MCP Server on your workstation'
+---
+
+## Prerequisites
+
+- Node.js 18 or later
+- Litium Cloud CLI (`litium-cloud`) installed and available on your PATH
+- Authenticated CLI session via `litium-cloud auth login` or service principal credentials
+- macOS, Windows, or Linux terminal access with permission to spawn local processes
+
+<Warning>
+  The MCP server shells out to the `litium-cloud` binary. Do not run it on shared machines that you do not trust.
+</Warning>
+
+## Installation Options
+
+<Tabs>
+  <Tab title="Run via npx (recommended)">
+    ```bash
+    npx @litium/cloud-cli-mcp-server
+    ```
+    
+    - Downloads the latest published build from npm
+    - Starts an HTTP server on `http://localhost:7070/mcp`
+    - Supports the `PORT` environment variable if you need a different port
+  </Tab>
+  <Tab title="Local development">
+    ```bash
+    git clone https://github.com/tonnguyen/litium-admin-mcp-server.git
+    cd litium-admin-mcp-server/cloud-cli-mcp-server
+    npm install
+    npm run dev
+    ```
+    
+    - Enables hot reload for local hacking
+    - Runs TypeScript in watch mode
+  </Tab>
+  <Tab title="Build from source">
+    ```bash
+    cd cloud-cli-mcp-server
+    npm install
+    npm run build
+    npm start
+    ```
+    
+    - Compiles to `dist/server.js`
+    - Suitable for packaging in a container or managed runtime
+  </Tab>
+</Tabs>
+
+## Verify the Server
+
+<Steps>
+  <Step title="Check process output">
+    After starting the server you should see a log similar to `MCP server listening on http://localhost:7070/mcp`.
+  </Step>
+  <Step title="Test tool invocation">
+    ```bash
+    curl -s -X POST http://localhost:7070/mcp \
+      -H 'Content-Type: application/json' \
+      -d '{"jsonrpc":"2.0","id":"1","method":"tool.invoke","params":{"toolName":"cloud_cli","args":{"action":"show_context"}}}'
+    ```
+    
+    Successful responses return `"type":"text"` content along with the stored subscription/environment context (which is empty on first run).
+  </Step>
+  <Step title="Confirm CLI access">
+    Run `litium-cloud subscription list --output json` in another terminal to ensure the CLI itself works. The MCP server reuses the same credentials.
+  </Step>
+</Steps>
+
+## Environment Variables
+
+<CardGroup cols={2}>
+  <Card title="PORT" icon="ethernet">
+    Overrides the default `7070` HTTP port. The WebSocket endpoint follows the same port.
+  </Card>
+  <Card title="LOG_LEVEL" icon="gauge">
+    Set to `debug`, `info`, or `error` to control verbosity. Default is `info`.
+  </Card>
+</CardGroup>
+
+<Tip>
+  Keep the terminal session running while your MCP client is connected. Stopping the server terminates in-memory context and active WebSocket streams.
+</Tip>
+

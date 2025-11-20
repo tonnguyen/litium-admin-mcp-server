@@ -1,0 +1,148 @@
+---
+title: Tools Reference
+description: 'Available Litium Cloud CLI MCP tools, arguments, and usage patterns'
+---
+
+## Tool summary
+
+The server exposes a single MCP tool named `cloud_cli`. Each invocation must include an `action` field to select a Litium Cloud CLI command. All arguments map 1:1 to CLI flags, and every response standardizes stdout/stderr into MCP-friendly message blocks.
+
+<CardGroup cols={2}>
+  <Card title="Total actions" icon="list-check">
+    27 curated actions across context, deployments, artifacts, marketplace, secrets, access control, and audit logging.
+  </Card>
+  <Card title="Transports" icon="arrows-spin">
+    HTTP for JSON-RPC requests plus WebSocket streaming for long-running log tails.
+  </Card>
+</CardGroup>
+
+## Action catalog
+
+<AccordionGroup>
+  <Accordion title="Context & Authentication" icon="map">
+    - `set_context` — store subscription/environment IDs in memory  
+    - `show_context` — display current context  
+    - `auth_login` / `auth_logout` — proxy `litium-cloud auth` commands
+  </Accordion>
+  <Accordion title="Subscriptions & Environments" icon="globe">
+    - `list_subscriptions`, `subscription_show`  
+    - `list_environments`
+  </Accordion>
+  <Accordion title="Deployments & Jobs" icon="rocket">
+    - `deploy_app` (requires `appId`, `artifactId`, context)  
+    - `job_status`, `job_logs_snapshot`, `console_output`
+  </Accordion>
+  <Accordion title="Artifacts" icon="box-archive">
+    - `artifact_list`, `artifact_show`, `artifact_create`
+  </Accordion>
+  <Accordion title="Marketplace & Apps" icon="store">
+    - `marketplace_list` (optional `filter`, `details`)  
+    - `manifest_generate`, `app_list`
+  </Accordion>
+  <Accordion title="Secrets & Access Control" icon="key">
+    - `secret_create`, `secret_list`  
+    - `access_control_show`, `access_control_add`, `access_control_remove`, `access_control_disable_inheritance`
+  </Accordion>
+  <Accordion title="Roles & Service Principals" icon="id-badge">
+    - `role_list`, `role_show`, `service_principal_create`
+  </Accordion>
+  <Accordion title="Audit & Telemetry" icon="file-waveform">
+    - `get_audit_logs` (supports `limit`)  
+    - WebSocket log streaming via `/ws/logs?jobId=...`
+  </Accordion>
+</AccordionGroup>
+
+## Request shape
+
+<RequestExample>
+```json cURL
+{
+  "jsonrpc": "2.0",
+  "id": "deploy-1",
+  "method": "tool.invoke",
+  "params": {
+    "toolName": "cloud_cli",
+    "args": {
+      "action": "deploy_app",
+      "appId": "app_123",
+      "artifactId": "artifact_456",
+      "subscriptionId": "sub_abc",
+      "environmentId": "env_prod"
+    }
+  }
+}
+```
+</RequestExample>
+
+<ResponseExample>
+```json Success
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "Deployment job queued",
+      "annotations": {
+        "jobId": "job_f7c1e9",
+        "subscriptionId": "sub_abc",
+        "environmentId": "env_prod"
+      }
+    }
+  ],
+  "isError": false
+}
+```
+</ResponseExample>
+
+## Common parameters
+
+<ParamField body="action" type="string" required>
+Name of the CLI action to run (e.g., `list_subscriptions`, `deploy_app`).
+</ParamField>
+
+<ParamField body="subscriptionId" type="string">
+Optional override for the active subscription. Required when no context is set.
+</ParamField>
+
+<ParamField body="environmentId" type="string">
+Optional override for the active environment. Required for environment-scoped actions when no context is set.
+</ParamField>
+
+<ParamField body="follow" type="boolean" default="false">
+When available (e.g., `job_logs_snapshot`), streams logs continuously over WebSocket if set to true.
+</ParamField>
+
+<ParamField body="artifactType" type="string">
+Artifact type for `artifact_create`. Accepted values: `dotnet`, `nextjs`, `nodejs`, `nuxtjs`, `litium-db-tool`, `script-result`, `db-migration`, `sqlbackup`, `storage`, `redisbackup`.
+</ParamField>
+
+## Streaming logs
+
+```bash
+websocat "ws://localhost:7070/ws/logs?jobId=job_f7c1e9"
+```
+
+- Streams stdout/stderr lines as JSON-framed messages
+- Supports query parameters `follow=true` and `cursor=<timestamp>` for resume
+- Close the socket or send Ctrl+C to stop streaming
+
+## Usage patterns
+
+<Steps>
+  <Step title="Pin context">
+    Invoke `set_context` with your default `subscriptionId` and `environmentId` to avoid repeating them.
+  </Step>
+  <Step title="Plan deployments">
+    Ask your AI to list artifacts (`artifact_list`) before running `deploy_app` so you can confirm artifact IDs.
+  </Step>
+  <Step title="Monitor jobs">
+    Use `job_status` for quick polling or connect to the WebSocket endpoint for live output.
+  </Step>
+  <Step title="Audit actions">
+    Retrieve recent operations with `get_audit_logs` after each change window.
+  </Step>
+</Steps>
+
+<Tip>
+  Combine MCP instructions with guardrails (e.g., “ask for confirmation before deploy_app”) to keep AI-driven operations safe.
+</Tip>
+
