@@ -113,6 +113,7 @@ app.post('/mcp', async (req, res) => {
                   enum: [
                     'set_context', 'show_context',
                     'list_subscriptions', 'subscription_show', 'list_environments',
+                    'auth_login', 'auth_logout',
                     'deploy_app', 'job_status', 'job_logs_snapshot', 'console_output',
                     'artifact_list', 'artifact_show', 'artifact_create', 'artifact_type_list',
                     'marketplace_list', 'manifest_generate', 'app_list',
