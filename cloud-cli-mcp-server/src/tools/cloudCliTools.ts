@@ -20,6 +20,15 @@ const listEnvironmentsSchema = z.object({
   subscriptionId: z.string().optional(),
 });
 
+const environmentCreateSchema = z.object({
+  action: z.literal('environment_create'),
+  name: z.string(),
+  locationId: z.string(),
+  subscriptionId: z.string().optional(),
+  production: z.boolean().optional(),
+});
+
+
 const showContextSchema = z.object({
   action: z.literal('show_context'),
 });
@@ -178,6 +187,14 @@ const appListSchema = z.object({
   environmentId: z.string().optional(),
 });
 
+
+const appShowSchema = z.object({
+  action: z.literal('app_show'),
+  appId: z.string(),
+  subscriptionId: z.string().optional(),
+  environmentId: z.string().optional(),
+});
+
 const getAuditLogsSchema = z.object({
   action: z.literal('get_audit_logs'),
   limit: z.number().optional(),
@@ -194,6 +211,7 @@ const unionSchema = z.union([
   setContextSchema,
   listSubscriptionsSchema,
   listEnvironmentsSchema,
+  environmentCreateSchema,
   showContextSchema,
   authLoginSchema,
   authLogoutSchema,
@@ -218,6 +236,7 @@ const unionSchema = z.union([
   servicePrincipalCreateSchema,
   subscriptionShowSchema,
   appListSchema,
+  appShowSchema,
   getAuditLogsSchema,
   applyManifestSchema,
 ]);
@@ -237,6 +256,8 @@ export async function invokeCloudCliTool(rawArgs: unknown) {
       durationMs: Date.now() - startTime,
       success: false,
       errorCode: 'validation_error',
+      errorMessage: 'Invalid arguments',
+      errorDetail: parsed.error.format(),
     });
     return result;
   }
@@ -253,6 +274,8 @@ export async function invokeCloudCliTool(rawArgs: unknown) {
       durationMs: Date.now() - startTime,
       success: result.ok,
       errorCode: result.ok ? undefined : extractErrorCode(result.error),
+      errorMessage: result.ok ? undefined : extractErrorMessage(result.error),
+      errorDetail: result.ok ? undefined : extractErrorDetail(result.error),
     });
     return result;
   } catch (error: unknown) {
@@ -266,6 +289,8 @@ export async function invokeCloudCliTool(rawArgs: unknown) {
       durationMs: Date.now() - startTime,
       success: false,
       errorCode: 'internal_error',
+      errorMessage: message,
+      errorDetail: error instanceof Error ? error.stack : error,
     });
     return result;
   }
@@ -308,6 +333,19 @@ async function executeAction(args: z.infer<typeof unionSchema>) {
       const res = await execCli({ args: ['environment', 'list', '--subscription', subscription, '-o', 'json'] });
       if (!res.ok) return { ok: false, error: buildError(res.errorCode || 'command_failed', res.errorMessage || 'Failed', { stderr: res.stderr }) };
       return { ok: true, data: { environments: res.json ?? tryParseLines(res.stdout) } };
+    }
+    case 'environment_create': {
+      const ctx = contextStore.getContext();
+      const subscription = args.subscriptionId || ctx.subscriptionId;
+      if (!subscription) return { ok: false, error: buildError('missing_subscription', 'Subscription id not provided or set in context') };
+      const cliArgs = ['environment', 'create', '--name', args.name, '--subscription', subscription, '--location', args.locationId];
+      if (args.production) {
+        cliArgs.push('--production');
+      }
+      cliArgs.push('-o', 'json');
+      const res = await execCli({ args: cliArgs, timeoutMs: 120_000 });
+      if (!res.ok) return { ok: false, error: buildError(res.errorCode || 'command_failed', res.errorMessage || 'Environment creation failed', { stderr: res.stderr }) };
+      return { ok: true, data: { environment: res.json ?? { rawOutput: res.stdout } } };
     }
     case 'deploy_app': {
       const ctx = contextStore.getContext();
@@ -498,6 +536,16 @@ async function executeAction(args: z.infer<typeof unionSchema>) {
       if (!res.ok) return { ok: false, error: buildError(res.errorCode || 'command_failed', res.errorMessage || 'Failed', { stderr: res.stderr }) };
       return { ok: true, data: { apps: tryParseLines(res.stdout) } };
     }
+    case 'app_show': {
+      const ctx = contextStore.getContext();
+      const subscription = args.subscriptionId || ctx.subscriptionId;
+      const environment = args.environmentId || ctx.environmentId;
+      if (!subscription) return { ok: false, error: buildError('missing_subscription', 'Subscription id required') };
+      if (!environment) return { ok: false, error: buildError('missing_environment', 'Environment id required') };
+      const res = await execCli({ args: ['app', 'show', '--subscription', subscription, '--environment', environment, '--app', args.appId, '-o', 'json'] });
+      if (!res.ok) return { ok: false, error: buildError(res.errorCode || 'command_failed', res.errorMessage || 'Failed', { stderr: res.stderr }) };
+      return { ok: true, data: { app: res.json ?? { rawOutput: res.stdout } } };
+    }
     case 'get_audit_logs': {
       const logs = auditLogger.getRecent(args.limit || 50);
       return { ok: true, data: { logs } };
@@ -526,6 +574,21 @@ function extractErrorCode(error: unknown): string | undefined {
   if (error && typeof error === 'object' && 'code' in error) {
     const candidate = (error as { code?: unknown }).code;
     return typeof candidate === 'string' ? candidate : undefined;
+  }
+  return undefined;
+}
+
+function extractErrorMessage(error: unknown): string | undefined {
+  if (error && typeof error === 'object' && 'message' in error) {
+    const candidate = (error as { message?: unknown }).message;
+    return typeof candidate === 'string' ? candidate : undefined;
+  }
+  return undefined;
+}
+
+function extractErrorDetail(error: unknown): unknown | undefined {
+  if (error && typeof error === 'object' && 'detail' in error) {
+    return (error as { detail?: unknown }).detail;
   }
   return undefined;
 }

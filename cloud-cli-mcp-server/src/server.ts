@@ -37,7 +37,7 @@ app.get('/health', async (_req, res) => {
 // MCP protocol handler
 app.post('/mcp', async (req, res) => {
   const body = req.body;
-  console.log('[MCP] Received request:', body.method, body.id);
+  //console.log('[MCP] Received request:', body.method, body.id);
   
   // Handle MCP initialize
   if (body.method === 'initialize') {
@@ -111,17 +111,37 @@ app.post('/mcp', async (req, res) => {
                   type: 'string',
                   description: 'The action to perform',
                   enum: [
-                    'set_context', 'show_context',
-                    'list_subscriptions', 'subscription_show', 'list_environments',
-                    'auth_login', 'auth_logout',
-                    'deploy_app', 'job_status', 'job_logs_snapshot', 'console_output',
-                    'artifact_list', 'artifact_show', 'artifact_create', 'artifact_type_list',
-                    'marketplace_list', 'manifest_generate', 'app_list',
-                    'secret_create', 'secret_list',
-                    'access_control_show', 'access_control_add', 'access_control_remove', 'access_control_disable_inheritance',
-                    'role_list', 'role_show',
+                    'access_control_add',
+                    'access_control_disable_inheritance',
+                    'access_control_remove',
+                    'access_control_show',
+                    'app_list',
+                    'app_show',
+                    'apply_manifest',
+                    'artifact_create',
+                    'artifact_list',
+                    'artifact_show',
+                    'artifact_type_list',
+                    'auth_login',
+                    'auth_logout',
+                    'console_output',
+                    'deploy_app',
+                    'environment_create',
+                    'get_audit_logs',
+                    'job_logs_snapshot',
+                    'job_status',
+                    'list_environments',
+                    'list_subscriptions',
+                    'manifest_generate',
+                    'marketplace_list',
+                    'role_list',
+                    'role_show',
+                    'secret_create',
+                    'secret_list',
                     'service_principal_create',
-                    'get_audit_logs', 'apply_manifest'
+                    'set_context',
+                    'show_context',
+                    'subscription_show'
                   ]
                 },
                 subscriptionId: {
@@ -132,21 +152,33 @@ app.post('/mcp', async (req, res) => {
                   type: 'string',
                   description: 'Environment ID (optional, used by various actions)'
                 },
+                name: {
+                  type: 'string',
+                  description: 'Name (required for environment_create, service_principal_create)'
+                },
+                locationId: {
+                  type: 'string',
+                  description: 'Location ID (required for environment_create). Use location list command to get available locations.'
+                },
+                production: {
+                  type: 'boolean',
+                  description: 'Mark environment as production (optional for environment_create)'
+                },
                 cliUrl: {
                   type: 'string',
                   description: 'CLI URL to use.'
                 },
                 appId: {
                   type: 'string',
-                  description: 'App ID (required for deploy_app, console_output)'
+                  description: 'App ID (required for deploy_app, console_output, app_show)'
                 },
                 artifactId: {
                   type: 'string',
-                  description: 'Artifact ID (required for deploy_app, artifact_show)'
+                  description: 'Artifact ID (required for deploy_app, artifact_show). IMPORTANT: After deploying an app with deploy_app or apply_manifest, deployment takes time to complete. Wait 60-120 seconds before checking deployment status with job_status, as app deployments can take several minutes to finish.'
                 },
                 jobId: {
                   type: 'string',
-                  description: 'Job ID (required for job_status, job_logs_snapshot)'
+                  description: 'Job ID (required for job_status, job_logs_snapshot). Note: Deployment jobs can take several minutes to complete. Wait 60-120 seconds after deployment starts before checking status.'
                 },
                 filePath: {
                   type: 'string',
@@ -155,7 +187,7 @@ app.post('/mcp', async (req, res) => {
                 artifactType: {
                   type: 'string',
                   enum: ['litium-db-tool', 'script-result', 'db-migration', 'sqlbackup', 'storage', 'dotnet', 'nextjs', 'nodejs', 'nuxtjs', 'redisbackup'],
-                  description: 'Artifact type (required for artifact_create)'
+                  description: 'Artifact type (required for artifact_create). IMPORTANT: After creating an artifact, it will be in "Processing" status. Wait 60-120 seconds before checking artifact status with artifact_show, as artifact processing (especially for nodejs/nextjs/nuxtjs types) can take several minutes to complete.'
                 },
                 filter: {
                   type: 'string',
@@ -194,10 +226,6 @@ app.post('/mcp', async (req, res) => {
                 roleName: {
                   type: 'string',
                   description: 'Role name (required for role_show)'
-                },
-                name: {
-                  type: 'string',
-                  description: 'Name (required for service_principal_create)'
                 },
                 expires: {
                   type: 'number',

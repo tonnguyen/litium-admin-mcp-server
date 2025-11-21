@@ -6,6 +6,8 @@ export interface AuditLogEntry {
   durationMs: number;
   success: boolean;
   errorCode?: string;
+  errorMessage?: string;
+  errorDetail?: unknown;
   userId?: string;
 }
 
@@ -18,7 +20,20 @@ class AuditLogger {
     if (this.logs.length > this.maxSize) {
       this.logs.shift();
     }
-    console.log(`[AUDIT] ${entry.timestamp} ${entry.correlationId} ${entry.action} ${entry.success ? 'OK' : 'FAIL'} ${entry.durationMs}ms`);
+    const status = entry.success ? 'OK' : 'FAIL';
+    const errorInfo = entry.success 
+      ? '' 
+      : ` | ERROR: ${entry.errorCode || 'unknown'}${entry.errorMessage ? ` - ${entry.errorMessage}` : ''}`;
+    console.log(`[AUDIT] ${entry.timestamp} ${entry.correlationId} ${entry.action} ${status} ${entry.durationMs}ms${errorInfo}`);
+    // Log error details on separate line if present
+    if (!entry.success && entry.errorDetail) {
+      const detailStr = typeof entry.errorDetail === 'string' 
+        ? entry.errorDetail 
+        : JSON.stringify(entry.errorDetail, null, 2);
+      // Truncate very long error details
+      const truncated = detailStr.length > 500 ? detailStr.substring(0, 500) + '...' : detailStr;
+      console.log(`[AUDIT] ${entry.correlationId} ERROR_DETAIL: ${truncated}`);
+    }
   }
 
   getRecent(limit = 50): AuditLogEntry[] {

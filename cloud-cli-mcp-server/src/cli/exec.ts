@@ -15,12 +15,31 @@ export interface ExecOptions {
   args: string[];
   timeoutMs?: number;
   parseJson?: boolean;
+  stdinInput?: string;
 }
 
 const DEFAULT_TIMEOUT = 60_000;
+const MAX_BUFFER_SIZE = 10 * 1024 * 1024; // 10MB limit
+
+function appendWithLimit(current: string, newData: Buffer, maxSize: number): { result: string; truncated: boolean } {
+  const currentSize = Buffer.byteLength(current, 'utf8');
+  const newSize = newData.length;
+  
+  if (currentSize + newSize > maxSize) {
+    const remaining = maxSize - currentSize;
+    if (remaining > 100) {
+      // Try to append what we can, leaving room for truncation message
+      const truncatedData = newData.subarray(0, remaining - 50);
+      const truncated = current + truncatedData.toString('utf8') + '\n...[output truncated due to size limit]';
+      return { result: truncated, truncated: true };
+    }
+    return { result: current + '\n...[output truncated due to size limit]', truncated: true };
+  }
+  return { result: current + newData.toString('utf8'), truncated: false };
+}
 
 export function execCli(opts: ExecOptions): Promise<ExecResult> {
-  const { args, timeoutMs = DEFAULT_TIMEOUT, parseJson = true } = opts;
+  const { args, timeoutMs = DEFAULT_TIMEOUT, parseJson = true, stdinInput } = opts;
   return new Promise((resolve) => {
     // Get LC_CLI_URL from context store or environment
     const env = { ...process.env };
@@ -29,12 +48,21 @@ export function execCli(opts: ExecOptions): Promise<ExecResult> {
       env.LC_CLI_URL = cliUrl;
     }
     
+    // Use 'pipe' for stdin if we need to provide input, otherwise 'ignore'
     const proc = spawn('litium-cloud', args, { 
-      stdio: ['ignore', 'pipe', 'pipe'],
+      stdio: stdinInput ? ['pipe', 'pipe', 'pipe'] : ['ignore', 'pipe', 'pipe'],
       env
     });
+    
+    // If stdin input is provided, write it and close stdin
+    if (stdinInput && proc.stdin) {
+      proc.stdin.write(stdinInput);
+      proc.stdin.end();
+    }
     let stdout = '';
     let stderr = '';
+    let stdoutTruncated = false;
+    let stderrTruncated = false;
     let finished = false;
     const timer = setTimeout(() => {
       if (!finished) {
@@ -44,8 +72,25 @@ export function execCli(opts: ExecOptions): Promise<ExecResult> {
       }
     }, timeoutMs);
 
-    proc.stdout.on('data', (d) => { stdout += d.toString(); });
-    proc.stderr.on('data', (d) => { stderr += d.toString(); });
+    if (proc.stdout) {
+      proc.stdout.on('data', (d: Buffer) => {
+        if (!stdoutTruncated) {
+          const result = appendWithLimit(stdout, d, MAX_BUFFER_SIZE);
+          stdout = result.result;
+          stdoutTruncated = result.truncated;
+        }
+      });
+    }
+    
+    if (proc.stderr) {
+      proc.stderr.on('data', (d: Buffer) => {
+        if (!stderrTruncated) {
+          const result = appendWithLimit(stderr, d, MAX_BUFFER_SIZE);
+          stderr = result.result;
+          stderrTruncated = result.truncated;
+        }
+      });
+    }
 
     proc.on('error', (err) => {
       if (finished) return;
