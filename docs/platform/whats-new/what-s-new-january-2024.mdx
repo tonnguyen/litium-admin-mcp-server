@@ -1,141 +1,198 @@
 ---
 title: "What's new January 2024"
-description: "We continue to strengthen Litium Commerce Cloud to make our customers fast and flexible."
+description: "January 2024"
 ---
 
-We continue to strengthen Litium Commerce Cloud to make our customers fast and flexible.
+# 🎉 What's new January 2024
 
 We continue to strengthen Litium Commerce Cloud to make our customers fast and flexible. We continue advancing into a decoupled, headless, and API-first architecture, by introducing new abilities in the React accelerator and the Storefront API. Also introducing version .NET 8 for the platform.
- 
-Litium 8.14
 
-Ability to schedule publishing of products and categories
-Ability to define operations for roles
-Ability to add a minimum product quantity threshold condition for a discount
-Improved publishing UI for pages and blocks
-Ability to use a wider blocks editing panel
-Ability to see additional order information as columns
-Ability for system to automatically clean-up trashcans
-Ability to use .NET 8
+# Highlights
 
- 
-React accelerator release candidate 3
+## Litium 8.14
 
-Ability to use a landing page
-Ability use a product list page
-Ability for a site visitor to login
-Ability to use a products block
-Ability to manage 404 and 500 errors
+- Ability to schedule publishing of products and categories
+- Ability to define operations for roles
+- Ability to add a minimum product quantity threshold condition for a discount
+- Improved publishing UI for pages and blocks
+- Ability to use a wider blocks editing panel
+- Ability to see additional order information as columns
+- Ability for system to automatically clean-up trashcans
+- Ability to use .NET 8
 
- 
-Storefront API release candidate 6
+## React accelerator release candidate 3
 
-Ability to authenticate users
+- Ability to use a landing page
+- Ability use a product list page
+- Ability for a site visitor to login
+- Ability to use a products block
+- Ability to manage 404 and 500 errors
+
+## Storefront API release candidate 6
+
+- Ability to authenticate users
 
 ​
-Ability to schedule publishing of products and categories
+
+# Litium 8.14
+
+## Ability to schedule publishing of products and categories
+
 With this ability administrators can schedule publishing of products and categories at a certain date and time for different markets and channels.
+
 Also the UI has been redesigned to make it easier to work with large numbers of channels. In the former UI, when having large numbers of channels, the user needed to scroll which made some information not visible. The new design makes it possible to batch edit the activation date and time for a product or all its variants in differents channels. It is also possible to set date and time individually for selected variants for each channel.
- 
+
+![Skärmavbild 2024-01-24 kl. 10.16.22.png](/images/platform/whats-new/Ska%CC%88rmavbild%202024-01-24%20kl.%2010.16.22.png)
 
 Schedule publishing for a category
- 
+
+![Skärmavbild 2024-01-24 kl. 09.34.02.png](/images/platform/whats-new/Ska%CC%88rmavbild%202024-01-24%20kl.%2009.34.02.png)
 
 Schedule publishing of products with batch possibility
- 
+
+![Skärmavbild 2024-01-24 kl. 09.35.03.png](/images/platform/whats-new/Ska%CC%88rmavbild%202024-01-24%20kl.%2009.35.03.png)
 
 Schedule publishing for selected variants
- 
-Ability to define operations for roles
+
+## Ability to define operations for roles
+
 The role operations is a core ability to model complex B2B organizations and users in a structured and granular way. It will be a cornerstone for building efficient client portal solutions.
+
 The purpose is to be able to use role operations to define what operations or actions a person with a certain role in an organization can perform. Typical role operations can be read organization data, update organization data, read orders for all persons in an organization or approve orders for all persons in an organization.
+
 The React accelerator will make use of this platform ability to solve the logic that in the MVC accelerator is called Order approver and Order placer. Moving the logic into the platform technically, makes it possible to control allowed actions for roles using the Storefront API.
 
+![Skärmavbild 2024-01-23 kl. 17.14.58.png](/images/platform/whats-new/Ska%CC%88rmavbild%202024-01-23%20kl.%2017.14.58.png)
+
 Role operations for a role
- 
-Ability to add a minimum product quantity threshold condition for a discount
-You can now add a minimum quantity of products in the cart as a cart threshold for discounts. This means that that Litium will only apply the discount if the minimum quantity of items in the cart is exceeded. You can also define which products should be included when calculating the threshold.
 
-Cart threshold completed with a product quantity threshold 
- 
-Improved publishing UI for pages and blocks
+## Ability to add a minimum product quantity threshold condition for a discount
+
+You can now add a minimum quantity of products in the cart as a cart threshold for discounts. This means that that Litium will only apply the discount if the minimum quantity of items in the cart is exceeded. You can also define which products should be included when calculating the threshold.
+
+![Skärmavbild 2024-01-23 kl. 17.11.40.png](/images/platform/whats-new/Ska%CC%88rmavbild%202024-01-23%20kl.%2017.11.40.png)
+
+Cart threshold completed with a product quantity threshold
+
+## Improved publishing UI for pages and blocks
+
 The purpose is to make it easier and quicker for the administrator to find and use the quick publish and other buttons when working with pages and blocks.
-Formerly, some key buttons like Edit and Publish were one click away under a more menu (...-button). The restructuring of the buttons for publishing has been made consistent for the the preview, edit and blocks views, and the publish button is once again a first class member of the buttons menu.
 
-The publish button is now a split button with the most common publish action as the default option but it also lists several completing publish options in its drop down.
+Formerly, some key buttons like Edit and Publish were one click away under a more menu (...-button). The restructuring of the buttons for publishing has been made consistent for the the preview, edit and blocks views, and the publish button is once again a first class member of the buttons menu. The publish button is now a split button with the most common publish action as the default option but it also lists several completing publish options in its drop down.
+
 If you are a detail oriented person you will also notice softer rounded corners of all the buttons in Litium backoffice.
- 
+
+![Skärmavbild 2024-01-23 kl. 17.17.21.png](/images/platform/whats-new/Ska%CC%88rmavbild%202024-01-23%20kl.%2017.17.21.png)
 
 Always accessible publish button
- 
+
+![Skärmavbild 2024-01-23 kl. 17.17.32.png](/images/platform/whats-new/Ska%CC%88rmavbild%202024-01-23%20kl.%2017.17.32.png)
 
 Split button with publishing options
- 
+
+__
 
 Restructured options in the more menu
- 
-Ability to use a wider blocks editing panel
+
+## Ability to use a wider blocks editing panel
+
 The purpose of this ability is to make editing simpler and get a better overview of the information when using the side panel for editing blocks. The original side panel was narrower and some elements were not visible to the administrator. Also side by side translations were stacked vertically which made it difficult to get an overview of the fields. The panel is now wider as default, and can also be resized by dragging and dropping the left border of the panel.
 
+![Skärmavbild 2024-01-23 kl. 17.22.46.png](/images/platform/whats-new/Ska%CC%88rmavbild%202024-01-23%20kl.%2017.22.46.png)
+
 More space by default and resizable blocks editing panel
- 
-Ability to see additional order information as columns
-With this ability administrators are able to select to show additional order info as columns in the search result of orders. This makes it easier to find orders. Usually projects are using the additional order information to store data that is important to see in the daily business. 
+
+## Ability to see additional order information as columns
+
+With this ability administrators are able to select to show additional order info as columns in the search result of orders. This makes it easier to find orders. Usually projects are using the additional order information to store data that is important to see in the daily business.
+
+![Skärmavbild 2024-01-23 kl. 17.25.01.png](/images/platform/whats-new/Ska%CC%88rmavbild%202024-01-23%20kl.%2017.25.01.png)
 
 Selection of order info as columns
- 
-Ability for system to automatically clean-up trashcans
-The purpose is to not let the trashcans grow in size, but give the user a possibility to set an end date after which an item in a trashcan is deleted automatically. Having storage growing without control can lead to higher costs for merchants, so there is a good point in keeping items selectively. The default time interval for deleting items permanently is 30 days. 
+
+## Ability for system to automatically clean-up trashcans
+
+The purpose is to not let the trashcans grow in size, but give the user a possibility to set an end date after which an item in a trashcan is deleted automatically. Having storage growing without control can lead to higher costs for merchants, so there is a good point in keeping items selectively. The default time interval for deleting items permanently is 30 days.
+
+![Skärmavbild 2024-01-23 kl. 17.27.13.png](/images/platform/whats-new/Ska%CC%88rmavbild%202024-01-23%20kl.%2017.27.13.png)
 
 Settings for the Websites and Media trashcans
- 
-Ability to use .NET 8
+
+## Ability to use .NET 8
+
 The Litium platform now supports Microsoft .NET 8.
+
 Microsoft emphasizes the performance enhancements as the key component of .NET 8, as well as being a modern, unified and simple to use framework.
+
 Read more: https://docs.litium.com/platform/get-started/system-requirements
-Read more here: https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8
- 
+
+Read more here: https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8
+
+# React accelerator RC3
+
 The React accelerator is released in RC3. Release candidate is the first stage with official support and when we recommend partners to start using it in projects. Features are not ported 1:1 from the MVC accelerator, so please update yourself on the details by reading the docs and checking whether the features you need are built or still planned.
+
 Read more about features being built or still planned
-The React accelerator is only available to customers running Litium Commerce Cloud and please note that you can run it locally and in Litium serverless cloud.
-The headless React accelerator is built on React and Next.JS and has all the tools and frameworks you would expect from a modern single page application. It is designed mobile first for a better and updated user experience.
-The new react accelerator has its own description and release notes, but here are some of the new things delivered this time.
- 
-Ability to use a landing page
+
+The React accelerator is only available to customers running Litium Commerce Cloud and please note that you can run it locally and in Litium serverless cloud.
+
+The headless React accelerator is built on React and Next.JS and has all the tools and frameworks you would expect from a modern single page application. It is designed mobile first for a better and updated user experience.
+
+The new react accelerator has its own description and release notes, but here are some of the new things delivered this time.
+
+## Ability to use a landing page
+
 You can now manage a landing page in the React accelerator. The landing page is used for pages made up only of blocks It can be used as a home page, an introductory page or a campaign page.
 
+![Skärmavbild 2024-01-24 kl. 10.56.12.png](/images/platform/whats-new/Ska%CC%88rmavbild%202024-01-24%20kl.%2010.56.12.png)
+
 Landing page in mobile
- 
+
+__
 
 Landing page in large screen with first banner block filling out the screen left to right
- 
-Ability use a product list page
-Using this page type a merchant can set up a page to show products from a product list defined in Litium PIM. The page will act just like a category page but display products from a product list. It has the same product filters and sorting options as the category page, and the same possibility to add banner blocks from the Litium CMS to highlight and market the product selection describing for example a campaign, a brand, a product line or any other suitable message. 
- 
-Ability for a site visitor to login
+
+## Ability use a product list page
+
+Using this page type a merchant can set up a page to show products from a product list defined in Litium PIM. The page will act just like a category page but display products from a product list. It has the same product filters and sorting options as the category page, and the same possibility to add banner blocks from the Litium CMS to highlight and market the product selection describing for example a campaign, a brand, a product line or any other suitable message.
+
+## Ability for a site visitor to login
+
 A visitor to the website can use this logon page to enter hen's credentials and login. If access is granted, the React accelerator will redirect the user to the My account area.
- 
-Ability to use a products block
-With this ability administrators can create and manage a products block in the React accelerator. The product selection can be made from a category or a product list, and you can define how many products should be shown as well as the preferred sorting option recommended or popular (most sold). As default, 15 products are shown, and a maximum of 100 products can be shown.
+
+## Ability to use a products block
+
+With this ability administrators can create and manage a products block in the React accelerator. The product selection can be made from a category or a product list, and you can define how many products should be shown as well as the preferred sorting option recommended or popular (most sold). As default, 15 products are shown, and a maximum of 100 products can be shown.
+
+![Skärmavbild 2024-01-25 kl. 15.25.31.png](/images/platform/whats-new/Ska%CC%88rmavbild%202024-01-25%20kl.%2015.25.31.png)
 
 Product block in mobile with swipeable product cards
- 
-Ability to manage 404 and 500 errors
+
+## Ability to manage 404 and 500 errors
+
 The purpose is to to be able to point out pages to be shown to site visitors when a page-not-found error (404) or a general error (500) occurs in the React accelerator. There is a page type called Error page in which you have the possibility to use the Litium CMS to add information to visitors using content blocks or an editor.
- 
- 
-The Storefront API is released in release candidate stage, which means it is officially suppported and recommended to use in customer projects.
+
+# Litium Storefront API RC 6
+
+The Storefront API is released in release candidate stage, which means it is officially suppported and recommended to use in customer projects.
+
 Coverage of new functional areas in this release are:
 
-Ability to authenticate users
+- Ability to authenticate users
 
 Storefront API introduction
+
 Storefront API functional areas
- 
-Ability to authenticate users
+
+## Ability to authenticate users
+
 With this ability an external system can authenticate a users by using the Storefront API. This is typically used when buyers are logging in to the My account or My pages area of the website, to see hen's orders, personal information and more.
- 
+
+# Bug fixes and improvements
+
 All bug fixes and smaller improvements are found in the release notes.
+
 See the release notes here
 
-[Back to what's new](/platform/whats-new)
+Updated  
+        2025-09-23

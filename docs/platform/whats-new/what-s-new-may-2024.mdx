@@ -1,107 +1,134 @@
 ---
 title: "What's new May 2024"
-description: "The new version 8.16 of the Litium platform contains two new discount abilities and new storefront API capabilities including API support for Google Analytics."
+description: "May 2024"
 ---
 
-The new version 8.16 of the Litium platform contains two new discount abilities and new storefront API capabilities including API support for Google Analytics.
+# 🎉 What's new May 2024
 
 The new version 8.16 of the Litium platform contains two new discount abilities and new storefront API capabilities including API support for Google Analytics. Also included are important performance and stability improvements.
- 
-Litium 8.16
 
-Ability to give free delivery for selected delivery methods
-Ability to use a marketing discount
-Redis connection improvement for stability
-Performance improvement in price and discount calculator
-Performance improvement in URL generation
+# Highlights
 
- 
-React accelerator 1.1
+## Litium 8.16
 
-Ability for global block preview
-Content security improvements from OWASP
+- Ability to give free delivery for selected delivery methods
+- Ability to use a marketing discount
+- Redis connection improvement for stability
+- Performance improvement in price and discount calculator
+- Performance improvement in URL generation
 
- 
-Storefront API
+## React accelerator 1.1
 
-Ability to fetch field template metadata
-Ability to modify field values for person and organization
-Support for Google analytics and Google tag manager
-Ability to preview thumbnails for blocks
-Performance improvement for fetching variants for the product result
+- Ability for global block preview
+- Content security improvements from OWASP
 
- 
-​Storefront CLI
+## Storefront API
 
-Ability to manage address types, roles and relationship types with the Storefront CLI
+- Ability to fetch field template metadata
+- Ability to modify field values for person and organization
+- Support for Google analytics and Google tag manager
+- Ability to preview thumbnails for blocks
+- Performance improvement for fetching variants for the product result
 
- 
-Ability to give free delivery for selected delivery methods
-With this ability it is possible for merchants to give free delivery only for selected delivery methods.
- 
-Ability to use a marketing discount
+## ​Storefront CLI
+
+- Ability to manage address types, roles and relationship types with the Storefront CLI
+
+# Litium
+
+## Ability to give free delivery for selected delivery methods
+
+With this ability it is possible for merchants to give free delivery only for selected delivery methods.
+
+## Ability to use a marketing discount
+
 In some cases there is a need to use the Litium campaigns without offering any discount. One scenario is when a merchant does not use discounts for marketing, for example in B2B, but still finds it useful to follow up sales of a particular set of products. Another situation is when you need all the settings for a discount, like product selection, target groups and other conditions, but you want to add your own custom action for a buyer when the discount is valid. It can be adding extra bonus points to a loyalty system or any other custom action.
- 
-Redis connection improvement for stability
+
+## Redis connection improvement for stability
+
 With this ability the Litium platform reuses the connection for the Redis server communication.
- 
-Performance improvement in price and discount calculator
+
+## Performance improvement in price and discount calculator
+
 The purpose is to improve performance and avoid unnecessary lookups for the list price when a discounted price is calculated. With this new ability, the price list lookup is reused between the list price and the discount price calculations.
- 
-Performance improvement in URL generation
-With this improvement the system generates URLs for base products that contains hundreds of variants in a more efficient way.
- 
- 
-The React accelerator is only available to customers running Litium Commerce Cloud and note that you can run it locally and in Litium serverless cloud.
-The headless React accelerator is built on React and Next.JS and has all the tools and frameworks you would expect from a modern single page application. It is designed mobile first for a better and updated user experience.
-The new react accelerator has its own description and release notes, but here are some of the new things delivered in this release.
+
+## Performance improvement in URL generation
+
+With this improvement the system generates URLs for base products that contains hundreds of variants in a more efficient way.
+
+# React accelerator
+
+The React accelerator is only available to customers running Litium Commerce Cloud and note that you can run it locally and in Litium serverless cloud.
+
+The headless React accelerator is built on React and Next.JS and has all the tools and frameworks you would expect from a modern single page application. It is designed mobile first for a better and updated user experience.
+
+The new react accelerator has its own description and release notes, but here are some of the new things delivered in this release.
+
 React accelerator roadmap
- 
-Ability for global block preview
+
+## Ability for global block preview
+
 With this ability, a backoffice user is able to preview React accelerator blocks in the Litium backoffice. To be able to preview global blocks, the React Accelerator need the ability to fetch and render the block.
- 
-Content security improvements from OWASP
+
+## Content security improvements from OWASP
+
 Prevent sending the "Kestrel" server header for the storefront proxy.
-Provide the X-Frame-Options header to avoid click-jacking and prevent that site is loaded inside an iframe.
+
+Provide the X-Frame-Options header to avoid click-jacking and prevent that site is loaded inside an iframe.
+
 X-Frame-Options - HTTP | MDN (mozilla.org)
- 
-Provide the X-Content-Type-Options header to avoid spoofing of the content-type that is sent from server.
+
+Provide the X-Content-Type-Options header to avoid spoofing of the content-type that is sent from server.
+
 X-Content-Type-Options - HTTP | MDN (mozilla.org)
- 
-Provide the Referrer-Policy header to avoid leak of information in the current browser address when linking to another site.
+
+Provide the Referrer-Policy header to avoid leak of information in the current browser address when linking to another site.
+
 Referrer-Policy - HTTP | MDN (mozilla.org)
- 
-Provide Permissions-Policy header to avoid usage of sensitive devices from the web application.
+
+Provide Permissions-Policy header to avoid usage of sensitive devices from the web application.
+
 Permissions-Policy - HTTP | MDN (mozilla.org)
- 
-Provide X-DNS-Prefetch-Control header to allowing browsers to proactively perform domain name resolution on external links, images, CSS, JavaScript, and more.
+
+Provide X-DNS-Prefetch-Control header to allowing browsers to proactively perform domain name resolution on external links, images, CSS, JavaScript, and more.
+
 X-DNS-Prefetch-Control - HTTP | MDN (mozilla.org)
- 
-Read more about the headers that can be set directly in next.config.js Options: headers | Next.js (nextjs.org), example if you want to implement the Configuring: Content Security Policy | Next.js (nextjs.org)
- 
- 
- 
-Ability to fetch field template metadata
+
+Read more about the headers that can be set directly in next.config.js Options: headers | Next.js (nextjs.org), example if you want to implement the Configuring: Content Security Policy | Next.js (nextjs.org)
+
+# Litium Storefront API
+
+## Ability to fetch field template metadata
+
 With this ability developers can fetch metadata about fields in a field group for the field template.
- 
-Ability to modify field values for person and organization
+
+## Ability to modify field values for person and organization
+
 With this ability it is possible to modify field values for person and organization through the Storefront API. This ability is used for the self service functions in the My account section to offer self service to customers.
- 
-Support for Google analytics and Google tag manager
+
+## Support for Google analytics and Google tag manager
+
 The purpose is to expose the Google Analytics 4 and Google Tag Manager settings from the channel in Storefront API, this allows developers to implement analytics tracking in storefronts.
- 
-Ability to preview thumbnails for blocks
+
+## Ability to preview thumbnails for blocks
+
 To be able as a merchant to preview blocks on a website marked as a headless storefront.
- 
-Performance improvement for fetching variants for the product result
+
+## Performance improvement for fetching variants for the product result
+
 With this improvement, the performance is improved when fetching product variants based on if they are activated on the channel.
- 
+
 Learn more:
+
 Storefront API introduction
+
 Storefront API roadmap
- 
- 
+
+# Bug fixes and improvements
+
 All bug fixes and smaller improvements are found in the release notes.
+
 See the release notes here
 
-[Back to what's new](/platform/whats-new)
+Updated  
+        2025-09-23

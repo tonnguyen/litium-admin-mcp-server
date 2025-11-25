@@ -1,129 +1,182 @@
 ---
 title: "What's new March 2024"
-description: "We are very proud to present the official release of the new Litium headless architecture."
+description: "March 2024"
 ---
 
-We are very proud to present the official release of the new Litium headless architecture.
+# 🎉 What's new March 2024
 
 We are very proud to present the official release of the new Litium headless architecture. Introducing the new headless React accelerator and the new Storefront API with the release of Litium 8.15 on April 4th. Litium is now officially headless, embracing in high pace a decoupled, headless, and API-first architecture to enhance speed and flexibility for our customers.
- 
-Litium 8.15
 
-Ability to use contextual groups for authorization
-Ability to set permissions for fields
-Ability for Litium platform to have default state transition validation
-Ability for backoffice UI to handle high volumes in pointer fields
-Ability to use Angular 17 for backoffice
+# Highlights
 
- 
-React accelerator 1.0
+## Litium 8.15
 
-Ability for user to access a My account start page
-Ability to select organization when logging in
-Ability for merchant to use url prefix when connecting the domain name to a channel
-Modifications to article page
-Use React Context instead of Zustand
-B2B product furniture template
-Ability to place an order for a person connected to an organization
+- Ability to use contextual groups for authorization
+- Ability to set permissions for fields
+- Ability for Litium platform to have default state transition validation
+- Ability for backoffice UI to handle high volumes in pointer fields
+- Ability to use Angular 17 for backoffice
 
- 
-Storefront API 1.0
+## React accelerator 1.0
 
-Ability to define role operations for organizations, addresses, persons and orders
-Ability to fetch field template metadata
-Ability for GraphQL clients to cache data correctly
+- Ability for user to access a My account start page
+- Ability to select organization when logging in
+- Ability for merchant to use url prefix when connecting the domain name to a channel
+- Modifications to article page
+- Use React Context instead of Zustand
+- B2B product furniture template
+- Ability to place an order for a person connected to an organization
+
+## Storefront API 1.0
+
+- Ability to define role operations for organizations, addresses, persons and orders
+- Ability to fetch field template metadata
+- Ability for GraphQL clients to cache data correctly
 
 ​
-Ability use contextual groups for authorization
-Contextual groups is a new group type. You find the contextual groups among the common groups, as a new type. The contextual groups can be selected in any view where the common groups are used to control for example read, write and publish for a page or block.
-The main purpose of contextual groups is to be able to define and control permissions for persons connected to more than one organization. 
-Technically, a contextual group does not contain persons, and neither has it any connections to persons, like an ordinary group would have in Litium. Instead, conditions are defined for the contextual groups, and evaluated on request to be able to respond whether a person meet the criteria of the contextual group. The person is then still not added to the contextual group, but the response from Litium can be used to understand which organization the person is currently logged in to, and by doing so only grant the permission level for the current organization.
-As an example, let's say a person belongs to two organizations, where he is supposed to have administration permissions for one organization and read permission levels in the second. Without contextual groups, you need to connect the person to two organizations and to two permission groups, Administrators and Read organization. Using the common Groups in Litium, the person would always be granted administrator permissions, since both groups would be evaluated. 
-By using contextual groups instead, you can define two contextual groups Administrator and Read organization, and use ready made conditions to define whether a person qualifies for the group. 
-These groups should not be used as permissions for the Litium administration, rather they should be used when defining permissions for a client portal with self-service functions.
-Here's a list of the conditions you can use.
-Organization role
-Select from a list of the roles set up in Litium. If the user has the role for the organization that he is currently logged in to, he will qualify for that group and be granted any access permissions set for that group.
-Person and organization fields
-Select from a list of all the fields set up in Litium Customers and select the value of the field that needs to be matched. If the user matches the value, he will qualify for that group and be granted any access permissions set for that group.
- 
-Ability to set permissions for fields
-In for example client portals a merchant usually wants to expose personal or organizational information. In these situations there is often a need to be able to control what information a user should be able to see. Some information should be visible for certain persons, while the same information should be read only or even hidden for other persons. The purpose of this feature is to be able to set read and write permissions for fields to be able to support and solve these scenarios.
- 
-Ability for Litium platform to have default state transition validation
-State transition validations are needed to process the order and shipments correctly depending on the payment status. In the MVC accelerator there is a default state transition validation, with rules for how the order state should change in accordance with for example the shipment status.
-With the new headless architecture, these validations need to be carried out by the Litium platform, instead of in the accelerator. With this new ability the validations have moved into the Litium platform.  
-If you are running an MVC accelerator, or if you are writing your own state transition validations, it is possible to turn off these new validations performed by the platform.
-Read more about state transition validation
- 
-Ability for backoffice UI to handle high volumes in pointer fields
-Sometimes there is a need to use pointers to connect entities, and have a large amount of connected items. Today the UI might timeout when there are many items pointed out. With this new ability, the Litium will be able to manage high loads of items in the UI for pointers.  
- 
-Ability to use Angular 17 for backoffice
-We have updated the backoffice UI of the Litium platform to use Angular 17.
-This update can potentially affect or break custom backoffice UI extensions. You need to check and possibly modify any custom backoffice UI panels and custom field types built using the Angular framework in the customer project to make sure they work as expected with the Angular 17 framework.
- 
-We are proud to release the React accelerator 1.0. In this release we focus on the framework for setting up a My account section. More views for the My account section is planned in the roadmap.
-The React accelerator is only available to customers running Litium Commerce Cloud and please note that you can run it locally and in Litium serverless cloud.
-The headless React accelerator is built on React and Next.JS and has all the tools and frameworks you would expect from a modern single page application. It is designed mobile first for a better and updated user experience.
-The new react accelerator has its own description and release notes, but here are some of the new things delivered this time.
-React accelerator roadmap
- 
 
- 
-Ability for user to access a My account start page
+# Litium 8.15
+
+## Ability use contextual groups for authorization
+
+Contextual groups is a new group type. You find the contextual groups among the common groups, as a new type. The contextual groups can be selected in any view where the common groups are used to control for example read, write and publish for a page or block.
+
+The main purpose of contextual groups is to be able to define and control permissions for persons connected to more than one organization.
+
+Technically, a contextual group does not contain persons, and neither has it any connections to persons, like an ordinary group would have in Litium. Instead, conditions are defined for the contextual groups, and evaluated on request to be able to respond whether a person meet the criteria of the contextual group. The person is then still not added to the contextual group, but the response from Litium can be used to understand which organization the person is currently logged in to, and by doing so only grant the permission level for the current organization.
+
+As an example, let's say a person belongs to two organizations, where he is supposed to have administration permissions for one organization and read permission levels in the second. Without contextual groups, you need to connect the person to two organizations and to two permission groups, Administrators and Read organization. Using the common Groups in Litium, the person would always be granted administrator permissions, since both groups would be evaluated.
+
+By using contextual groups instead, you can define two contextual groups Administrator and Read organization, and use ready made conditions to define whether a person qualifies for the group.
+
+These groups should not be used as permissions for the Litium administration, rather they should be used when defining permissions for a client portal with self-service functions.
+
+Here's a list of the conditions you can use.
+
+Organization role
+
+Select from a list of the roles set up in Litium. If the user has the role for the organization that he is currently logged in to, he will qualify for that group and be granted any access permissions set for that group.
+
+Person and organization fields
+
+Select from a list of all the fields set up in Litium Customers and select the value of the field that needs to be matched. If the user matches the value, he will qualify for that group and be granted any access permissions set for that group.
+
+## Ability to set permissions for fields
+
+In for example client portals a merchant usually wants to expose personal or organizational information. In these situations there is often a need to be able to control what information a user should be able to see. Some information should be visible for certain persons, while the same information should be read only or even hidden for other persons. The purpose of this feature is to be able to set read and write permissions for fields to be able to support and solve these scenarios.
+
+## Ability for Litium platform to have default state transition validation
+
+State transition validations are needed to process the order and shipments correctly depending on the payment status. In the MVC accelerator there is a default state transition validation, with rules for how the order state should change in accordance with for example the shipment status.
+
+With the new headless architecture, these validations need to be carried out by the Litium platform, instead of in the accelerator. With this new ability the validations have moved into the Litium platform.
+
+If you are running an MVC accelerator, or if you are writing your own state transition validations, it is possible to turn off these new validations performed by the platform.
+
+Read more about state transition validation
+
+## Ability for backoffice UI to handle high volumes in pointer fields
+
+Sometimes there is a need to use pointers to connect entities, and have a large amount of connected items. Today the UI might timeout when there are many items pointed out. With this new ability, the Litium will be able to manage high loads of items in the UI for pointers.
+
+## Ability to use Angular 17 for backoffice
+
+We have updated the backoffice UI of the Litium platform to use Angular 17.
+
+This update can potentially affect or break custom backoffice UI extensions. You need to check and possibly modify any custom backoffice UI panels and custom field types built using the Angular framework in the customer project to make sure they work as expected with the Angular 17 framework.
+
+##
+
+# React accelerator 1.0
+
+We are proud to release the React accelerator 1.0. In this release we focus on the framework for setting up a My account section. More views for the My account section is planned in the roadmap.
+
+The React accelerator is only available to customers running Litium Commerce Cloud and please note that you can run it locally and in Litium serverless cloud.
+
+The headless React accelerator is built on React and Next.JS and has all the tools and frameworks you would expect from a modern single page application. It is designed mobile first for a better and updated user experience.
+
+The new react accelerator has its own description and release notes, but here are some of the new things delivered this time.
+
+React accelerator roadmap
+
+![nyhetsbrev-react-accelarator.jpg](/images/platform/whats-new/nyhetsbrev-react-accelarator.jpg)
+
+## Ability for user to access a My account start page
+
 The My account page is the start page or dashboard for the My account area, also known as My pages. The My account area serves buyers with self service abilities and is at heart of a client portal solution. In this start page for the My account area, a merchant will place introductory welcome texts and entrances to more pages and abilities available to logged in customers.
+
 Layout wise, the this page works as the Article page, having a expandable left menu, a Top block container and a Content block container.
- 
-Ability to select organization when logging in
-In some cases, and in particular for B2B scenarios, the solution is modelled so that a user from the buying organization belongs to more than one organization. Depending on which organization the user selects, he might have different roles and consequently different access rights that the system need to know to be able to grant access to different pages and functions. The purpose of this ability is to be able as a user in the client portal or storefront to select organization after logging in, if the user is connected to more than one organization.
- 
-Ability for merchant to use url prefix when connecting the domain name to a channel
+
+## Ability to select organization when logging in
+
+In some cases, and in particular for B2B scenarios, the solution is modelled so that a user from the buying organization belongs to more than one organization. Depending on which organization the user selects, he might have different roles and consequently different access rights that the system need to know to be able to grant access to different pages and functions. The purpose of this ability is to be able as a user in the client portal or storefront to select organization after logging in, if the user is connected to more than one organization.
+
+## Ability for merchant to use url prefix when connecting the domain name to a channel
+
 The purpose is to be able to manage several channels with different prefixes in the React accelerator.
-Today the React accelerator will not work if the domain attached to the channel is using a url-prefix. For example if you have a global channel that has www.litium.com as domain, and a channel "se" that have the domain name www.litium.com/se, the information in some views will use data from the global channel even if browsing the se channel.
- 
-Modifications to the article page
-The purpose is modify the behavior of the article page to streamline it with the behavior of the My account pages and increase the flexibility. 
+
+Today the React accelerator will not work if the domain attached to the channel is using a url-prefix. For example if you have a global channel that has www.litium.com as domain, and a channel "se" that have the domain name www.litium.com/se, the information in some views will use data from the global channel even if browsing the se channel.
+
+## Modifications to the article page
+
+The purpose is modify the behavior of the article page to streamline it with the behavior of the My account pages and increase the flexibility.
+
 The behavior of the left menu is changed to also show parent items up to the level under the home page. Also, a new block container is added to the content area, so that there is one Top container stretching it's block in full width between the page header and the content of the page, and one Content container showing its blocks to the right of the left menu.
- 
-Use React Context instead of Zustand
+
+## Use React Context instead of Zustand
+
 We have been using Zustand for state management in the React Accelerator and also to send states from Server components to Client components.
+
 This is however considered as an anti-pattern and should be avoided. You should use React context instead.
-More information: https://github.com/pmndrs/zustand/discussions/2200
- 
-B2B product furniture template
+
+More information: https://github.com/pmndrs/zustand/discussions/2200
+
+## B2B product furniture template
+
 The purpose is to have a field template for the example furniture products in the B2B accelerator and demo site.
- 
-Ability to place an order for a person connected to an organization
+
+## Ability to place an order for a person connected to an organization
+
 For B2B commerce, order are placed by a person on the behalf of a company. To place an order in Litium as a company customer a person need to be connected to an organization.
+
 This ability makes it possible to place B2B orders by a person on behalf of an organization in the React accelerator.
- 
- 
-We are proud to release the Storefront API 1.0. In this release focusing on operations needed for the My account section, managing roles, role operations and fields for persons and organizations.
+
+# Litium Storefront API 1.0
+
+We are proud to release the Storefront API 1.0. In this release focusing on operations needed for the My account section, managing roles, role operations and fields for persons and organizations.
+
 Storefront API introduction
+
 Storefront API roadmap
- 
-Ability to define role operations for organizations, addresses, persons and orders
+
+## Ability to define role operations for organizations, addresses, persons and orders
+
 When modeling persons and organizations in Litium for B2B scenarios, you can set up roles to define what actions a persons in an organization should be able to perform. By setting up role operations, you can in a structured way define the actions allowed for a role.
+
 With this ability you will be able to define and use the following role operations using the Storefront API.
 
-Read organization
-Manage organization
-Read addresses
-Manage addresses
-Read persons
-Manage persons
-Place orders
-Approve orders
+- Read organization
+- Manage organization
+- Read addresses
+- Manage addresses
+- Read persons
+- Manage persons
+- Place orders
+- Approve orders
 
- 
-Ability to fetch field template metadata
+## Ability to fetch field template metadata
+
 The purpose is to allow developers to fetch metadata about fields in a field template.
- 
-Ability for GraphQL clients to cache data correctly
-GraphQL clients are automatically caching entities based on the field id or _id regarding to Caching in Apollo Client - Apollo GraphQL Docs and Relay specification. To avoid wrongly cached items in the client the entities should implement the id: ID! to ensure that the id is unique between different objects. If the entity shouldn't be cached based the entity key, the property id or _id need to be removed.
- 
+
+## Ability for GraphQL clients to cache data correctly
+
+GraphQL clients are automatically caching entities based on the field id or _id regarding to Caching in Apollo Client - Apollo GraphQL Docs and Relay specification. To avoid wrongly cached items in the client the entities should implement the id: ID! to ensure that the id is unique between different objects. If the entity shouldn't be cached based the entity key, the property id or _id need to be removed.
+
+# Bug fixes and improvements
+
 All bug fixes and smaller improvements are found in the release notes.
+
 See the release notes here
 
-[Back to what's new](/platform/whats-new)
+Updated  
+        2025-09-23
