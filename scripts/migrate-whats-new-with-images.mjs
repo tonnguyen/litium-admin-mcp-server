@@ -225,14 +225,25 @@ async function migratePage(pageInfo) {
       const urlObj = new URL(src);
       const urlPath = urlObj.pathname;
       const fileName = path.basename(urlPath);
-      const decodedFileName = decodeURIComponent(fileName);
+      let decodedFileName = decodeURIComponent(fileName);
+      // Normalize to NFC to avoid macOS NFD issues and S3 key mismatches
+      try {
+        // Use built-in Intl to normalize if available
+        if (typeof decodedFileName.normalize === 'function') {
+          decodedFileName = decodedFileName.normalize('NFC');
+        }
+      } catch {}
 
       console.log(`  Filename: ${decodedFileName}`);
 
       // Download image
       const localImagePath = path.join(imagesDir, decodedFileName);
-      // URL-encode the filename for the markdown reference
-      const encodedFileName = encodeURIComponent(decodedFileName).replace(/%2F/g, '/');
+      // URL-encode using NFC for the markdown reference
+      let encodedFileName = decodedFileName;
+      if (typeof encodedFileName.normalize === 'function') {
+        encodedFileName = encodedFileName.normalize('NFC');
+      }
+      encodedFileName = encodeURIComponent(encodedFileName).replace(/%2F/g, '/');
       const relativePath = `/images/platform/whats-new/${encodedFileName}`;
 
       const downloaded = await downloadImage(src, localImagePath);
