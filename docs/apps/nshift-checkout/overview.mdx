@@ -20,7 +20,7 @@ Litium serverless cloud - Use the [Cloud CLI](https://docs.litium.com/cloud/ser
 
 Litium legacy cloud - Contact [support](mailto:support@litium.com) to install the app in your test and/or production environment.
 
-Local environment - A [Docker compose template](/add-ons/litium-apps/nshift-checkout/docker-template) is available for local installation.
+Local environment - A [Docker compose template](/apps/development-guide/overview) is available for local installation.
 
 ## Configuration file
 
@@ -74,6 +74,7 @@ The configuration file must have json format and UTF-8 encoding
 
 ## Product dimensions, weight and tags
 
-You can use the [field mappings in Litium backoffice](/platform/areas/products-pim/price-agents/field-mappings/shipping-data) to map the dimensions (height. width, length) and weight of products to the appropiate fields in Litium PIM. Please note the restrictions on which field types that can be mapped for each property, as well as Litiums expectations on the unit used (mm for dimensions, grams for weight).
+You can use the [field mappings in Litium backoffice](/platform/get-started/concepts) to map the dimensions (height. width, length) and weight of products to the appropiate fields in Litium PIM. Please note the restrictions on which field types that can be mapped for each property, as well as Litiums expectations on the unit used (mm for dimensions, grams for weight).
+You can use the [field mappings in Litium backoffice](/platform/get-started/concepts) to map the dimensions (height. width, length) and weight of products to the appropriate fields in Litium PIM. Please note the restrictions on which field types that can be mapped for each property, as well as Litium's expectations on the unit used (mm for dimensions, grams for weight).
 
 The "Tags" field should be mapped to a _TextOption_ field and can be used to add product properties that affect delivery, eg "bulky" or "flammable". Please note that you need to use the _allarticletags_ parameter when setting up the rules in nShift Checkout. This parameter is currently not shown in nShift Checkout's UI and can only be used in Advanced mode.

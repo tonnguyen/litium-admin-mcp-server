@@ -1,0 +1,406 @@
+---
+title: "How to Create Custom Dashboard Widgets"
+description: "Learn how to create your own widgets for the Litium Dashboard"
+---
+
+# How to create custom Dashboard widgets
+
+How to create your own widgets for the Dashboard.
+
+In this tutorial, two widgets are created, in order to show two different approaches.
+
+The first widget is the **Guid Generator widget**: Most of the logic is defined in C# code, which is executed at the server side, and the Angular component at the client side takes only responsible for displaying the data. It also has a button to demonstrate the ability of requesting to the server to get fresh data.
+
+The second widget is the **Digital Clock widget**: Most of the logic is defined in Javascript code, which is executed at the client side.
+
+Despite the implementation different, both approaches share the same paradigm:
+
+- Widget definition is defined in C# code, to specify:
+  - Models
+  - Widget type name
+  - Icon
+  - The Angular component to render the widget
+  - How to load data
+- Angular component to render the widget in the browser
+
+<Note>
+Examples in this tutorial are added to `Litium.Accelerator.FieldTypes` project.
+</Note>
+
+## Create widget definition
+
+Prior to Litium 7.4, all widget types had to be created in the back-office user interface, to define the name, the icon, the web control to display. Now everything is configured in code. A widget needs a Widget Definition, which should implement `IWidgetDefinition`. However, the easiest way is to inherit `WidgetDefinitionBase`. Here is the definition of GUID generator widget:
+
+```csharp
+public class GuidGeneratorWidgetDefinition
+    : WidgetDefinitionBase<GuidGeneratorWidgetDefinition.DataModel, IWidgetRequest, GuidGeneratorWidgetDefinition.SettingsModel>
+{
+    public override string IconClass => "fa-gift widget-icon--blue";
+
+    public override string ComponentName => "Accelerator#GuidGeneratorWidget";
+
+    public override int SortOrder => 1500;
+
+    public async override Task<DataModel> LoadDataAsync(SettingsModel settings, IWidgetRequest request = null)
+    {
+        settings = settings ?? new SettingsModel();
+        var data = new DataModel();
+        for (int i = 0; i < settings.Count; i++)
+        {
+            data.Guids.Add(Guid.NewGuid());
+        }
+        return data;
+    }
+
+    public class DataModel : IWidgetData
+    {
+        public List<Guid> Guids { get; set; } = new List<Guid>();
+    }
+
+    public class SettingsModel : IWidgetSettings
+    {
+        public string Name { get; set; }
+        public int Count { get; set; } = 5;
+    }
+}
+```
+
+![GuidGenerator.png](/images/platform/dashboard/guid-generator.png)
+
+There are a couple of things `GuidGeneratorWidgetDefinition` defines:
+
+- **DataModel**: represents the data which is consumed by the Angular component to display in the user interface. In this example, its data has a list of GUID. The Angular component named GuidGeneratorWidget generates a list based on this.
+- **SettingsModel**: represents the settings model of the widget. Every widget must have a Settings model, which implements at least the Name property. In this example, user can configure the Name, as well as the number of GUID that is required, by setting the Count field.
+- **IconClass**: the field value should be a string of CSS classes, separated by space, for instance: `fa-rss widget-icon--purple`. Where:
+  - `fa-rss` is the FontAwesome icon class. Please check [https://fontawesome.com/icons](https://fontawesome.com/icons) for more information. We support FontAwesome 5.
+  - `widget-icon--purple` is the color class. There are three built-in color classes that we can use: `widget-icon--purple`, `widget-icon--green` and `widget-icon--blue`.
+- **ComponentName**: the Angular component name which is used to render the widget. This is a module-prefix-component-name which is similar to what we have as EditComponentName when [creating custom field type](/platform/guides/data-modelling/how-to-create-custom-field-types). Since we will create a component in the `Litium.Accelerator.FieldTypes` project, the module prefix will be `Accelerator`. The actual component name is `GuidGeneratorWidget`, which we will create later.
+- **SortOrder**: an integer number to define the sort order of the widget type in the list where user can select it and drag it to an area to create new widget.
+- **LoadDataAsync**: to return the DataModel with a list of GUID. This method is invoked when the widget is loaded, as well as when Refresh button in the user interface is clicked.
+  - When the widget is loaded: the request parameter is null.
+  - When Refresh button is clicked, or when the javascript function `requestData(payload)` is called, the request parameter is the payload which is sent by `requestData(payload)` function.
+
+Now let's take a look at the Digital Clock widget definition:
+
+```csharp
+public class ClockWidgetDefinition : WidgetDefinitionBase<IWidgetData, IWidgetRequest, ClockWidgetDefinition.SettingsModel>
+{
+    public override string IconClass => "fa-clock widget-icon--green";
+
+    public override string ComponentName => "Accelerator#ClockWidget";
+
+    public override int SortOrder => 2500;
+
+    public override async Task<IWidgetData> LoadDataAsync(SettingsModel settings, IWidgetRequest request = null)
+    {
+        return null;
+    }
+
+    public class SettingsModel : IWidgetSettings
+    {
+        public string Name { get; set; }
+    }
+}
+```
+
+`ClockWidgetDefinition` defines the same number of things as `GuidGeneratorWidgetDefinition` does, but simpler.
+
+- The clock does not have any data, so the widget definition does not declare the data model, it simply uses `IWidgetData`, and returns null in `LoadDataAsync`.
+- It does not need any setting. But since every widget needs a name, we need a SettingsModel with Name field.
+
+By having those widget definitions, we now can see our two new widgets in the list.
+
+![widgetlist.PNG](/images/platform/dashboard/widgetlist.png)
+
+Note that the text is not translated, we will fix that later. Now let's create the Angular components to display the widgets.
+
+## Create GUID generator component
+
+Widgets needs a component to render in the user interface. As we have defined the `ComponentName` for `GuidGeneratorWidgetDefinition` as `Accelerator#GuidGeneratorWidget`, we need to define `GuidGeneratorWidget`. Under the directory `Litium.Accelerator.FieldTypes\src\Accelerator\components`, create a folder named `guid-generator-widget` with two files:
+
+```typescript
+// Litium.Accelerator.FieldTypes\src\Accelerator\components\guid-generator-widget\guid-generator-widget.component.ts
+
+import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { NgRedux } from '@angular-redux3/store';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { BaseWidget, DashboardWidgetActions, IAppState } from 'litium-ui';
+
+@Component({
+    selector: 'guid-generator-widget',
+    templateUrl: './guid-generator-widget.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush, 
+})
+export class GuidGeneratorWidget extends BaseWidget {
+    constructor(ngRedux: NgRedux<IAppState>, formBuilder: FormBuilder, widgetActions: DashboardWidgetActions) {
+        super(ngRedux, formBuilder, widgetActions);
+    }
+
+    createSettingsFormGroup(): FormGroup {
+        return this.formBuilder.group({
+            name: ['', Validators.required],
+            count: [5, Validators.required],
+        });
+    }
+}
+```
+
+```html
+<!-- Litium.Accelerator.FieldTypes\src\Accelerator\components\guid-generator-widget\guid-generator-widget.component.html -->
+<dashboard-widget [systemId]="systemId">
+    <div view>
+        <p>Generated GUID:s</p>
+        <button (click)="requestData(null)">Refresh</button>
+        <ul>
+            <li *ngFor="let guid of ((value | async)?.data?.guids || [])">{{guid}}</li>
+        </ul>
+    </div>
+    <div class="widget-setting" settings>
+        <form [formGroup]="settingsForm" (ngSubmit)="saveSettings()">
+            <div class="widget-setting__item">
+                <label>Name:</label>
+            </div>
+            <div class="widget-setting__item">
+                <input type="text" formControlName="name" />
+            </div>
+            <div class="widget-setting__item">
+                <label>Count:</label>
+            </div>
+            <div class="widget-setting__item">
+                <input type="number" formControlName="count" />
+            </div>
+            <div class="widget-setting__item">
+                <button type="submit">Save</button>
+                <button type="button" (click)="toViewMode()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</dashboard-widget>
+```
+
+As you can see in the code above, there are two built-in classes that every widget should use to save development time as well as having the consistent interface and behavior with other widgets.
+
+### BaseWidget
+
+This is the base class for every widget. The constructor and `createSettingsFormGroup` function are mandatory.
+
+1. The constructor does nothing except call the base class's constructor.
+2. `createSettingsFormGroup`: creates and returns the [FormGroup](https://angular.io/api/forms/FormGroup) to be used in the Settings form. In this case, we define the Settings form as having a Name field and a Count field. Both of them are mandatory. For more information of how the form works, please check [Angular - Reactive Forms](https://angular.io/guide/reactive-forms).
+
+`BaseWidget` defines some functions and properties:
+
+- **systemId**: the systemId of the widget. The value is set automatically by the framework.
+- **value**: an [observable](https://rxjs-dev.firebaseapp.com/guide/observable) of IWidget. By using [Async pipe](https://angular.io/api/common/AsyncPipe) in the template, the widget automatically re-renders when the value is updated.
+- **currentData**: returns the current data of the widget. In case of Guid Generator widget, it returns an instance of `GuidGeneratorWidgetDefinition.DataModel`, while it returns null in case of Digital Clock widget because it has no data.
+- **currentSettings**: returns the current settings of the widget.
+- **viewMode**: returns the current view mode: 'view' or 'settings'.
+- **saveSettings**: should be called when submitting the Settings form. It has an optional parameter `changeToViewModeOnComplete` which has true as the default value.
+- **toViewMode**: change from 'settings' to 'view' mode. This is called when the Settings form is cancelled.
+- **requestData**: the widget automatically requests data from the server when it is created and when it is loaded. To manually request the data, implementation can call requestData. It accepts an optional parameter which is an instance of `IWidgetRequest`.
+
+### DashboardWidget
+
+Represents a generic "box" for every widget. It defines two transclusion slots where the actual widget will define what to insert content to. This is the same technique as Litium uses to [create a custom field type's component](/platform/guides/data-modelling/how-to-create-custom-field-types): `<field-editor>`. `DashboardWidget` defines two slots: `view` and `settings`. `GuidGeneratorWidget` component defines its view interface in `<div view>` and its settings form in `<div settings>`. The only input `DashboardWidget` needs is the systemId of the widget.
+
+By using `DashboardWidget`, widget's implementation has these features by default:
+
+- Drag and drop
+- Loading indicator and error message notification
+- Header with widget name, settings button, expand/collapse buttons, and remove button
+
+## Create Digital Clock component
+
+Under the directory `Litium.Accelerator.FieldTypes\src\Accelerator\components`, create a folder named `clock-widget` with three files:
+
+```typescript
+// Litium.Accelerator.FieldTypes\src\Accelerator\components\clock-widget\clock-widget.component.ts
+import { Component, ChangeDetectionStrategy, OnInit, OnDestroy } from '@angular/core';
+import { NgRedux } from '@angular-redux3/store';
+import { FormGroup, FormBuilder } from '@angular/forms';
+import { BaseWidget, DashboardWidgetActions, IAppState } from 'litium-ui';
+import { BehaviorSubject } from 'rxjs';
+
+@Component({
+    selector: 'clock-widget',
+    templateUrl: './clock-widget.component.html',
+    styleUrls: ['./clock-widget.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class ClockWidget extends BaseWidget implements OnInit, OnDestroy {
+    currentTime = new BehaviorSubject<string>('');
+    private _timerId: any;
+
+    constructor(ngRedux: NgRedux<IAppState>, formBuilder: FormBuilder, widgetActions: DashboardWidgetActions) {
+        super(ngRedux, formBuilder, widgetActions);
+    }
+
+    createSettingsFormGroup(): FormGroup {
+        return this.formBuilder.group({
+            name: [''],
+        });
+    }
+
+    ngOnInit() {
+        super.ngOnInit();
+
+        const timer = () => {
+            const date = new Date(),
+                h = this._fixedPad(date.getHours()),
+                m = this._fixedPad(date.getMinutes()),
+                s = this._fixedPad(date.getSeconds());
+            this.currentTime.next(`${h}:${m}:${s}`);
+        }
+        this._timerId = setInterval(timer, 1000);
+        timer();
+    }
+
+    ngOnDestroy() {
+        super.ngOnDestroy();
+        clearInterval(this._timerId);
+    }
+
+    private _fixedPad(val: number) {
+        return val.toString().padStart(2, '0');
+    }
+}
+```
+
+```html
+<!-- Litium.Accelerator.FieldTypes\src\Accelerator\components\clock-widget\clock-widget.component.html -->
+<dashboard-widget [systemId]="systemId">
+    <div view>
+        <div class="clock-widget__time">{{ currentTime | async }}</div>
+    </div>
+    <div class="widget-setting" settings>
+        <form [formGroup]="settingsForm" (ngSubmit)="saveSettings()">
+            <div class="widget-setting__item">
+                <label>Name:</label>
+            </div>
+            <div class="widget-setting__item">
+                <input type="text" formControlName="name" />
+            </div>
+            <div class="widget-setting__item">
+                <button type="submit">Save</button>
+                <button type="button" (click)="toViewMode()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</dashboard-widget>
+```
+
+```css
+/* Litium.Accelerator.FieldTypes\src\Accelerator\components\clock-widget\clock-widget.component.css */
+.clock-widget__time {
+    text-align: center;
+    font-size: 60px;
+    letter-spacing: 7px;
+}
+```
+
+The widget displays a digital clock and updates every second:
+
+![DigitalClock.PNG](/images/platform/dashboard/digital-clock.png)
+
+## Component styles
+
+There are built-in classes for the settings form where custom widget can use as we have in the above templates. To style the component in view mode, [Angular Component Styles](https://angular.io/guide/component-styles) is recommended. Digital Clock component uses Component Styles, where styles are defined in `clock-widget.component.css`.
+
+## Register components in AcceleratorModule
+
+In order to use, our two widgets need to be registered in the Accelerator Module and the project should be built just like how we [build the custom field type](/platform/guides/data-modelling/how-to-create-custom-field-types). Here is the `extensions.ts` file after modified to declare `GuidGeneratorWidget` and `ClockWidget`:
+
+```typescript
+// Litium.Accelerator.FieldTypes\src\Accelerator\extensions.ts
+import { GuidGeneratorWidget } from './components/guid-generator-widget/guid-generator-widget.component';
+import { ClockWidget } from './components/clock-widget/clock-widget.component';
+
+@NgModule({
+    declarations: [
+        // custom components should be declared in 'declarations'
+        FieldEditorFilterFields,
+        GuidGeneratorWidget,
+        ClockWidget,
+    ],
+    imports: [ 
+        CommonModule,
+        UiModule,
+        TranslateModule,
+    ]
+})
+export class AcceleratorModule {
+    constructor(reducerRegistry: ReducerRegistry) {
+        reducerRegistry.register('accelerator', accelerator);
+    }
+}
+```
+
+In Litium 8, the components need to be exposed in `webpack.js`, under [ModuleFederationPlugin](https://webpack.js.org/concepts/module-federation/) in order for the platform to access them:
+
+```javascript
+new ModuleFederationPlugin({
+    name: "Accelerator",
+    filename: "remoteEntry.js",
+    exposes: {
+        Accelerator: "./Litium.Accelerator.FieldTypes/src/Accelerator/extensions.ts",
+        FieldEditorFilterFieldsComponent: "./Litium.Accelerator.FieldTypes/src/Accelerator/components/field-editor-filter-fields/field-editor-filter-fields.component",
+        GuidGeneratorWidget: "./Litium.Accelerator.FieldTypes/src/Accelerator/components/guid-generator-widget/guid-generator-widget.component.ts",
+        ClockWidget: "./Litium.Accelerator.FieldTypes/src/Accelerator/components/clock-widget/clock-widget.component.ts",
+    },
+})
+```
+
+## Add translation text for widget definitions
+
+`Litium.Accelerator\Resources\Common.resx` and `Litium.Accelerator\Resources\Common.sv-se.resx` should be modified to add translation text for widget definitions. By adding these two nodes, we will have the text translated correctly:
+
+```xml
+<data name="dashboard.widgets.GuidGeneratorWidgetDefinition.name" xml:space="preserve">
+  <value>GUID generator</value>
+</data>
+<data name="dashboard.widgets.ClockWidgetDefinition.name" xml:space="preserve">
+  <value>Digital clock</value>
+</data>
+```
+
+The pattern is `"dashboard.widgets.[WidgetDefinitionClassName].name"`.
+
+![widgetlistwithtranslatedtext.PNG](/images/platform/dashboard/widgetlist-translated.png)
+
+## Advanced use case
+
+### Add scaffold data
+
+There is cases where we want to display some pre-defined data in the Settings form of the Widget. It can be a Channel's drop-down box where the user can select the Channel Id, or a Country, Currency's drop-down boxes. We call this as a scaffold data. It is used to build the user interface, it should not be stored to the widget's settings in the database. When loading the widget's settings form, the server returns the list of Channel. Then the user can select a Channel from the list and send back the Channel's Id to the server.
+
+To add a scaffold data to the settings form, we add a field to the Settings model, decorate it with `[NotMapped]` attribute, Then in the Widget definition class, override the `AddScaffoldDataAsync` method, to populate the data for the scaffold field:
+
+```csharp
+public class SettingsModel : IWidgetSettings
+{
+    public string Name { get; set; }
+
+    public Guid Channel { get; set; }
+
+    [NotMapped] // mark the property as to be used to build the UI, but not to store to database
+    [JsonProperty(TypeNameHandling = TypeNameHandling.None, ItemTypeNameHandling = TypeNameHandling.None)]
+    public IEnumerable<ISelectItem> Channels { get; set; }
+}
+```
+
+```csharp
+// in Widget Definition class
+public override async Task<SettingsModel> AddScaffoldDataAsync(SettingsModel settingsModel)
+{
+    settingsModel = await base.AddScaffoldDataAsync(settingsModel) ?? new SettingsModel();
+    settingsModel.Channels = _channelService.GetAll()
+        .Select(c => new SelectItem() { Text = c.GetEntityName(), Value = c.SystemId })
+        .Prepend(new SelectItem() { Text = string.Empty, Value = Guid.Empty });
+    return settingsModel;
+}
+```
+
+Fields that are marked with `NotMappedAttribute` will not be persisted to the database, they are ignored.
+
+### Why does LoadDataAsync return Task&lt;IWidgetData&gt;?
+
+You might notice we have `LoadDataAsync` and `AddScaffoldDataAsync` methods as asynchronous methods. The reason is, in some cases, we need to load data from a third party service or a WebAPI, or from another asynchronous method. It is easier for developers to call those async methods, to handle exceptions if `LoadDataAsync` and `AddScaffoldDataAsync` are also async.

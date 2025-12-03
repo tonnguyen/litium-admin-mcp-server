@@ -49,7 +49,7 @@ The **baseproduct**:
 
 The product page in Litium will likely display information from both the baseproduct and the variant. In the image below the _Brand_ and _Description_ are fields on the **baseproduct**. _Images_, _Color_, _Size_, _Price_ and _Quantity in stock_ are set on the **variant**. By selecting values for _Color_ and _Size_ a unique variant can be identified and will be added to cart when the add-button is clicked.
 
-[Read about products data modeling](/platform/areas/data-modelling/product-data-modeling)
+[Read about products data modeling](/platform/guides/data-modelling)
 
 ![screenshot-product-structure.png](./media/screenshot-product-structure.png)
 
@@ -93,7 +93,7 @@ The website area in Litium is a CMS built specifically for e-commerce.
 Read more:
 
 - [Litium user guide on Pages and Blocks](https://docs.litium.com/help/litium-8/websites-cms)
-- [Websites data modeling](/platform/areas/data-modelling/websites-data-modeling)
+- [Websites data modeling](/platform/guides/data-modelling)
 
 ## Globalization
 
@@ -128,7 +128,7 @@ Entities of the _globalization_\-area are:
     - _Products_ are sold in a _market_ through _channels_
     - A _market_ can contain multiple _channels_ but a _channel_ can only belong to a single _market_
 
-[Read more about globalization configuration scenarios for markets and channels](/platform/areas/globalization/globalization-configuration-scenarios)
+[Read more about globalization configuration scenarios for markets and channels](/platform/get-started/concepts)
 
 ## Customers
 
@@ -146,7 +146,7 @@ The Customers area handles users, organizations and permissions.
 
 - A **Person** may also be connected to one or more **Organizations**. An **Organization** (company) is usually the customer entity in B2B scenarios and customer information (like delivery address, billing address, customer number etc.) added to the order is fetched from the **Organization** of the current **Person**. In B2C the **Person** is usually also the customer, and customer information is then fetched from the **Person**\-object to the order.
     
-- Customer **roles** are set as an attribute on the link between a **Person** and an **Organization**. A **Person** can for example be connected to an **Organization** with the role _"Manager"_. **Roles** are used in Litium accelerator to handle [the order approval flow](/platform/areas/sales/order-approval).
+- Customer **roles** are set as an attribute on the link between a **Person** and an **Organization**. A **Person** can for example be connected to an **Organization** with the role _"Manager"_. **Roles** are used in Litium accelerator to handle [the order approval flow](/platform/areas/sales/state-transitions).
     
 - Each **Role** has several **operations**. An **operation** defines the actions that a **person** with a certain **role** can perform. With this ability you will be able to define and use the following role operations using the Storefront API.
     
@@ -164,17 +164,17 @@ The Customers area handles users, organizations and permissions.
     - The difference between **Smart groups** and **Target groups** is that **Smart groups** identify logged in **Persons** based on data stored on that **Person**, but **Target groups** only identify **Sessions** (for both logged in and anonymous visitors) based on behavior.
     - Examples of behavior that can be identified in **Target groups** are "Has a specific product in cart" or "Has visited a specific page".
     - Behavior information is stored in cookie and not in database.
-    - Read more about [target groups](/platform/areas/customers/target-groups).
-- To comply with GDPR, Litium supports exporting and removing user information. Extra audit information is also stored when a user with access to customers or orders logs in. Read more about [GDPR](/platform/areas/data-modelling/gdpr-support).
+    - Read more about [target groups](/platform/get-started/concepts).
+- To comply with GDPR, Litium supports exporting and removing user information. Extra audit information is also stored when a user with access to customers or orders logs in. Read more about [GDPR](/platform/guides/data-modelling).
     
 
-[Read about customers data modeling](/platform/areas/data-modelling/customers-data-modeling)
+[Read about customers data modeling](/platform/guides/data-modelling)
 
 ## Media
 
 The Media area handles files in a folder structure. It contains file uploads for all areas, such as products images and website content.
 
-[Read about media data modeling](/platform/areas/data-modelling/media-data-modeling)
+[Read about media data modeling](/platform/guides/data-modelling)
 
 ## Back office
 
@@ -185,7 +185,7 @@ Litium backoffice is a [SPA](https://developer.mozilla.org/en-US/docs/Glossary/S
 - [Dashboard widgets](/platform/areas/dashboard/how-to-create-custom-dashboard-widgets)
 - [Custom field framework fields](/platform/guides/data-modelling/how-to-create-custom-field-types)
 - [Area-panels](/platform/guides/back-office-ui-extensions/how-to-create-a-custom-panel)
-- [Settings pages](/platform/guides/back-office-ui-extensions/how-to-create-a-custom-page-under-settings)
+- [Settings pages](/platform/guides/back-office-ui-extensions)
 
 ## Accelerators
 
@@ -255,7 +255,7 @@ Add-ons are packaged functionality that can be added to Litium installations to 
         - Installed as NuGet packages
         - Run as part of the Litium application
     - Source code
-        - Source code is [downloaded](/resources/download-add-ons)
+        - Source code is available from Litium
         - Run as part of the Litium application
     
     Be aware that extensions have a dependency to a certain Litium version. When a new version of Litium is released, some extensions might not be available for that version. Verify before project start that required extensions are available.
@@ -263,10 +263,10 @@ Add-ons are packaged functionality that can be added to Litium installations to 
 
 A some commonly used add-ons are:
 
-- [**Payment providers**](/add-ons/litium-apps): Many supported such as Klarna, Svea, Briqpay and Adyen
-- [**Product Media Mapper**](/add-ons/add-ons-as-extensions/connectors-product-extensions/product-media-mapper): Automatically connects uploaded images to products (compiled extension)
-- [**Integration kit**](/add-ons/add-ons-as-extensions/connectors-product-extensions/litium-integration-kit): A codebase used to develop file based integrations towards Litium (source code extensions)
+- [**Payment providers**](/apps/overview): Many supported such as Klarna, Svea, Briqpay and Adyen
+- [**Product Media Mapper**](/platform/get-started/concepts): Automatically connects uploaded images to products
+- [**Integration kit**](/platform/get-started/concepts): A codebase used to develop file based integrations towards Litium
 
-[See the full list of available Add-ons](/resources/download-add-ons)
+[See the full list of available Add-ons](/apps/overview)
 
-[Read more about building add-ons](/add-ons/get-started)
+[Read more about building add-ons](/apps/development-guide/overview)

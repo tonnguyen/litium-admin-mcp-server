@@ -30,7 +30,7 @@ Litium serverless cloud - Use the [Cloud CLI](https://docs.litium.com/!b4353f6c
 
 Litium legacy cloud - Contact [support](mailto:support@litium.com) to install the app in your test and/or production environment.
 
-Local environment - A [Docker compose template](/add-ons/litium-apps/qliro-payment/docker-template) is available for local installation.
+Local environment - A [Docker compose template](/apps/development-guide/overview) is available for local installation.
 
 ## App configuration file
 
@@ -126,7 +126,7 @@ Qliro supports saving a payment token and using that token to make payments for 
 
 You need to contact Qliro cutomer service to enable the Qliro recurring payments / subscriptions feature for your account.
 
-To use a saved Payment token, use the payment method "Payment Token" when creating the order. You need to set the actual payment token, for more information see documentation on [Payment Tokens](/platform/apis/connect-apis/domain-areas/payments-domain/business-processes/payment-tokens).
+To use a saved Payment token, use the payment method "Payment Token" when creating the order. You need to set the actual payment token, for more information see documentation on [Payment Tokens](/apis/connect/overview).
 
 Since not all payment methods are supported for recurring payments, you need to restrict which methods to display when creating a recurring payment. To enable this you first need to setup constraints in Qliro's system. Please contact Qliro merchant support to help you with this setup. The constraints will be named, and you should add the key _QliroPayment\_merchantConstraintName_ to _CheckoutFlowInfo.AdditionalInfo_ to select which constraint to use for each payment session.
 

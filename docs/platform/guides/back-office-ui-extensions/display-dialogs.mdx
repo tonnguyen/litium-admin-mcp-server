@@ -1,0 +1,69 @@
+---
+title: "Display Dialogs"
+description: "How to display dialogs and modal windows in the Litium back office UI"
+---
+
+# Display Dialogs
+
+Learn how to display dialogs and modal windows in the Litium back office UI extensions.
+
+## Overview
+
+The Litium back office provides a dialog service for displaying modal dialogs and confirmation prompts in your custom extensions.
+
+## Usage
+
+Dialogs can be used for:
+- Confirmation prompts
+- Custom forms and data entry
+- Information messages
+- Warning and error notifications
+- Custom workflows
+
+## Dialog Service
+
+The dialog service is available through the `litium-ui` package and can be injected into your Angular components.
+
+### Basic Example
+
+```typescript
+import { DialogService } from 'litium-ui';
+
+constructor(private dialogService: DialogService) {}
+
+showConfirmation() {
+    this.dialogService.confirm({
+        title: 'Confirm Action',
+        message: 'Are you sure you want to proceed?',
+        confirmText: 'Yes',
+        cancelText: 'No'
+    }).subscribe(result => {
+        if (result) {
+            // User confirmed
+        }
+    });
+}
+```
+
+## Dialog Types
+
+### Confirmation Dialog
+
+Used for yes/no confirmations.
+
+### Alert Dialog
+
+Used for displaying information messages.
+
+### Custom Dialog
+
+You can create custom dialog components for more complex scenarios.
+
+<Note>
+For more detailed examples and API documentation, refer to the Litium UI component library documentation.
+</Note>
+
+## See Also
+
+- [Back Office UI Extensions](/platform/guides/back-office-ui-extensions)
+- [How to Create a Custom Panel](/platform/guides/back-office-ui-extensions/how-to-create-a-custom-panel)

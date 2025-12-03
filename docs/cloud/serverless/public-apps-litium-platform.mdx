@@ -12,11 +12,11 @@ Maximum one Litium platform app may be installed per environment. Read more abou
 
 ## Deployments
 
-See [deploy artifact page](/cloud/serverless/guides/artifacts/deploy-artifact) for how to deploy a new version.
+See [deploy artifact page](/cloud/serverless/artifacts-deploy-artifact) for how to deploy a new version.
 
 Deployments to **production environments** are performed on a rolling scenario, meaning when you deploy the release artifacts the cloud automatically deploys the code to one replica at the time and letting users access the new version without downtime.
 
-See the [automated deployments guide](/cloud/serverless/guides/automated-deployments) on examples how to automate deployments with the help of the CLI.
+See the [automated deployments guide](/cloud/serverless/automated-deployments) on examples how to automate deployments with the help of the CLI.
 
 ## Properties
 
@@ -33,7 +33,7 @@ Properties "artifact", "sql\_backup\_file" and "storage\_backup\_file" are descr
 
 ## Environment variables and secrets
 
-Litium serverless cloud is always using appsettings.production.json (or only appsettings.json) for appsettings transformations, regardless of environment. To handle different environment variables you specify those values as configurations in your yaml-file, either in plain text (same value in all environments) or as secrets (to be able to have different values in different environments). [Read more about app configuration and secrets.](/cloud/serverless/guides/app-configuration-and-secrets)
+Litium serverless cloud is always using appsettings.production.json (or only appsettings.json) for appsettings transformations, regardless of environment. To handle different environment variables you specify those values as configurations in your yaml-file, either in plain text (same value in all environments) or as secrets (to be able to have different values in different environments). [Read more about app configuration and secrets.](/cloud/serverless/app-configuration-and-secrets)
 
 ## Actions
 
@@ -47,25 +47,25 @@ litium-cloud marketplace show --app litium-platform --version add-version-here
 
 Creates a database backup and stores the backup as an artifact for the current subscription. 
 
-See the guide "[Create database backup](/cloud/serverless/guides/create-database-backup)" of how to perform this action.
+See the guide "[Create database backup](/cloud/serverless/create-database-backup)" of how to perform this action.
 
 ### Backup storage
 
 Creates a storage backup and stores the backup as an artifact for the current subscription. 
 
-See the guide "[Create storage backup](/cloud/serverless/guides/create-storage-backup)" of how to perform this action.
+See the guide "[Create storage backup](/cloud/serverless/create-storage-backup)" of how to perform this action.
 
 ### Console output
 
 Gets console output from app in container. Normally those logs are sent to Litium insights, but if your app doesn't start issues may be printed to the console but never reach Litium insights because app hasn't started.
 
-See the guide "[Output console logs](/cloud/serverless/guides/output-console-logs)" of how to perform this action.
+See the guide "[Output console logs](/cloud/serverless/output-console-logs)" of how to perform this action.
 
 ### Execute SQL Script
 
 Use with care, especially when performing updates, as these may result in outdated cache data. Be sure to refresh the cache programmatically or update the Redis prefix to reset all Redis cache. Remember, you are responsible for the scripts you run.
 
-For detailed instructions, see the guide "[Execute SQL script.](/cloud/serverless/guides/execute-sql-script)"
+For detailed instructions, see the guide "[Execute SQL script.](/cloud/serverless/execute-sql-script)"
 
 ### Automate Litium platform setup
 

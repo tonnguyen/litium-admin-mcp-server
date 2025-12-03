@@ -1,0 +1,171 @@
+---
+title: "Order State Transitions"
+description: "Understanding order and shipment states in Litium sales"
+---
+
+# Order states
+
+Litium uses a Finite state automata implementation internally to manage state transitions. Order states and Shipment states and how to interact with them are explained below.
+
+## Sales order states
+
+Sales orders go through the following states:
+
+![order states.png](/images/platform/sales/order-states.png)
+
+### Init
+
+This is the initial state of an order, and in Litium backoffice, you would normally not find orders in Init state.
+
+If an order has a valid guaranteed payment, but failed to get confirmed for some reason, the order will remain in Init state.
+
+Orders that are pending approval (B2B order approval flow) would also be in Init state, until they are approved.
+
+### Confirmed
+
+Order has a guaranteed payment. The payment can be for part of the order. This condition is configured in accelerator, see below.
+
+### Pending processing
+
+The order is ready to be processed. Usually this means that the order should be exported to the ERP system. This state transition will happen automatically through a cron job run in the platform.
+
+You can configure a delay for the transition from Confirmed to PendingProcessing state. This can be done through in Backoffice Settings → Sales → System settings → Maintenance → Set order state to Pending processing after (minutes), or directly through the settings of the cron job in Litium's appsettings.json.
+
+### Processing
+
+Order fulfillment has started. Usually this means, the order is exported to ERP and further processed.
+
+### Completed
+
+Order fulfillment process is completed.
+
+All shipments are shipped, and payments for those shipments are resolved.
+
+If an order is cancelled (fully or partially), it will still show a "Completed" state, since the order fulfillment process has come to an end. The shipments for the cancelled order will state that it is cancelled, and payments will have cancelled transactions.
+
+## State transition validation rules
+
+To ensure accurate processing of orders and shipments based on payment status, state transition validations are essential. The MVC accelerator incorporates a built-in state transition validation system that prescribes how order states should adapt to various conditions, such as shipment status.
+
+However, with the adoption of the new headless architecture, the responsibility for these validations has shifted to the Litium platform rather than the accelerator. This transition means that the Litium platform now houses the validation processes.
+
+For those utilizing an MVC accelerator or crafting custom state transition validations, there is an option to disable the platform's newly implemented validation mechanisms by adding configuration settings.
+
+To disable a specific state transition validation rule, the corresponding key must be inserted into the `Litium:Sales:DisabledStateTransitionValidations` collection. The available keys are:
+
+- **SalesOrder__PaymentIsGuaranteed**: Disables the validation ensuring that payment for the sales order is guaranteed.
+- **SalesOrder__AllShipmentIsShipped**: Disables the validation checking if all shipments have been shipped when the order is transitioning to the completed state.
+- **Shipment__OrderNotConfirmed**: Disables the validation that verifies the order is confirmed when the shipment status is updated to processing.
+
+Following example shows the condition to consider an order to be in "Confirmed" state.
+
+```csharp
+using System.Linq;
+using Litium.Sales;
+using Litium.Validations;
+
+namespace Litium.Application.Sales.StateTransitions
+{
+    public class InitToConfirmedCondition : StateTransitionValidationRule<SalesOrder>
+    {
+        private readonly OrderOverviewService _orderOverviewService;
+
+        public InitToConfirmedCondition(OrderOverviewService orderOverviewService)
+        {
+            _orderOverviewService = orderOverviewService;
+        }
+
+        public override string FromState => "Init";
+
+        public override string ToState => "Confirmed";
+
+        public override ValidationResult Validate(SalesOrder entity)
+        {
+            var result = new ValidationResult();
+
+            //Administrator is not allowed to Confirm orders, they are automatically confirmed when payment is done.
+            // At least one payment is guaranteed. In paymentInfo, there is at least one transaction that has TransactionType = Authorize
+            // and TransactionResult = success.
+            var isPaymentGuaranteed = _orderOverviewService.Get(entity.SystemId)
+                .PaymentOverviews.Any(x => x.Transactions.Any(t => t.TransactionType == TransactionType.Authorize
+                                                                    && t.TransactionResult == TransactionResult.Success));
+            if (!isPaymentGuaranteed)
+            {
+                result.AddError("Payment", "Payment was not guaranteed.");
+            }
+
+            return result;
+        }
+    }
+}
+```
+
+Conditions to enter these states can be configured. If the condition fails, order will stay in its previous state.
+
+`StateTransitionValidationRule::FromState` and `StateTransitionValidationRule::ToState` properties identify when the Rule evaluation is triggered. In above example, it is triggered when order goes from Init to Confirmed state.
+
+If there are any errors added to the ValidationResult returned, it is considered as a validation failure, and the order will remain in the current state. In above example, it will remain in Init state.
+
+## Responding to state changes
+
+To respond to state transition events, listen to the event fired when the transition take place. In following example, an order confirmation email is sent when order enters the Confirmed state.
+
+```csharp
+using Litium.Events;
+using Litium.Runtime;
+using System.Threading.Tasks;
+using System.Threading;
+using Litium.Accelerator.Services;
+using Litium.Sales.Events;
+using Litium.Accelerator.Mailing;
+
+namespace Litium.Accelerator.StateTransitions
+{
+    [Autostart]
+    public class SalesOrderEventListener : IAsyncAutostart
+    {
+        private readonly EventBroker _eventBroker;
+        private readonly MailService _mailService;
+
+        public SalesOrderEventListener(
+            EventBroker eventBroker,
+            MailService mailService)
+        {
+            _eventBroker = eventBroker;
+            _mailService = mailService;
+        }
+
+        ValueTask IAsyncAutostart.StartAsync(CancellationToken cancellationToken)
+        {
+            _eventBroker.Subscribe<SalesOrderStateChanged>(x =>
+            {
+                if (x.Item.State == "Confirmed")
+                {
+                    _mailService.SendEmail(
+                        new OrderConfirmationEmail(x.Item.ChannelSystemId.Value, x.SystemId, x.Item.CustomerInfo.Email), false);
+                }
+            });
+
+            return ValueTask.CompletedTask;
+        }
+    }
+}
+```
+
+`Litium.Sales.Events` namespace contains the list of events that you can listen to in Sales area.
+
+## Shipment states
+
+Following is the main state flow of a shipment in Litium.
+
+![litium-8-shipment-states.png](/images/platform/sales/litium-8-shipment-states.png)
+
+- When a shipment is first created, it is in the Init state.
+- When a shipment is moved to Processing state, payment processing will start. During payment processing, the shipment money is calculated, and if it is needed the relevant amount is captured through payment service provider app.
+- When the payments are captured for shipment, the shipment is moved to ReadyToShip state.
+  - The ERP system may now handover the package to the shipping company. [See process flow here >>](/apis/connect/erp-api/overview).
+- When the ERP system has notified that package is handed over, the shipment is set to Shipped state.
+
+<Note>
+No business logic is included in Litium 8.3 for shipment states canceled and returned, but they are now reflected in the UI and they can set via StateTransitionsService.
+</Note>

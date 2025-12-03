@@ -10,19 +10,19 @@ Note: This guide uses incomplete sample code to get you started. Each section in
 
 ## Getting started
 
-To get started, you should follow the general instructions in the [app development guide](/add-ons/get-started/app-development-guide) on building an app for Litium. After following the above general guidelines, you should have an app that can be registered with Litium.
+To get started, you should follow the general instructions in the [app development guide](/apps/development-guide/overview) on building an app for Litium. After following the above general guidelines, you should have an app that can be registered with Litium.
 
 Then proceed as below to add functionality specific to tax calculations.
 
 ## Tax calculation requests
 
-As described in the Litium Connect Tax API [business processes](/platform/apis/connect-apis/domain-areas/tax-domain/business-processes) docmentation, the tax app need to implement two web API endpoints:
+As described in the Litium Connect Tax API [business processes](/apis/connect/overview) docmentation, the tax app need to implement two web API endpoints:
 
 HTTP POST: `<appurl>/api/tax/calculateSalesOrder`
 
 HTTP POST: `<appurl>/api/tax/calculateShipment`
 
-For the objects that would be received and responses that should be made, [class diagrams](/platform/apis/connect-apis/domain-areas/tax-domain/domain-models) are available in the Connect Tax API documentation.
+For the objects that would be received and responses that should be made, [class diagrams](/apis/connect/overview) are available in the Connect Tax API documentation.
 
 Follow the sections below to implement the above web API endpoints.
 
