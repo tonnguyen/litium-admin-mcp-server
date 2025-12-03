@@ -1,0 +1,537 @@
+---
+title: "Add stock filter to the search result"
+description: "Expose stock availability in the Elasticsearch index and light up the In Stock-only facet in the Litium MVC accelerator."
+---
+
+# Add stock filter to the search result
+
+- Litium 8
+To create an “In Stock” filter in the product search experience, you first need to expose stock information in the Elasticsearch index. Search filters can only operate on fields that are indexed, which means the product’s stock status must be added to the `ProductDocument` and populated using the `StockService`.
+
+In this tutorial, we will configure the full pipeline for an “In Stock only” filter, from indexing to UI.
+
+## Steps in this tutorial
+
+1. [Expose stock information in the search index.](#1-expose-stock-information-in-the-search-index)
+2. [Add the InStock query flag and constants.](#2-add-the-instock-query-flag-and-constants)
+3. [Integrate the InStock filter into the filter and search pipeline.](#3-integrate-the-instock-filter-into-filteraggregator)
+4. [Register the filter in the administration UI and resources.](#4-register-the-filter-in-filteringcontroller-and-resources)
+5. [Configure the InStock filter in Back Office.](#5-configure-the-instock-filter-in-back-office)
+
+## 1. Expose stock information in the search index
+
+The first step is to make stock availability part of the Elasticsearch index. We do this by:
+
+- Adding an `InStock` field to `ProductDocument`.
+- Extending `StockService` to support stock lookup per country.
+- Populating `InStock` in `ProductIndexDocumentBuilder`.
+- Subscribing to inventory events so stock changes trigger re-indexing.
+
+### 1.1 Add and populate the field InStock in ProductDocument
+
+Add the `InStock` property to `ProductDocument` so that it becomes part of the Elasticsearch mapping and can be used in filters and aggregations.
+
+_Litium.Accelerator.Elasticsearch.ProductDocument.cs:_
+
+```csharp
+public bool InStock { get; set; }
+```
+
+To support stock calculation per country, extend `HasStock` in `StockService` with a `countryId` parameter:
+
+_Litium.Accelerator.Services.StockService:_
+
+```csharp
+public abstract bool HasStock(
+    [NotNull] Variant variant,
+    string sourceId = null,
+    Guid countryId = default); // New Pram: countryId
+```
+
+In `StockServiceImpl` pass `countryId` through to `GetStockStatus`:
+
+_Litium.Accelerator.Services.StockServiceImpl.cs_
+
+```csharp
+var stock = GetStockStatus(variant, sourceId, countryId); // pass countryId to GetStockStatus
+return stock?.InStockQuantity.HasValue == true
+       && stock.InStockQuantity > 0m;
+```
+
+Inside `GetStockStatus`, make sure the correct `CountrySystemId` is used when calculating stock:
+
+```csharp
+var calculationArgs = new StockStatusCalculatorArgs
+{
+    BuyerSystemId   = _securityContextService
+                        .GetIdentityUserSystemId()
+                        ?.GetValueOrDefault(),
+    SourceId        = sourceId,
+    // add CountrySystemId here
+    CountrySystemId = countryId != Guid.Empty
+        ? countryId
+        : _countryService.Get(cartContext?.CountryCode)?.SystemId ?? Guid.Empty
+};
+```
+
+### 1.2 Populate InStock from StockService in ProductIndexDocumentBuilder
+
+Next, inject `StockService` into `ProductIndexDocumentBuilder` so that the `ProductDocument` can be enriched with stock information during indexing.
+
+Use a helper method to resolve the `CountrySystemId` for the product’s channel. This value is later used when calling `HasStock`:
+
+_Litium.Accelerator.Elasticsearch.Indexing.Products.ProductIndexDocumentBuilder.cs:_
+
+```csharp
+// Helper method to resolve the CountrySystemId for the product's channel
+private Guid GetCountryId(ProductDocument model)
+{
+    var channel = _channelService.Get(model.ChannelSystemId);
+    return channel?.CountryLinks?.FirstOrDefault()?.CountrySystemId ?? Guid.Empty;
+}
+```
+
+_Note:_ In this implementation we resolve a single `CountrySystemId` by selecting the first country linked to the channel. This works for setups where each channel is associated with one country. You need to adjust this logic depending on your business logic.
+
+After adding the helper, use it inside `PopulateProductDocument`. For base products, the document is considered in stock if at least one variant has stock; for variant documents, stock is calculated per variant:
+
+```csharp
+private void PopulateProductDocument(
+    ProductDocument model,
+    CultureInfo cultureInfo,
+    IList<Variant> variants,
+    Context context,
+    bool forBaseProduct)
+{
+    // Get the countrySystemId from the channel connected to this product
+    Guid countrySystemId = GetCountryId(model);
+
+    if (forBaseProduct)
+    {
+       //....
+
+        // Check stock for all variants belonging to the BaseProduct.
+        // If at least one variant has stock, mark the BaseProduct as InStock.
+        model.InStock = variants.Any(v => _stockService.HasStock(v, null, countrySystemId));
+
+        //..
+    }
+    else
+    {
+        model.ArticleNumber = variants[0].Id.ToLowerInvariant();
+
+        // For variant documents, check stock only for this specific variant.
+        model.InStock = _stockService.HasStock(variants[0], null, countrySystemId);
+
+        // ... remaining PopulateProductDocument logic ...
+    }
+}
+```
+
+To keep the index in sync with stock changes, subscribe to inventory events in `ProductEventListener`. Any create, update, or delete on inventory items should trigger re-indexing of the affected variant.
+
+_Litium.Accelerator.Elasticsearch.Indexing.Products.ProductEventListener.cs:_
+
+```csharp
+// Inventory events that should trigger reindexing
+_eventBroker.Subscribe<InventoryItemCreated>(x  => UpdateVariant(x.VariantSystemId));
+_eventBroker.Subscribe<InventoryItemUpdated>(x  => UpdateVariant(x.VariantSystemId));
+_eventBroker.Subscribe<InventoryItemDeleted>(x  => UpdateVariant(x.VariantSystemId));
+```
+
+_Note:_ this listener will react to **every inventory update**. If your solution has frequent stock changes and high order volume, this may impact indexing load and overall performance.
+
+After completing these changes, reindex the **ProductDocument** in Back Office so that the new mapping is applied. Once reindexing is complete, the `InStock` field will be available in the Elasticsearch index and ready to be used by the filter.
+
+## 2. Add the InStock query flag and constants
+
+Now that `InStock` is indexed, we need to introduce the query flag and constants that represent the “In Stock only” filter throughout the search pipeline.
+
+These are used by:
+
+- The search request model (`SearchQuery`).
+- The URL/query string handling.
+- The filter aggregator.
+- The view model and mapping components.
+
+### 2.1 Extend the search query model
+
+_Litium.Accelerator.Search.SearchQuery.cs:_
+
+```csharp
+// The boolean flag used to enable the “Show in stock only” filter
+public bool InStock { get; set; }
+```
+
+### 2.2 Add constants for the filter id and query parameter
+
+_Litium.Accelerator.Search.Filtering.FilteringConstants.cs:_
+
+```csharp
+// Constant representing the “In Stock” filter group
+public const string FilterInStock = "#InStock";
+```
+
+_Litium.Accelerator.Search.SearchQueryConstants.cs:_
+
+```csharp
+// Query parameter name used in URLs (?inStock=true)
+public const string InStock    = "inStock";
+```
+
+### 2.3 Extend URL generation for the InStock flag
+
+Update `SearchQueryExtensions` so that the `inStock` parameter is written to URLs when the filter is enabled.
+
+_Litium.Accelerator.Search.SearchQueryExtensions.cs:_
+
+```csharp
+public static string GetUrl(this SearchQuery searchQuery, Action<SearchQuery> mutateQuery)
+{
+    var query = searchQuery.Clone();
+    mutateQuery(query);
+
+    // Add the inStock query parameter when the filter is enabled
+    if (query.InStock != false)
+    {
+        sb.Append('&');
+        sb.Append(HttpUtility.UrlEncode(SearchQueryConstants.InStock));
+        sb.Append('=');
+        sb.Append(HttpUtility.UrlEncode(query.InStock.ToString()));
+    }
+
+    return sb.ToString();
+}
+```
+
+Add a helper to get the url for the `InStock` filter:
+
+```csharp
+public static string GetUrlInStock(this SearchQuery searchQuery, bool enabled)
+{
+    // Build a URL where the InStock flag is set to the given value
+    return searchQuery.GetUrl(query =>
+    {
+        query.InStock = enabled;
+        query.Type    = SearchType.Products;
+    });
+}
+```
+
+### 2.4 Detect when the InStock filter is active
+
+To allow the filtering logic to detect whether “In Stock only” is active, add a helper method and then integrate it into the main `ContainsFilter` method.
+
+```csharp
+// NEW: Returns true when the InStock flag is enabled
+public static bool ContainsInStockFilter(this SearchQuery searchQuery)
+{
+    return searchQuery.InStock;
+}
+```
+
+Update `ContainsFilter` to include the new flag:
+
+```csharp
+public static bool ContainsFilter(
+    this SearchQuery searchQuery,
+    string exceptTag = null,
+    bool includePriceFilter = true,
+    bool includeCategoryFilter = true,
+    bool includeInStockFilter = true)
+{
+    return searchQuery.Tags.Any(x => exceptTag is null || exceptTag != x.Key)
+        || searchQuery.ContainsNewsFilter()
+        || (includePriceFilter && searchQuery.ContainsPriceFilter())
+        || (includeInStockFilter && searchQuery.ContainsInStockFilter())   // <-- Add this check
+        || (includeCategoryFilter && searchQuery.ContainsCategoryFilter());
+}
+```
+
+### 2.5 Update the BuildQuery method signature and include InStock filter
+
+The `BuildQuery` helper is extended with a new flag, `addInStockFilterTags`, to conditionally apply the `InStock` filter at query time.
+
+_Litium.Accelerator.Elasticsearch.Searching.ProductSearchServiceDecorator.cs:_
+
+```csharp
+public QueryContainer BuildQuery(
+    QueryContainerDescriptor<ProductDocument> qc,
+    SearchQuery searchQuery,
+    IDictionary<string, ISet<string>> tags = null,
+    bool addPriceFilterTags = false,
+    bool addNewsFilterTags = false,
+    bool addCategoryFilterTags = false,
+    bool addInStockFilterTags = false,
+    bool addDefaultQuery = true)
+{
+    if (addCategoryFilterTags)
+    {
+        if (searchQuery.Category.Count > 0)
+        {
+            allQueries.Add(qc.Bool(b => b.Filter(bf => bf.Bool(bb => bb.Should(searchQuery.Category
+               .Select<Guid, Func<QueryContainerDescriptor<ProductDocument>, QueryContainer>>(x =>
+                   s => s.Term(t => t.Field(f => f.Categories).Value(x))))))));
+        }
+    }
+    if (addInStockFilterTags)
+    {
+        if(searchQuery.InStock)
+        { 
+            allQueries.Add(qc.Bool(b => b.Filter(bf => bf.Term(t =>
+                t.Field(x => x.InStock).Value(true)
+            ))));
+        }
+    }
+}
+```
+
+### 2.6 Update the SearchAsync method signature to include the addInStockFilterTags parameter
+
+_Litium.Accelerator.Elasticsearch.Searching.ProductSearchServiceDecorator.cs:_
+
+```csharp
+public override async Task<SearchResult> SearchAsync(
+    SearchQuery searchQuery,
+    IDictionary<string, ISet<string>> tags = null, 
+    bool addPriceFilterTags = false,
+    bool addNewsFilterTags = false,
+    bool addCategoryFilterTags = false,
+    bool addInStockFilterTags = false) // Include addInStockFilterTags
+{
+    // ...
+}
+```
+
+Inside the same method, pass the **addInStockFilterTags** parameter to both `_parent.SearchAsync` and the `BuildQuery` call.
+
+If you want the in-stock filter to be applied to all search results by default, call `SearchAsync` with `addInStockFilterTags: true` in every place it is invoked.
+
+### 2.7 Map the query parameter to SearchQuery
+
+Finally, make sure the query parameter is mapped from the request into `SearchQuery` in `SearchQueryMapper`:
+
+_Litium.Accelerator.Mvc.Runtime.SearchQueryMapper.cs:_
+
+```csharp
+case SearchQueryConstants.InStock:
+{
+    query.InStock = bool.Parse(values.FirstOrDefault());
+    break;
+}
+```
+
+## 3. Integrate the InStock filter into FilterAggregator
+
+The next step is to expose “In Stock only” as a selectable filter group in the search UI. We do this by adding a dedicated aggregation and mapping it to a `GroupFilter` in `FilterAggregatorDecorator`.
+
+### 3.1 Treat InStock as a special filter (not a field aggregation)
+
+Inside `GetFilterAsync`, ensure `FilterInStock` is included in the list of non-field filters, similar to other special filters.
+
+_Litium.Accelerator.Elasticsearch.Searching.FilterAggregatorDecorator.cs:_
+
+```csharp
+if (fieldNamesList.Count > 0 &&
+    !fieldNamesList.All(fieldName =>
+        fieldName.Equals(FilteringConstants.FilterNews, StringComparison.OrdinalIgnoreCase)))
+{
+    // ...
+}
+```
+
+Add `FilterInStock` to `noFilterFieldNames` (example line):
+
+```csharp
+FilteringConstants.FilterInStock // treat InStock as a special (non-field) filter
+```
+
+### 3.2 Build the InStock aggregation
+
+Add the `BuildInStockAggregation` call to the aggregation list whenever `FilterInStock` is part of the requested filter fields:
+
+```csharp
+var aggs = new List<AggregationContainerDescriptor<ProductDocument>>();
+
+// existing: field, price, category, etc.
+
+if (fieldNamesList.Any(fieldName =>
+        fieldName.Equals(FilteringConstants.FilterInStock, StringComparison.OrdinalIgnoreCase)))
+{
+    aggs.Add(BuildInStockAggregation(rootAgg));   // add the InStock aggregation
+}
+```
+
+Define the aggregation itself. The idea is to:
+
+- Reuse the normal query context (price, news, category, etc.)
+- Exclude the `InStock` filter itself when building the facet (so we always count all in-stock products).
+- Count the number of documents where `inStock == true`.
+
+```csharp
+AggregationContainerDescriptor<ProductDocument> BuildInStockAggregation(
+    AggregationContainerDescriptor<ProductDocument> rootAgg)
+{
+    return rootAgg.Filter("$InStock", f => f
+        .Filter(ff => ff.Bool(bq =>
+        {
+            if (searchQuery.ContainsFilter(includeInStockFilter: false))
+            {
+                return bq.Must(m =>
+                    _searchQueryBuilder.BuildQuery(
+                        m,
+                        searchQuery,
+                        tags: searchQuery.Tags,
+                        addPriceFilterTags: true,
+                        addNewsFilterTags: true,
+                        addCategoryFilterTags: true,
+                        addDefaultQuery: false,
+                        addInStockFilterTags: false)); // do NOT apply InStock when building the facet
+            }
+
+            return bq.Must(m => m.MatchAll());
+        }))
+        .Aggregations(agg => agg
+            .Filter("filter", ff => ff
+                .Filter(x => x.Term(t => t.Field("inStock").Value(true))) // count in-stock documents
+            )
+        )
+    );
+}
+```
+
+### 3.3 Map the aggregation to a GroupFilter
+
+In the `CollectGroupFilter()` logic, add a branch for `FilterInStock` that transforms aggregation data into a `GroupFilter` for the UI:
+
+```csharp
+else if (fieldName.Equals(FilteringConstants.FilterInStock, StringComparison.OrdinalIgnoreCase))
+{
+    var filterGroup = CollectInStockFacet();   // map InStock aggregation to a GroupFilter
+    if (filterGroup is object)
+    {
+        yield return filterGroup;
+    }
+}
+```
+
+Implement `CollectInStockFacet()` to create a single-toggle filter group with a label, count, and URL to toggle the filter:
+
+```csharp
+// Creates the InStock filter group from aggregated data
+GroupFilter CollectInStockFacet()
+{
+    if (!result.Aggregations.ContainsKey("$InStock"))
+    {
+        return null;
+    }
+
+    var aggregation = result.Aggregations.Filter("$InStock");
+    if (aggregation?.DocCount == null || aggregation.DocCount == 0)
+    {
+        return null;
+    }
+
+    return new GroupFilter
+    {
+        Name = "filter.instock".AsWebsiteText(),
+        Attributes = new Dictionary<string, string>
+        {
+            { "value", SearchQueryConstants.InStock },
+        },
+        IsSelected = searchQuery.InStock,
+        SingleSelect = true,
+        Links = new List<FilterItem>
+        {
+            new FilterItem
+            {
+                Name = "filter.showinstockonly".AsWebsiteText(),
+                IsSelected = searchQuery.InStock,
+                Url = searchQuery.GetUrlInStock(!searchQuery.InStock),
+                Count = Convert.ToInt32(aggregation.Filter("filter").DocCount),
+                Attributes = new Dictionary<string, string>
+                {
+                    { "value", "true" }
+                }
+            }
+        }
+    };
+}
+```
+
+### 3.4 Ensure other aggregations contain the InStock filter
+
+Where existing aggregations build queries using `BuildQuery`, make sure to pass `addInStockFilterTags: true` so that the “In Stock only” setting also affects those facets (price, category, etc.), when appropriate.
+
+```csharp
+if (searchQuery.ContainsFilter(includeCategoryFilter: false))
+{
+    return bq.Must(m =>
+        _searchQueryBuilder.BuildQuery(
+            m,
+            searchQuery,
+            tags: searchQuery.Tags,
+            addPriceFilterTags: true,
+            addNewsFilterTags: true,
+            addCategoryFilterTags: false,
+            addDefaultQuery: false,
+            addInStockFilterTags: true));  // apply InStock filter to the main search query
+}
+```
+
+## 4. Register the filter in FilteringController and resources
+
+The final step is to make the “In Stock” filter visible and configurable from the Back Office UI, and to add the necessary resource texts.
+
+### 4.1 Register the filter field in FilteringController
+
+Add an item for the `#InStock` filter to the list of predefined filter fields in `FilteringController.cs`:
+
+_Litium.Accelerator.Administration.Extensions.Controllers.FilteringController.cs:_
+
+```csharp
+new FilteringModel.Item {
+    FieldId = "#InStock",
+    Title = "accelerator.filterfield.filterinstock".AsAngularResourceString(),
+    GroupName = "accelerator.filterfield.predefined".AsAngularResourceString()
+}
+```
+
+### 4.2 Update the FilterFields field type so it can ignore the InStock filter
+
+_Litium.Accelerator.FieldTypes.FilterEditFieldTypeConverter.cs:_
+
+```csharp
+var ignoredIds = new List<string> { "#Price", "#News", "#InStock" }; 
+```
+
+### 4.3 Add translations in Administration.resx
+
+Define the resource keys used above in:
+
+```text
+Litium.Accelerator.Administration.Extensions.Resources.Administration.resx
+```
+
+Add the new rows, for example:
+
+<Frame>
+<img
+  src="/images/accelerators/mvc/develop/add-stock-in-stock-filter.png"
+  alt="Resource entries for the In Stock filter in Administration.resx"
+/>
+</Frame>
+
+After adding the resource keys and rebuilding, the “In Stock” filter will appear in the Back Office filter configuration and can be added to search and listing pages.
+
+## 5. Configure the InStock filter in Back Office
+
+Enable the `InStock` filter in Back Office so it becomes available on the site:
+
+- Confirm that **In stock** is enabled under **Settings → Accelerator → Product filtering**.
+- Activate it under **Settings → Websites** for the selected domain.
+- Add the filter fields in the **Texts** tab: `filter.showinstockonly` and `filter.instock`.
+
+Once saved, the “In Stock only” filter is fully active and ready to use.
+
+After completing all steps in this guide — indexing the `InStock` field, extending the search pipeline, configuring the filter aggregator, and enabling the filter in Back Office — your solution should now have a fully functional “In Stock” filter.
