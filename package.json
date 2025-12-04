@@ -24,14 +24,15 @@
   "author": "Ton Nguyen",
   "license": "MIT",
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.24.3",
     "@vercel/node": "^5.4.1",
     "axios": "^1.12.2",
     "dotenv": "^17.2.3",
     "form-data": "^4.0.5",
     "mcp-handler": "^1.0.3",
-    "next": "^15.5.6",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
+    "next": "^15.5.7",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
     "zod": "^3.22.4"
   },
   "devDependencies": {

@@ -88,7 +88,7 @@
                   "platform/guides/back-office-ui-extensions-configure-html-editor",
                   "platform/guides/back-office-ui-extensions-translations",
                   "platform/guides/back-office-ui-extensions-upgrade-extensions-to-latest-version",
-                  "platform/areas/dashboard/how-to-create-custom-dashboard-widgets"
+                  "platform/guides/areas/dashboard/how-to-create-custom-dashboard-widgets"
                 ]
               },
               {
@@ -102,17 +102,17 @@
                   "platform/guides/litiumsearch-how-to-set-fields-to-searchable",
                   "platform/guides/litiumsearch-how-to-add-an-edge-ngram-analyzer-to-litium-search"
                 ]
-              }
-            ]
-          },
-          {
-            "group": "Areas",
-            "pages": [
+              },
               {
-                "group": "Sales",
+                "group": "Areas",
                 "pages": [
-                  "platform/areas/sales/state-transitions",
-                  "platform/areas/sales/payment-extensions"
+                  {
+                    "group": "Sales",
+                    "pages": [
+                      "platform/guides/areas/sales/state-transitions",
+                      "platform/guides/areas/sales/payment-extensions"
+                    ]
+                  }
                 ]
               }
             ]
